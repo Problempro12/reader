@@ -9,6 +9,7 @@ import BooksView from '@/views/BooksView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import BookDetailView from '@/views/BookDetailView.vue'
 import BookReaderView from '@/views/BookReaderView.vue'
+import SettingsView from '@/views/SettingsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,6 +46,12 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: ProfileView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile/settings',
+      name: 'profile-settings',
+      component: SettingsView,
       meta: { requiresAuth: true }
     },
     {

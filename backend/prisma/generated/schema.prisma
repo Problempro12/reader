@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-py"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum BookStatus {
+  READING // Читаю сейчас
+  READ // Прочитано
+  PLANNING // В планах
+  DROPPED // Заброшено
+}
+
+model User {
+  id                    Int               @id @default(autoincrement())
+  email                 String            @unique
+  username              String
+  passwordHash          String
+  registrationDate      DateTime          @default(now())
+  isPremium             Boolean           @default(false)
+  premiumExpirationDate DateTime?
+  hideAds               Boolean           @default(false)
+  votes                 Vote[]
+  readingProgress       ReadingProgress[]
+  notifications         Notification[]
+  leaderResults         WeeklyResult[]    @relation("Leader")
+  userBooks             UserBook[] // Добавляем связь с UserBook
+}
+
+model Genre {
+  id            Int            @id @default(autoincrement())
+  name          String
+  books         Book[]
+  weeklyResults WeeklyResult[]
+}
+
+model AgeCategory {
+  id            Int            @id @default(autoincrement())
+  name          String
+  books         Book[]
+  weeklyResults WeeklyResult[]
+}
+
+model Book {
+  id              Int               @id @default(autoincrement())
+  title           String
+  author          String
+  genreId         Int
+  ageCategoryId   Int
+  rating          Float             @default(0)
+  isPremium       Boolean           @default(false)
+  genre           Genre             @relation(fields: [genreId], references: [id])
+  ageCategory     AgeCategory       @relation(fields: [ageCategoryId], references: [id])
+  votes           Vote[]
+  readingProgress ReadingProgress[]
+  weeklyResults   WeeklyResult[]
+  userBooks       UserBook[] // Добавляем связь с UserBook
+}
+
+// Новая модель для связи пользователя и книги со статусом чтения
+model UserBook {
+  id      Int        @id @default(autoincrement())
+  userId  Int
+  bookId  Int
+  status  BookStatus @default(READING) // Статус чтения
+  addedAt DateTime   @default(now()) // Дата добавления в список
+
+  user User @relation(fields: [userId], references: [id])
+  book Book @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId]) // Пользователь может добавить одну книгу только один раз
+}
+
+model Vote {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  bookId     Int
+  weekNumber Int
+  voteDate   DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  book       Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId, weekNumber])
+}
+
+model ReadingProgress {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  bookId       Int
+  weekNumber   Int
+  marks        Int      @default(0)
+  progressDate DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+  book         Book     @relation(fields: [bookId], references: [id])
+
+  @@unique([userId, bookId, weekNumber])
+}
+
+model WeeklyResult {
+  id            Int         @id @default(autoincrement())
+  weekNumber    Int
+  genreId       Int
+  ageCategoryId Int
+  bookId        Int
+  leaderUserId  Int
+  totalMarks    Int
+  genre         Genre       @relation(fields: [genreId], references: [id])
+  ageCategory   AgeCategory @relation(fields: [ageCategoryId], references: [id])
+  book          Book        @relation(fields: [bookId], references: [id])
+  leader        User        @relation("Leader", fields: [leaderUserId], references: [id])
+
+  @@unique([weekNumber, genreId, ageCategoryId])
+}
+
+model Notification {
+  id       Int      @id @default(autoincrement())
+  userId   Int
+  message  String
+  sentDate DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model Advertisement {
+  id        Int     @id @default(autoincrement())
+  content   String
+  partnerId Int
+  isActive  Boolean @default(true)
+  partner   Partner @relation(fields: [partnerId], references: [id])
+}
+
+model Partner {
+  id             Int             @id @default(autoincrement())
+  name           String
+  contactInfo    String
+  advertisements Advertisement[]
+}

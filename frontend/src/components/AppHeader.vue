@@ -253,8 +253,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  text-decoration: none;
   color: #fff;
-  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.user-profile:hover {
+  color: #a8e6cf;
 }
 
 .user-avatar img {

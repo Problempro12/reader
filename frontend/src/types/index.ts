@@ -6,8 +6,9 @@ export interface User {
   is_premium: boolean;
   premium_expiration_date: string | null;
   hide_ads: boolean;
-  avatar?: string; // Необязательное поле для URL аватарки
-  stats?: BookStats; // Добавляем поле для статистики книг
+  avatar?: string | null; // avatar can be string URL or null
+  about?: string | null; // about can be string or null
+  stats?: BookStats; // stats is optional and should match BookStats interface
 }
 
 // Определение типа для статистики книг

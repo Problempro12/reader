@@ -7,7 +7,7 @@
             <div class="footer-info">
               <RouterLink to="/" class="footer-logo">
                 <i class="bi bi-book-half"></i>
-                Читательский клуб
+                KpitReading
               </RouterLink>
               <p class="mt-3">Ваш персональный помощник в мире литературы. Откройте для себя новые книги, присоединяйтесь к сообществу читателей и развивайтесь вместе с нами.</p>
               <div class="social-links mt-4">
@@ -63,7 +63,7 @@
       <div class="container">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <p class="mb-0">&copy; 2024 Читательский клуб. Все права защищены.</p>
+            <p class="mb-0">&copy; 2025 KpitReading. Все права защищены.</p>
           </div>
           <div class="col-md-6">
             <div class="footer-bottom-links">

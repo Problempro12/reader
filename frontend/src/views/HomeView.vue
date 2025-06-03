@@ -1,6 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
+
+defineComponent({
+  name: 'HomeView'
+})
 
 // Временные данные для демонстрации
 const featuredBooks = ref([

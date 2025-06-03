@@ -791,3 +791,13 @@ video {
     color: rgb(156 163 175 / var(--tw-text-opacity, 1));
   }
 }
+
+.placeholder {
+    display: inline-block;
+    min-height: 1em;
+    vertical-align: middle;
+    opacity: 0.5;
+    cursor: auto;
+    background-color: transparent;
+}
+ 
