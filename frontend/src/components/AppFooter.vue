@@ -67,7 +67,7 @@
           </div>
           <div class="col-md-6">
             <div class="footer-bottom-links">
-              <RouterLink to="/privacy">Политика конфиденциальности</RouterLink>
+              <RouterLink to="/privacy-policy">Политика конфиденциальности</RouterLink>
               <RouterLink to="/terms">Условия использования</RouterLink>
               <RouterLink to="/contact">Контакты</RouterLink>
             </div>

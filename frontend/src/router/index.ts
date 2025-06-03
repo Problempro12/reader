@@ -10,6 +10,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import BookDetailView from '@/views/BookDetailView.vue'
 import BookReaderView from '@/views/BookReaderView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -65,6 +66,12 @@ const router = createRouter({
       name: 'book-reader',
       component: BookReaderView,
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy-policy',
+      component: PrivacyPolicyView,
+      meta: { requiresAuth: false }
     }
   ]
 })
