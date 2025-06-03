@@ -119,15 +119,15 @@ class UserProfileView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
-    async def initial(self, request, *args, **kwargs):
-        # Wrap the synchronous initial steps (like authentication) in sync_to_async
-        await sync_to_async(super().initial, thread_sensitive=True)(request, *args, **kwargs)
+    def initial(self, request, *args, **kwargs):
+        # Call the parent initial method synchronously
+        super().initial(request, *args, **kwargs)
 
     async def get(self, request):
-        user = request.user
+        # Accessing request.user needs sync_to_async in async context
+        user = await sync_to_async(lambda: request.user, thread_sensitive=True)()
 
-        # Call async method using run_async wrapper if needed, or just await if view is async
-        # We are in an AsyncAPIView, so we can await directly
+        # Call async method using await
         stats = await self.get_book_stats(user) # Uncomment when Prisma is ready
 
         serializer = UserSerializer(user) # Pass user instance to serializer
