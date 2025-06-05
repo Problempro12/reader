@@ -72,6 +72,8 @@ class User(bases.BaseUser):
     notifications: Optional[List['models.Notification']] = None
     leaderResults: Optional[List['models.WeeklyResult']] = None
     userBooks: Optional[List['models.UserBook']] = None
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
     # take *args and **kwargs so that other metaclasses can define arguments
     def __init_subclass__(
@@ -199,10 +201,15 @@ class User(bases.BaseUser):
 class Genre(bases.BaseGenre):
     """Represents a Genre record"""
 
-    id: _int
+    id: _str
     name: _str
+    parentId: Optional[_str] = None
+    parent: Optional['models.Genre'] = None
+    subgenres: Optional[List['models.Genre']] = None
     books: Optional[List['models.Book']] = None
     weeklyResults: Optional[List['models.WeeklyResult']] = None
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
     # take *args and **kwargs so that other metaclasses can define arguments
     def __init_subclass__(
@@ -464,10 +471,23 @@ class Book(bases.BaseBook):
     id: _int
     title: _str
     author: _str
-    genreId: _int
+    description: Optional[_str] = None
+    coverUrl: Optional[_str] = None
+    litresId: _int
+    genreId: Optional[_str] = None
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
+    litresRating: Optional[_float] = None
+    litresRatingCount: Optional[_int] = None
+    series: Optional[_str] = None
+    translator: Optional[_str] = None
+    volume: Optional[_str] = None
+    year: Optional[_str] = None
+    isbn: Optional[_str] = None
+    copyrightHolder: Optional[_str] = None
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     genre: Optional['models.Genre'] = None
     ageCategory: Optional['models.AgeCategory'] = None
     votes: Optional[List['models.Vote']] = None
@@ -604,8 +624,9 @@ class UserBook(bases.BaseUserBook):
     id: _int
     userId: _int
     bookId: _int
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    status: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     user: Optional['models.User'] = None
     book: Optional['models.Book'] = None
 
@@ -1006,7 +1027,7 @@ class WeeklyResult(bases.BaseWeeklyResult):
 
     id: _int
     weekNumber: _int
-    genreId: _int
+    genreId: Optional[_str] = None
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -1648,10 +1669,28 @@ _User_fields: Dict['types.UserKeys', PartialModelField] = OrderedDict(
             'is_relational': True,
             'documentation': None,
         }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
     ],
 )
 
 _Genre_relational_fields: Set[str] = {
+        'parent',
+        'subgenres',
         'books',
         'weeklyResults',
     }
@@ -1661,7 +1700,7 @@ _Genre_fields: Dict['types.GenreKeys', PartialModelField] = OrderedDict(
             'name': 'id',
             'is_list': False,
             'optional': False,
-            'type': '_int',
+            'type': '_str',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1671,6 +1710,30 @@ _Genre_fields: Dict['types.GenreKeys', PartialModelField] = OrderedDict(
             'optional': False,
             'type': '_str',
             'is_relational': False,
+            'documentation': None,
+        }),
+        ('parentId', {
+            'name': 'parentId',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('parent', {
+            'name': 'parent',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.Genre',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('subgenres', {
+            'name': 'subgenres',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.Genre\']',
+            'is_relational': True,
             'documentation': None,
         }),
         ('books', {
@@ -1687,6 +1750,22 @@ _Genre_fields: Dict['types.GenreKeys', PartialModelField] = OrderedDict(
             'optional': True,
             'type': 'List[\'models.WeeklyResult\']',
             'is_relational': True,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
             'documentation': None,
         }),
     ],
@@ -1767,11 +1846,35 @@ _Book_fields: Dict['types.BookKeys', PartialModelField] = OrderedDict(
             'is_relational': False,
             'documentation': None,
         }),
-        ('genreId', {
-            'name': 'genreId',
+        ('description', {
+            'name': 'description',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('coverUrl', {
+            'name': 'coverUrl',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('litresId', {
+            'name': 'litresId',
             'is_list': False,
             'optional': False,
             'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('genreId', {
+            'name': 'genreId',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1796,6 +1899,86 @@ _Book_fields: Dict['types.BookKeys', PartialModelField] = OrderedDict(
             'is_list': False,
             'optional': False,
             'type': '_bool',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('litresRating', {
+            'name': 'litresRating',
+            'is_list': False,
+            'optional': True,
+            'type': '_float',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('litresRatingCount', {
+            'name': 'litresRatingCount',
+            'is_list': False,
+            'optional': True,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('series', {
+            'name': 'series',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('translator', {
+            'name': 'translator',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('volume', {
+            'name': 'volume',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('year', {
+            'name': 'year',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('isbn', {
+            'name': 'isbn',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('copyrightHolder', {
+            'name': 'copyrightHolder',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1884,12 +2067,20 @@ _UserBook_fields: Dict['types.UserBookKeys', PartialModelField] = OrderedDict(
             'name': 'status',
             'is_list': False,
             'optional': False,
-            'type': 'enums.BookStatus',
+            'type': '_str',
             'is_relational': False,
             'documentation': None,
         }),
-        ('addedAt', {
-            'name': 'addedAt',
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
             'is_list': False,
             'optional': False,
             'type': 'datetime.datetime',
@@ -2080,8 +2271,8 @@ _WeeklyResult_fields: Dict['types.WeeklyResultKeys', PartialModelField] = Ordere
         ('genreId', {
             'name': 'genreId',
             'is_list': False,
-            'optional': False,
-            'type': '_int',
+            'optional': True,
+            'type': '_str',
             'is_relational': False,
             'documentation': None,
         }),

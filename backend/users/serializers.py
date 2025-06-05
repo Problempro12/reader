@@ -28,8 +28,10 @@ class UserSerializer(serializers.ModelSerializer):
             'avatar',
             'about',
             'stats',
+            'is_staff',
+            'is_superuser',
         )
-        read_only_fields = ('email', 'is_premium', 'premium_expiration_date', 'hide_ads') # Убираем stats из read_only_fields
+        read_only_fields = ('email', 'is_premium', 'premium_expiration_date', 'hide_ads', 'is_staff', 'is_superuser')
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     password2 = serializers.CharField(write_only=True)

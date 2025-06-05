@@ -27,9 +27,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
-import axios from 'axios'
+import { RouterLink, useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import axiosInstance from '@/plugins/axios'
+import axios from 'axios'
 
 const email = ref('')
 const password = ref('')
@@ -37,34 +38,77 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const router = useRouter()
 const userStore = useUserStore()
+const route = useRoute()
 
 const login = async () => {
   loading.value = true
   error.value = null
+  console.log('=== Начало процесса входа ===')
+  console.log('Email:', email.value)
+  console.log('Параметры запроса:', route.query)
+  
   try {
-    // TODO: Уточните URL вашего эндпоинта входа
-    const response = await axios.post('http://localhost:8000/api/users/login/', {
+    console.log('Отправка запроса на сервер...')
+    const response = await axiosInstance.post('users/login/', {
       email: email.value,
       password: password.value
     })
-
-    if (response.data.token && response.data.user) {
-      console.log('Вход успешен:', response.data)
-      userStore.setAuthData(response.data.token, response.data.user)
-      router.push('/')
-    } else {
-      error.value = 'Неверные данные ответа сервера.'
+    
+    console.log('Ответ от сервера:', response.data)
+    console.log('Проверка полей пользователя:', {
+      hasUser: !!response.data.user,
+      is_staff: response.data.user?.is_staff,
+      is_superuser: response.data.user?.is_superuser
+    })
+    
+    // Проверяем наличие полей is_staff и is_superuser
+    if (!response.data.user || typeof response.data.user.is_staff === 'undefined' || typeof response.data.user.is_superuser === 'undefined') {
+      console.error('Отсутствуют поля is_staff или is_superuser в ответе сервера')
+      error.value = 'Ошибка авторизации: отсутствуют необходимые данные'
+      return
     }
-
-  } catch (err: any) {
-    console.error('Login failed:', err)
-    if (err.response && err.response.data) {
-      error.value = err.response.data.detail || 'Ошибка входа. Проверьте email и пароль.'
-    } else {
-      error.value = 'Произошла ошибка при попытке входа.'
+    
+    console.log('Сохранение данных в localStorage...')
+    // Сохраняем токены в localStorage
+    localStorage.setItem('authToken', response.data.token)
+    localStorage.setItem('refreshToken', response.data.refresh)
+    localStorage.setItem('user', JSON.stringify(response.data.user))
+    
+    // Проверяем, что данные сохранились правильно
+    const savedUser = JSON.parse(localStorage.getItem('user') || '{}')
+    console.log('Сохраненные данные пользователя:', savedUser)
+    console.log('Проверка прав администратора:', {
+      is_staff: savedUser.is_staff,
+      is_superuser: savedUser.is_superuser
+    })
+    
+    console.log('Обновление состояния store...')
+    // Обновляем состояние store
+    userStore.setAuthData(response.data.token, response.data.user)
+    
+    // Проверяем данные в store
+    console.log('Данные в store после обновления:', {
+      userData: userStore.userData,
+      isAdmin: userStore.userData?.is_staff || userStore.userData?.is_superuser
+    })
+    
+    // Перенаправляем на предыдущий маршрут или на главную
+    const redirectPath = route.query.redirect as string || '/'
+    console.log('Перенаправление на:', redirectPath)
+    router.push(redirectPath)
+  } catch (error) {
+    console.error('Ошибка при входе:', error)
+    if (axios.isAxiosError(error)) {
+      console.error('Детали ошибки:', {
+        status: error.response?.status,
+        data: error.response?.data,
+        headers: error.response?.headers
+      })
     }
+    error.value = 'Неверный email или пароль'
   } finally {
     loading.value = false
+    console.log('=== Конец процесса входа ===')
   }
 }
 </script>

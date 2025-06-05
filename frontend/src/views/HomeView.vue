@@ -2,6 +2,10 @@
 import { ref, onMounted, defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
 
+import masterImg from '@/assets/books/мастер-и-маргарита.webp';
+import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
+import warImg from '@/assets/books/война-и-мир-2.jpg';
+
 defineComponent({
   name: 'HomeView'
 })
@@ -75,9 +79,9 @@ onMounted(() => {
           </div>
           <div class="col-lg-6 d-none d-lg-block">
             <div class="floating-books">
-              <img src="https://via.placeholder.com/300x450/2c3e50/ffffff?text=Книга+1" alt="Книга" class="book-1">
-              <img src="https://via.placeholder.com/300x450/34495e/ffffff?text=Книга+2" alt="Книга" class="book-2">
-              <img src="https://via.placeholder.com/300x450/2c3e50/ffffff?text=Книга+3" alt="Книга" class="book-3">
+              <img :src="masterImg" alt="Книга" class="book-1">
+              <img :src="crimeImg" alt="Книга" class="book-2">
+              <img :src="warImg" alt="Книга" class="book-3">
             </div>
           </div>
         </div>
@@ -199,6 +203,8 @@ onMounted(() => {
   border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.3);
   transition: transform 0.3s ease;
+  width: 100px;
+  object-fit: cover;
 }
 
 .book-1 {

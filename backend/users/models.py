@@ -13,7 +13,8 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
     
     class Meta:
-        db_table = 'users'
+        # db_table = 'users' # Закомментировали, чтобы использовать имя таблицы по умолчанию (users_user)
+        pass # Убрали db_table
         
     def __str__(self):
         return self.email

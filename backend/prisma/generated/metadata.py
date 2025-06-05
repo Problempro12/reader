@@ -28,6 +28,8 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'userBooks': 'UserBook',
     },
     'Genre': {
+        'parent': 'Genre',
+        'subgenres': 'Genre',
         'books': 'Book',
         'weeklyResults': 'WeeklyResult',
     },

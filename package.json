@@ -1,8 +1,12 @@
 {
   "devDependencies": {
-    "@types/vue-router": "^2.0.0"
+    "@types/vue-router": "^2.0.0",
+    "autoprefixer": "^10.4.21",
+    "postcss-import": "^16.1.0"
   },
   "dependencies": {
+    "@vitejs/plugin-vue": "^5.2.4",
+    "bootstrap-icons": "^1.13.1",
     "marked": "^15.0.12"
   }
 }

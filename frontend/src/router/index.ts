@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized, type NavigationGuardNext } from 'vue-router'
-// import { useUserStore } from '@/stores/user' // Раскомментируем позже
+import { useUserStore } from '@/stores/user'
 
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import HomeView from '@/views/HomeView.vue'
@@ -11,9 +11,12 @@ import BookDetailView from '@/views/BookDetailView.vue'
 import BookReaderView from '@/views/BookReaderView.vue'
 import SettingsView from '@/views/SettingsView.vue'
 import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
+import AchievementsView from '@/views/AchievementsView.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import AdminBooksView from '@/views/admin/BooksView.vue'
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(),
   routes: [
     {
       path: '/',
@@ -68,27 +71,75 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/achievements',
+      name: 'achievements',
+      component: AchievementsView,
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/privacy-policy',
       name: 'privacy-policy',
       component: PrivacyPolicyView,
       meta: { requiresAuth: false }
+    },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      meta: { requiresAuth: true, requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'admin-books',
+          component: AdminBooksView
+        }
+      ]
     }
   ]
 })
 
 router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
-  // const userStore = useUserStore(); // Раскомментируем позже
+  const userStore = useUserStore();
   const isAuthenticated = !!localStorage.getItem('authToken')
+  const userData = JSON.parse(localStorage.getItem('user') || '{}')
+  const isAdmin = userData.is_staff || userData.is_superuser
+
+  console.log('=== Начало проверки прав доступа ===')
+  console.log('Текущий маршрут:', to.path)
+  console.log('Предыдущий маршрут:', from.path)
+  console.log('Параметры запроса:', to.query)
+  console.log('Данные пользователя:', {
+    isAuthenticated,
+    userData,
+    isAdmin,
+    token: localStorage.getItem('authToken') ? 'Присутствует' : 'Отсутствует',
+    refreshToken: localStorage.getItem('refreshToken') ? 'Присутствует' : 'Отсутствует'
+  })
+  console.log('Требования маршрута:', {
+    requiresAuth: to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth),
+    requiresAdmin: to.matched.some((record: { meta: { requiresAdmin?: boolean } }) => record.meta.requiresAdmin)
+  })
 
   const requiresAuth = to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth)
+  const requiresAdmin = to.matched.some((record: { meta: { requiresAdmin?: boolean } }) => record.meta.requiresAdmin)
 
   if (requiresAuth && !isAuthenticated) {
-    next({ name: 'login' })
+    console.log('Требуется аутентификация, перенаправление на страницу входа')
+    next({ 
+      name: 'login',
+      query: { redirect: to.fullPath }
+    })
+  } else if (requiresAdmin && !isAdmin) {
+    console.log('Доступ запрещен: требуется права администратора')
+    console.log('Текущие права:', { is_staff: userData.is_staff, is_superuser: userData.is_superuser })
+    next({ name: 'home' })
   } else if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+    console.log('Пользователь уже авторизован, перенаправление на главную')
     next({ name: 'home' })
   } else {
+    console.log('Доступ разрешен, переход к запрошенному маршруту')
     next()
   }
+  console.log('=== Конец проверки прав доступа ===')
 })
 
 export default router

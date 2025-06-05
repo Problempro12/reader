@@ -2,7 +2,6 @@ from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer
@@ -11,8 +10,9 @@ from datetime import datetime, timedelta
 import asyncio
 from django.http import JsonResponse
 from asgiref.sync import sync_to_async
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 User = get_user_model()
 
@@ -86,81 +86,83 @@ class UserLoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = UserLoginSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
-        async def login_user_async():
-            user = await sync_to_async(authenticate)(
-                request=request,
-                email=serializer.validated_data['email'],
-                password=serializer.validated_data['password']
+        print("Получены данные для входа:", request.data)
+        try:
+            serializer = UserLoginSerializer(data=request.data)
+            if not serializer.is_valid():
+                print("Ошибки валидации:", serializer.errors)
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            print("Данные валидны, пытаемся аутентифицировать пользователя")
+            
+            # Используем стандартную функцию authenticate для аутентификации через настроенные бэкенды
+            user = authenticate(request, email=serializer.validated_data['email'], password=serializer.validated_data['password']) 
+            
+            if user is not None:
+                print(f"Пользователь аутентифицирован: {user}")
+                # Аутентификация успешна, генерируем токены
+                refresh = RefreshToken.for_user(user)
+                
+                # Получаем данные пользователя через сериализатор
+                serializer = self.get_serializer(user)
+                
+                response_data = {
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'user': serializer.data # Сериализованные данные пользователя
+                }
+                
+                print("Отправляем ответ:", response_data)
+                return Response(response_data, status=status.HTTP_200_OK)
+            else:
+                print("Аутентификация не удалась")
+                return Response({'error': 'Неверные учетные данные'}, status=status.HTTP_401_UNAUTHORIZED)
+        except Exception as e:
+            print("Произошла ошибка:", str(e))
+            return Response(
+                {'detail': 'Внутренняя ошибка сервера'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-            
-            if user is None:
-                # Если authenticate вернул None, значит учетные данные неверны
-                return Response(
-                    {'detail': 'Неверные учетные данные'},
-                    status=status.HTTP_401_UNAUTHORIZED
-                )
-            
-            # Если пользователь найден и аутентифицирован, генерируем или получаем токен
-            # Оборачиваем операцию с менеджером в sync_to_async
-            token, _ = await sync_to_async(lambda: Token.objects.get_or_create(user=user), thread_sensitive=True)()
-            
-            # Так как мы получили Django User, используем его напрямую
-            return Response({
-                'token': token.key,
-                'user': UserSerializer(user).data
-            }, status=status.HTTP_200_OK)
-
-        return run_async(login_user_async())
 
 class UserProfileView(APIView):
-    authentication_classes = [TokenAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-    # Make initial method synchronous
-    def initial(self, request, *args, **kwargs):
-        # Call the parent initial method synchronously
-        super().initial(request, *args, **kwargs)
-
-    # Make get method synchronous
     def get(self, request):
-        # Accessing request.user is fine in a sync view
-        user = request.user
+        async def get_profile():
+            user = request.user
+            prisma = Prisma()
+            await prisma.connect()
 
-        # Call async method using run_async wrapper
-        stats = run_async(self.get_book_stats(user)) # Uncomment when Prisma is ready
+            # Получаем статистику по книгам
+            user_books = await prisma.userbook.find_many(
+                where={
+                    'userId': user.id
+                }
+            )
 
-        serializer = UserSerializer(user) # Pass user instance to serializer
-        serializer.data['stats'] = stats # Add stats to data manually if not included in serializer directly
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    # Keep get_book_stats as async because it uses Prisma
-    async def get_book_stats(self, user):
-        # This method should interact with Prisma to get book stats
-        # Example (requires UserBook model and Prisma setup):
-        prisma = Prisma()
-        await prisma.connect()
-        try:
-            read_count = await prisma.userbook.count(where={'userId': user.id, 'status': 'READ'})
-            planning_count = await prisma.userbook.count(where={'userId': user.id, 'status': 'PLANNING'})
-            reading_count = await prisma.userbook.count(where={'userId': user.id, 'status': 'READING'})
-            dropped_count = await prisma.userbook.count(where={'userId': user.id, 'status': 'DROPPED'})
-            total_count = await prisma.userbook.count(where={'userId': user.id})
-
+            # Группируем книги по статусу
             stats = {
-                'read_count': read_count,
-                'planning_count': planning_count,
-                'reading_count': reading_count,
-                'dropped_count': dropped_count,
-                'total_count': total_count,
+                'reading': 0,
+                'completed': 0,
+                'planned': 0
             }
-            return stats
-        finally:
-            if prisma.is_connected():
-                await prisma.disconnect()
+            
+            for book in user_books:
+                stats[book.status] += 1
+
+            await prisma.disconnect()
+            
+            return Response({
+                'id': user.id,
+                'username': user.username,
+                'email': user.email,
+                'stats': stats,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser
+            })
+
+        return run_async(get_profile())
 
 class NotificationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]

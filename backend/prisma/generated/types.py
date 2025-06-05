@@ -1197,6 +1197,8 @@ class UserOptionalCreateInput(TypedDict, total=False):
     notifications: 'NotificationCreateManyNestedWithoutRelationsInput'
     leaderResults: 'WeeklyResultCreateManyNestedWithoutRelationsInput'
     userBooks: 'UserBookCreateManyNestedWithoutRelationsInput'
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserCreateInput(UserOptionalCreateInput):
@@ -1216,6 +1218,8 @@ class UserOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserCreateWithoutRelationsInput(UserOptionalCreateWithoutRelationsInput):
@@ -1276,6 +1280,8 @@ class UserUpdateInput(TypedDict, total=False):
     notifications: 'NotificationUpdateManyWithoutRelationsInput'
     leaderResults: 'WeeklyResultUpdateManyWithoutRelationsInput'
     userBooks: 'UserBookUpdateManyWithoutRelationsInput'
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserUpdateManyMutationInput(TypedDict, total=False):
@@ -1288,6 +1294,8 @@ class UserUpdateManyMutationInput(TypedDict, total=False):
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserUpdateManyWithoutRelationsInput(TypedDict, total=False):
@@ -1386,6 +1394,22 @@ _User_hideAds_OrderByInput = TypedDict(
     total=True
 )
 
+_User_createdAt_OrderByInput = TypedDict(
+    '_User_createdAt_OrderByInput',
+    {
+        'createdAt': 'SortOrder',
+    },
+    total=True
+)
+
+_User_updatedAt_OrderByInput = TypedDict(
+    '_User_updatedAt_OrderByInput',
+    {
+        'updatedAt': 'SortOrder',
+    },
+    total=True
+)
+
 _User_RelevanceInner = TypedDict(
     '_User_RelevanceInner',
     {
@@ -1413,6 +1437,8 @@ UserOrderByInput = Union[
     '_User_isPremium_OrderByInput',
     '_User_premiumExpirationDate_OrderByInput',
     '_User_hideAds_OrderByInput',
+    '_User_createdAt_OrderByInput',
+    '_User_updatedAt_OrderByInput',
     '_User_RelevanceOrderByInput',
 ]
 
@@ -1576,24 +1602,32 @@ class FindManyUserArgsFromUserRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromUser(TypedDict, total=False):
     """Relational arguments for User"""
+    parent: Union[bool, 'GenreArgsFromUserRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserRecursive1']
     books: Union[bool, 'FindManyBookArgsFromUserRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserRecursive1']
 
 
 class GenreIncludeFromUserRecursive1(TypedDict, total=False):
     """Relational arguments for User"""
+    parent: Union[bool, 'GenreArgsFromUserRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserRecursive2']
     books: Union[bool, 'FindManyBookArgsFromUserRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserRecursive2']
 
 
 class GenreIncludeFromUserRecursive2(TypedDict, total=False):
     """Relational arguments for User"""
+    parent: Union[bool, 'GenreArgsFromUserRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserRecursive3']
     books: Union[bool, 'FindManyBookArgsFromUserRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserRecursive3']
 
 
 class GenreIncludeFromUserRecursive3(TypedDict, total=False):
     """Relational arguments for User"""
+    parent: Union[bool, 'GenreArgsFromUserRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserRecursive4']
     books: Union[bool, 'FindManyBookArgsFromUserRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserRecursive4']
 
@@ -2697,6 +2731,8 @@ class UserWhereInput(TypedDict, total=False):
     notifications: 'NotificationListRelationFilter'
     leaderResults: 'WeeklyResultListRelationFilter'
     userBooks: 'UserBookListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['UserWhereInputRecursive1', List['UserWhereInputRecursive1']]
     # but this causes mypy to hang :/
@@ -2720,6 +2756,8 @@ class UserWhereInputRecursive1(TypedDict, total=False):
     notifications: 'NotificationListRelationFilter'
     leaderResults: 'WeeklyResultListRelationFilter'
     userBooks: 'UserBookListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['UserWhereInputRecursive2', List['UserWhereInputRecursive2']]
     # but this causes mypy to hang :/
@@ -2743,6 +2781,8 @@ class UserWhereInputRecursive2(TypedDict, total=False):
     notifications: 'NotificationListRelationFilter'
     leaderResults: 'WeeklyResultListRelationFilter'
     userBooks: 'UserBookListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['UserWhereInputRecursive3', List['UserWhereInputRecursive3']]
     # but this causes mypy to hang :/
@@ -2766,6 +2806,8 @@ class UserWhereInputRecursive3(TypedDict, total=False):
     notifications: 'NotificationListRelationFilter'
     leaderResults: 'WeeklyResultListRelationFilter'
     userBooks: 'UserBookListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['UserWhereInputRecursive4', List['UserWhereInputRecursive4']]
     # but this causes mypy to hang :/
@@ -2789,6 +2831,8 @@ class UserWhereInputRecursive4(TypedDict, total=False):
     notifications: 'NotificationListRelationFilter'
     leaderResults: 'WeeklyResultListRelationFilter'
     userBooks: 'UserBookListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
 
 
@@ -2807,6 +2851,8 @@ class UserScalarWhereWithAggregatesInput(TypedDict, total=False):
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserScalarWhereWithAggregatesInputRecursive1']
     OR: List['UserScalarWhereWithAggregatesInputRecursive1']
@@ -2823,6 +2869,8 @@ class UserScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserScalarWhereWithAggregatesInputRecursive2']
     OR: List['UserScalarWhereWithAggregatesInputRecursive2']
@@ -2839,6 +2887,8 @@ class UserScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserScalarWhereWithAggregatesInputRecursive3']
     OR: List['UserScalarWhereWithAggregatesInputRecursive3']
@@ -2855,6 +2905,8 @@ class UserScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserScalarWhereWithAggregatesInputRecursive4']
     OR: List['UserScalarWhereWithAggregatesInputRecursive4']
@@ -2871,6 +2923,8 @@ class UserScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
 
 
@@ -2883,6 +2937,8 @@ class UserGroupByOutput(TypedDict, total=False):
     isPremium: _bool
     premiumExpirationDate: datetime.datetime
     hideAds: _bool
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     _sum: 'UserSumAggregateOutput'
     _avg: 'UserAvgAggregateOutput'
     _min: 'UserMinAggregateOutput'
@@ -2910,6 +2966,8 @@ class UserScalarAggregateOutput(TypedDict, total=False):
     isPremium: _bool
     premiumExpirationDate: datetime.datetime
     hideAds: _bool
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 UserMinAggregateOutput = UserScalarAggregateOutput
@@ -2926,6 +2984,8 @@ class UserMaxAggregateInput(TypedDict, total=False):
     isPremium: bool
     premiumExpirationDate: bool
     hideAds: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class UserMinAggregateInput(TypedDict, total=False):
@@ -2938,6 +2998,8 @@ class UserMinAggregateInput(TypedDict, total=False):
     isPremium: bool
     premiumExpirationDate: bool
     hideAds: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class UserNumberAggregateInput(TypedDict, total=False):
@@ -2960,6 +3022,8 @@ UserCountAggregateInput = TypedDict(
         'isPremium': bool,
         'premiumExpirationDate': bool,
         'hideAds': bool,
+        'createdAt': bool,
+        'updatedAt': bool,
         '_all': bool,
     },
     total=False,
@@ -2976,6 +3040,8 @@ UserCountAggregateOutput = TypedDict(
         'isPremium': int,
         'premiumExpirationDate': int,
         'hideAds': int,
+        'createdAt': int,
+        'updatedAt': int,
         '_all': int,
     },
     total=False,
@@ -2996,6 +3062,8 @@ UserKeys = Literal[
     'notifications',
     'leaderResults',
     'userBooks',
+    'createdAt',
+    'updatedAt',
 ]
 UserScalarFieldKeys = Literal[
     'id',
@@ -3006,6 +3074,8 @@ UserScalarFieldKeys = Literal[
     'isPremium',
     'premiumExpirationDate',
     'hideAds',
+    'createdAt',
+    'updatedAt',
 ]
 UserScalarFieldKeysT = TypeVar('UserScalarFieldKeysT', bound=UserScalarFieldKeys)
 
@@ -3021,9 +3091,14 @@ UserRelationalFieldKeys = Literal[
 
 class GenreOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the Genre create method"""
-    id: _int
+    id: _str
+    parentId: Optional[_str]
+    parent: 'GenreCreateNestedWithoutRelationsInput'
+    subgenres: 'GenreCreateManyNestedWithoutRelationsInput'
     books: 'BookCreateManyNestedWithoutRelationsInput'
     weeklyResults: 'WeeklyResultCreateManyNestedWithoutRelationsInput'
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class GenreCreateInput(GenreOptionalCreateInput):
@@ -3036,7 +3111,10 @@ class GenreCreateInput(GenreOptionalCreateInput):
 
 class GenreOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the Genre create method, without relations"""
-    id: _int
+    id: _str
+    parentId: Optional[_str]
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class GenreCreateWithoutRelationsInput(GenreOptionalCreateWithoutRelationsInput):
@@ -3061,7 +3139,7 @@ class GenreCreateManyNestedWithoutRelationsInput(TypedDict, total=False):
 _GenreWhereUnique_id_Input = TypedDict(
     '_GenreWhereUnique_id_Input',
     {
-        'id': '_int',
+        'id': '_str',
     },
     total=True
 )
@@ -3071,16 +3149,22 @@ GenreWhereUniqueInput = _GenreWhereUnique_id_Input
 
 class GenreUpdateInput(TypedDict, total=False):
     """Optional arguments for updating a record"""
-    id: Union[AtomicIntInput, _int]
+    id: _str
     name: _str
+    parent: 'GenreUpdateOneWithoutRelationsInput'
+    subgenres: 'GenreUpdateManyWithoutRelationsInput'
     books: 'BookUpdateManyWithoutRelationsInput'
     weeklyResults: 'WeeklyResultUpdateManyWithoutRelationsInput'
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class GenreUpdateManyMutationInput(TypedDict, total=False):
     """Arguments for updating many records"""
-    id: Union[AtomicIntInput, _int]
+    id: _str
     name: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class GenreUpdateManyWithoutRelationsInput(TypedDict, total=False):
@@ -3131,6 +3215,30 @@ _Genre_name_OrderByInput = TypedDict(
     total=True
 )
 
+_Genre_parentId_OrderByInput = TypedDict(
+    '_Genre_parentId_OrderByInput',
+    {
+        'parentId': 'SortOrder',
+    },
+    total=True
+)
+
+_Genre_createdAt_OrderByInput = TypedDict(
+    '_Genre_createdAt_OrderByInput',
+    {
+        'createdAt': 'SortOrder',
+    },
+    total=True
+)
+
+_Genre_updatedAt_OrderByInput = TypedDict(
+    '_Genre_updatedAt_OrderByInput',
+    {
+        'updatedAt': 'SortOrder',
+    },
+    total=True
+)
+
 _Genre_RelevanceInner = TypedDict(
     '_Genre_RelevanceInner',
     {
@@ -3152,6 +3260,9 @@ _Genre_RelevanceOrderByInput = TypedDict(
 GenreOrderByInput = Union[
     '_Genre_id_OrderByInput',
     '_Genre_name_OrderByInput',
+    '_Genre_parentId_OrderByInput',
+    '_Genre_createdAt_OrderByInput',
+    '_Genre_updatedAt_OrderByInput',
     '_Genre_RelevanceOrderByInput',
 ]
 
@@ -3183,6 +3294,8 @@ class GenreListRelationFilter(TypedDict, total=False):
 
 class GenreInclude(TypedDict, total=False):
     """Genre relational arguments"""
+    parent: Union[bool, 'GenreArgsFromGenre']
+    subgenres: Union[bool, 'FindManyGenreArgsFromGenre']
     books: Union[bool, 'FindManyBookArgsFromGenre']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromGenre']
 
@@ -3312,24 +3425,32 @@ class FindManyUserArgsFromGenreRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromGenre(TypedDict, total=False):
     """Relational arguments for Genre"""
+    parent: Union[bool, 'GenreArgsFromGenreRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromGenreRecursive1']
     books: Union[bool, 'FindManyBookArgsFromGenreRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromGenreRecursive1']
 
 
 class GenreIncludeFromGenreRecursive1(TypedDict, total=False):
     """Relational arguments for Genre"""
+    parent: Union[bool, 'GenreArgsFromGenreRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromGenreRecursive2']
     books: Union[bool, 'FindManyBookArgsFromGenreRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromGenreRecursive2']
 
 
 class GenreIncludeFromGenreRecursive2(TypedDict, total=False):
     """Relational arguments for Genre"""
+    parent: Union[bool, 'GenreArgsFromGenreRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromGenreRecursive3']
     books: Union[bool, 'FindManyBookArgsFromGenreRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromGenreRecursive3']
 
 
 class GenreIncludeFromGenreRecursive3(TypedDict, total=False):
     """Relational arguments for Genre"""
+    parent: Union[bool, 'GenreArgsFromGenreRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromGenreRecursive4']
     books: Union[bool, 'FindManyBookArgsFromGenreRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromGenreRecursive4']
 
@@ -4420,10 +4541,15 @@ FindFirstGenreArgs = FindManyGenreArgsFromGenre
 
 class GenreWhereInput(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntFilter']
+    id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    parentId: Union[None, _str, 'types.StringFilter']
+    parent: 'GenreRelationFilter'
+    subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
     weeklyResults: 'WeeklyResultListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['GenreWhereInputRecursive1', List['GenreWhereInputRecursive1']]
     # but this causes mypy to hang :/
@@ -4434,10 +4560,15 @@ class GenreWhereInput(TypedDict, total=False):
 
 class GenreWhereInputRecursive1(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntFilter']
+    id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    parentId: Union[None, _str, 'types.StringFilter']
+    parent: 'GenreRelationFilter'
+    subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
     weeklyResults: 'WeeklyResultListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['GenreWhereInputRecursive2', List['GenreWhereInputRecursive2']]
     # but this causes mypy to hang :/
@@ -4448,10 +4579,15 @@ class GenreWhereInputRecursive1(TypedDict, total=False):
 
 class GenreWhereInputRecursive2(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntFilter']
+    id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    parentId: Union[None, _str, 'types.StringFilter']
+    parent: 'GenreRelationFilter'
+    subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
     weeklyResults: 'WeeklyResultListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['GenreWhereInputRecursive3', List['GenreWhereInputRecursive3']]
     # but this causes mypy to hang :/
@@ -4462,10 +4598,15 @@ class GenreWhereInputRecursive2(TypedDict, total=False):
 
 class GenreWhereInputRecursive3(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntFilter']
+    id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    parentId: Union[None, _str, 'types.StringFilter']
+    parent: 'GenreRelationFilter'
+    subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
     weeklyResults: 'WeeklyResultListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
     # should be noted that AND and NOT should be Union['GenreWhereInputRecursive4', List['GenreWhereInputRecursive4']]
     # but this causes mypy to hang :/
@@ -4476,10 +4617,15 @@ class GenreWhereInputRecursive3(TypedDict, total=False):
 
 class GenreWhereInputRecursive4(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntFilter']
+    id: Union[_str, 'types.StringFilter']
     name: Union[_str, 'types.StringFilter']
+    parentId: Union[None, _str, 'types.StringFilter']
+    parent: 'GenreRelationFilter'
+    subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
     weeklyResults: 'WeeklyResultListRelationFilter'
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
 
 
 
@@ -4490,8 +4636,11 @@ class GenreWhereInputRecursive4(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInput(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntWithAggregatesFilter']
+    id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['GenreScalarWhereWithAggregatesInputRecursive1']
     OR: List['GenreScalarWhereWithAggregatesInputRecursive1']
@@ -4500,8 +4649,11 @@ class GenreScalarWhereWithAggregatesInput(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntWithAggregatesFilter']
+    id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['GenreScalarWhereWithAggregatesInputRecursive2']
     OR: List['GenreScalarWhereWithAggregatesInputRecursive2']
@@ -4510,8 +4662,11 @@ class GenreScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntWithAggregatesFilter']
+    id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['GenreScalarWhereWithAggregatesInputRecursive3']
     OR: List['GenreScalarWhereWithAggregatesInputRecursive3']
@@ -4520,8 +4675,11 @@ class GenreScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntWithAggregatesFilter']
+    id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['GenreScalarWhereWithAggregatesInputRecursive4']
     OR: List['GenreScalarWhereWithAggregatesInputRecursive4']
@@ -4530,14 +4688,20 @@ class GenreScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_int, 'types.IntWithAggregatesFilter']
+    id: Union[_str, 'types.StringWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
 
 
 class GenreGroupByOutput(TypedDict, total=False):
-    id: _int
+    id: _str
     name: _str
+    parentId: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     _sum: 'GenreSumAggregateOutput'
     _avg: 'GenreAvgAggregateOutput'
     _min: 'GenreMinAggregateOutput'
@@ -4547,18 +4711,19 @@ class GenreGroupByOutput(TypedDict, total=False):
 
 class GenreAvgAggregateOutput(TypedDict, total=False):
     """Genre output for aggregating averages"""
-    id: float
 
 
 class GenreSumAggregateOutput(TypedDict, total=False):
     """Genre output for aggregating sums"""
-    id: _int
 
 
 class GenreScalarAggregateOutput(TypedDict, total=False):
     """Genre output including scalar fields"""
-    id: _int
+    id: _str
     name: _str
+    parentId: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 GenreMinAggregateOutput = GenreScalarAggregateOutput
@@ -4569,17 +4734,22 @@ class GenreMaxAggregateInput(TypedDict, total=False):
     """Genre input for aggregating by max"""
     id: bool
     name: bool
+    parentId: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class GenreMinAggregateInput(TypedDict, total=False):
     """Genre input for aggregating by min"""
     id: bool
     name: bool
+    parentId: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class GenreNumberAggregateInput(TypedDict, total=False):
     """Genre input for aggregating numbers"""
-    id: bool
 
 
 GenreAvgAggregateInput = GenreNumberAggregateInput
@@ -4591,6 +4761,9 @@ GenreCountAggregateInput = TypedDict(
     {
         'id': bool,
         'name': bool,
+        'parentId': bool,
+        'createdAt': bool,
+        'updatedAt': bool,
         '_all': bool,
     },
     total=False,
@@ -4601,6 +4774,9 @@ GenreCountAggregateOutput = TypedDict(
     {
         'id': int,
         'name': int,
+        'parentId': int,
+        'createdAt': int,
+        'updatedAt': int,
         '_all': int,
     },
     total=False,
@@ -4610,16 +4786,26 @@ GenreCountAggregateOutput = TypedDict(
 GenreKeys = Literal[
     'id',
     'name',
+    'parentId',
+    'parent',
+    'subgenres',
     'books',
     'weeklyResults',
+    'createdAt',
+    'updatedAt',
 ]
 GenreScalarFieldKeys = Literal[
     'id',
     'name',
+    'parentId',
+    'createdAt',
+    'updatedAt',
 ]
 GenreScalarFieldKeysT = TypeVar('GenreScalarFieldKeysT', bound=GenreScalarFieldKeys)
 
 GenreRelationalFieldKeys = Literal[
+        'parent',
+        'subgenres',
         'books',
         'weeklyResults',
     ]
@@ -4919,24 +5105,32 @@ class FindManyUserArgsFromAgeCategoryRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromAgeCategory(TypedDict, total=False):
     """Relational arguments for AgeCategory"""
+    parent: Union[bool, 'GenreArgsFromAgeCategoryRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAgeCategoryRecursive1']
     books: Union[bool, 'FindManyBookArgsFromAgeCategoryRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAgeCategoryRecursive1']
 
 
 class GenreIncludeFromAgeCategoryRecursive1(TypedDict, total=False):
     """Relational arguments for AgeCategory"""
+    parent: Union[bool, 'GenreArgsFromAgeCategoryRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAgeCategoryRecursive2']
     books: Union[bool, 'FindManyBookArgsFromAgeCategoryRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAgeCategoryRecursive2']
 
 
 class GenreIncludeFromAgeCategoryRecursive2(TypedDict, total=False):
     """Relational arguments for AgeCategory"""
+    parent: Union[bool, 'GenreArgsFromAgeCategoryRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAgeCategoryRecursive3']
     books: Union[bool, 'FindManyBookArgsFromAgeCategoryRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAgeCategoryRecursive3']
 
 
 class GenreIncludeFromAgeCategoryRecursive3(TypedDict, total=False):
     """Relational arguments for AgeCategory"""
+    parent: Union[bool, 'GenreArgsFromAgeCategoryRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAgeCategoryRecursive4']
     books: Union[bool, 'FindManyBookArgsFromAgeCategoryRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAgeCategoryRecursive4']
 
@@ -6236,10 +6430,22 @@ AgeCategoryRelationalFieldKeys = Literal[
 class BookOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the Book create method"""
     id: _int
-    genreId: _int
+    description: Optional[_str]
+    coverUrl: Optional[_str]
+    genreId: Optional[_str]
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
+    litresRating: Optional[_float]
+    litresRatingCount: Optional[_int]
+    series: Optional[_str]
+    translator: Optional[_str]
+    volume: Optional[_str]
+    year: Optional[_str]
+    isbn: Optional[_str]
+    copyrightHolder: Optional[_str]
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     genre: 'GenreCreateNestedWithoutRelationsInput'
     ageCategory: 'AgeCategoryCreateNestedWithoutRelationsInput'
     votes: 'VoteCreateManyNestedWithoutRelationsInput'
@@ -6252,6 +6458,7 @@ class BookCreateInput(BookOptionalCreateInput):
     """Required arguments to the Book create method"""
     title: _str
     author: _str
+    litresId: _int
 
 
 # TODO: remove this in favour of without explicit relations
@@ -6260,16 +6467,29 @@ class BookCreateInput(BookOptionalCreateInput):
 class BookOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the Book create method, without relations"""
     id: _int
-    genreId: _int
+    description: Optional[_str]
+    coverUrl: Optional[_str]
+    genreId: Optional[_str]
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
+    litresRating: Optional[_float]
+    litresRatingCount: Optional[_int]
+    series: Optional[_str]
+    translator: Optional[_str]
+    volume: Optional[_str]
+    year: Optional[_str]
+    isbn: Optional[_str]
+    copyrightHolder: Optional[_str]
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class BookCreateWithoutRelationsInput(BookOptionalCreateWithoutRelationsInput):
     """Required arguments to the Book create method, without relations"""
     title: _str
     author: _str
+    litresId: _int
 
 class BookConnectOrCreateWithoutRelationsInput(TypedDict):
     create: 'BookCreateWithoutRelationsInput'
@@ -6294,7 +6514,18 @@ _BookWhereUnique_id_Input = TypedDict(
     total=True
 )
 
-BookWhereUniqueInput = _BookWhereUnique_id_Input
+_BookWhereUnique_litresId_Input = TypedDict(
+    '_BookWhereUnique_litresId_Input',
+    {
+        'litresId': '_int',
+    },
+    total=True
+)
+
+BookWhereUniqueInput = Union[
+    '_BookWhereUnique_id_Input',
+    '_BookWhereUnique_litresId_Input',
+]
 
 
 class BookUpdateInput(TypedDict, total=False):
@@ -6302,8 +6533,21 @@ class BookUpdateInput(TypedDict, total=False):
     id: Union[AtomicIntInput, _int]
     title: _str
     author: _str
+    description: Optional[_str]
+    coverUrl: Optional[_str]
+    litresId: Union[AtomicIntInput, _int]
     rating: Union[AtomicFloatInput, _float]
     isPremium: _bool
+    litresRating: Optional[Union[AtomicFloatInput, _float]]
+    litresRatingCount: Optional[Union[AtomicIntInput, _int]]
+    series: Optional[_str]
+    translator: Optional[_str]
+    volume: Optional[_str]
+    year: Optional[_str]
+    isbn: Optional[_str]
+    copyrightHolder: Optional[_str]
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     genre: 'GenreUpdateOneWithoutRelationsInput'
     ageCategory: 'AgeCategoryUpdateOneWithoutRelationsInput'
     votes: 'VoteUpdateManyWithoutRelationsInput'
@@ -6317,8 +6561,21 @@ class BookUpdateManyMutationInput(TypedDict, total=False):
     id: Union[AtomicIntInput, _int]
     title: _str
     author: _str
+    description: Optional[_str]
+    coverUrl: Optional[_str]
+    litresId: Union[AtomicIntInput, _int]
     rating: Union[AtomicFloatInput, _float]
     isPremium: _bool
+    litresRating: Optional[Union[AtomicFloatInput, _float]]
+    litresRatingCount: Optional[Union[AtomicIntInput, _int]]
+    series: Optional[_str]
+    translator: Optional[_str]
+    volume: Optional[_str]
+    year: Optional[_str]
+    isbn: Optional[_str]
+    copyrightHolder: Optional[_str]
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class BookUpdateManyWithoutRelationsInput(TypedDict, total=False):
@@ -6377,6 +6634,30 @@ _Book_author_OrderByInput = TypedDict(
     total=True
 )
 
+_Book_description_OrderByInput = TypedDict(
+    '_Book_description_OrderByInput',
+    {
+        'description': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_coverUrl_OrderByInput = TypedDict(
+    '_Book_coverUrl_OrderByInput',
+    {
+        'coverUrl': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_litresId_OrderByInput = TypedDict(
+    '_Book_litresId_OrderByInput',
+    {
+        'litresId': 'SortOrder',
+    },
+    total=True
+)
+
 _Book_genreId_OrderByInput = TypedDict(
     '_Book_genreId_OrderByInput',
     {
@@ -6409,6 +6690,86 @@ _Book_isPremium_OrderByInput = TypedDict(
     total=True
 )
 
+_Book_litresRating_OrderByInput = TypedDict(
+    '_Book_litresRating_OrderByInput',
+    {
+        'litresRating': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_litresRatingCount_OrderByInput = TypedDict(
+    '_Book_litresRatingCount_OrderByInput',
+    {
+        'litresRatingCount': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_series_OrderByInput = TypedDict(
+    '_Book_series_OrderByInput',
+    {
+        'series': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_translator_OrderByInput = TypedDict(
+    '_Book_translator_OrderByInput',
+    {
+        'translator': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_volume_OrderByInput = TypedDict(
+    '_Book_volume_OrderByInput',
+    {
+        'volume': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_year_OrderByInput = TypedDict(
+    '_Book_year_OrderByInput',
+    {
+        'year': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_isbn_OrderByInput = TypedDict(
+    '_Book_isbn_OrderByInput',
+    {
+        'isbn': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_copyrightHolder_OrderByInput = TypedDict(
+    '_Book_copyrightHolder_OrderByInput',
+    {
+        'copyrightHolder': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_createdAt_OrderByInput = TypedDict(
+    '_Book_createdAt_OrderByInput',
+    {
+        'createdAt': 'SortOrder',
+    },
+    total=True
+)
+
+_Book_updatedAt_OrderByInput = TypedDict(
+    '_Book_updatedAt_OrderByInput',
+    {
+        'updatedAt': 'SortOrder',
+    },
+    total=True
+)
+
 _Book_RelevanceInner = TypedDict(
     '_Book_RelevanceInner',
     {
@@ -6431,10 +6792,23 @@ BookOrderByInput = Union[
     '_Book_id_OrderByInput',
     '_Book_title_OrderByInput',
     '_Book_author_OrderByInput',
+    '_Book_description_OrderByInput',
+    '_Book_coverUrl_OrderByInput',
+    '_Book_litresId_OrderByInput',
     '_Book_genreId_OrderByInput',
     '_Book_ageCategoryId_OrderByInput',
     '_Book_rating_OrderByInput',
     '_Book_isPremium_OrderByInput',
+    '_Book_litresRating_OrderByInput',
+    '_Book_litresRatingCount_OrderByInput',
+    '_Book_series_OrderByInput',
+    '_Book_translator_OrderByInput',
+    '_Book_volume_OrderByInput',
+    '_Book_year_OrderByInput',
+    '_Book_isbn_OrderByInput',
+    '_Book_copyrightHolder_OrderByInput',
+    '_Book_createdAt_OrderByInput',
+    '_Book_updatedAt_OrderByInput',
     '_Book_RelevanceOrderByInput',
 ]
 
@@ -6599,24 +6973,32 @@ class FindManyUserArgsFromBookRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromBook(TypedDict, total=False):
     """Relational arguments for Book"""
+    parent: Union[bool, 'GenreArgsFromBookRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromBookRecursive1']
     books: Union[bool, 'FindManyBookArgsFromBookRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromBookRecursive1']
 
 
 class GenreIncludeFromBookRecursive1(TypedDict, total=False):
     """Relational arguments for Book"""
+    parent: Union[bool, 'GenreArgsFromBookRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromBookRecursive2']
     books: Union[bool, 'FindManyBookArgsFromBookRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromBookRecursive2']
 
 
 class GenreIncludeFromBookRecursive2(TypedDict, total=False):
     """Relational arguments for Book"""
+    parent: Union[bool, 'GenreArgsFromBookRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromBookRecursive3']
     books: Union[bool, 'FindManyBookArgsFromBookRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromBookRecursive3']
 
 
 class GenreIncludeFromBookRecursive3(TypedDict, total=False):
     """Relational arguments for Book"""
+    parent: Union[bool, 'GenreArgsFromBookRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromBookRecursive4']
     books: Union[bool, 'FindManyBookArgsFromBookRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromBookRecursive4']
 
@@ -7710,10 +8092,23 @@ class BookWhereInput(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     title: Union[_str, 'types.StringFilter']
     author: Union[_str, 'types.StringFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    description: Union[None, _str, 'types.StringFilter']
+    coverUrl: Union[None, _str, 'types.StringFilter']
+    litresId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
+    litresRating: Union[None, _float, 'types.FloatFilter']
+    litresRatingCount: Union[None, _int, 'types.IntFilter']
+    series: Union[None, _str, 'types.StringFilter']
+    translator: Union[None, _str, 'types.StringFilter']
+    volume: Union[None, _str, 'types.StringFilter']
+    year: Union[None, _str, 'types.StringFilter']
+    isbn: Union[None, _str, 'types.StringFilter']
+    copyrightHolder: Union[None, _str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     genre: 'GenreRelationFilter'
     ageCategory: 'AgeCategoryRelationFilter'
     votes: 'VoteListRelationFilter'
@@ -7733,10 +8128,23 @@ class BookWhereInputRecursive1(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     title: Union[_str, 'types.StringFilter']
     author: Union[_str, 'types.StringFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    description: Union[None, _str, 'types.StringFilter']
+    coverUrl: Union[None, _str, 'types.StringFilter']
+    litresId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
+    litresRating: Union[None, _float, 'types.FloatFilter']
+    litresRatingCount: Union[None, _int, 'types.IntFilter']
+    series: Union[None, _str, 'types.StringFilter']
+    translator: Union[None, _str, 'types.StringFilter']
+    volume: Union[None, _str, 'types.StringFilter']
+    year: Union[None, _str, 'types.StringFilter']
+    isbn: Union[None, _str, 'types.StringFilter']
+    copyrightHolder: Union[None, _str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     genre: 'GenreRelationFilter'
     ageCategory: 'AgeCategoryRelationFilter'
     votes: 'VoteListRelationFilter'
@@ -7756,10 +8164,23 @@ class BookWhereInputRecursive2(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     title: Union[_str, 'types.StringFilter']
     author: Union[_str, 'types.StringFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    description: Union[None, _str, 'types.StringFilter']
+    coverUrl: Union[None, _str, 'types.StringFilter']
+    litresId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
+    litresRating: Union[None, _float, 'types.FloatFilter']
+    litresRatingCount: Union[None, _int, 'types.IntFilter']
+    series: Union[None, _str, 'types.StringFilter']
+    translator: Union[None, _str, 'types.StringFilter']
+    volume: Union[None, _str, 'types.StringFilter']
+    year: Union[None, _str, 'types.StringFilter']
+    isbn: Union[None, _str, 'types.StringFilter']
+    copyrightHolder: Union[None, _str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     genre: 'GenreRelationFilter'
     ageCategory: 'AgeCategoryRelationFilter'
     votes: 'VoteListRelationFilter'
@@ -7779,10 +8200,23 @@ class BookWhereInputRecursive3(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     title: Union[_str, 'types.StringFilter']
     author: Union[_str, 'types.StringFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    description: Union[None, _str, 'types.StringFilter']
+    coverUrl: Union[None, _str, 'types.StringFilter']
+    litresId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
+    litresRating: Union[None, _float, 'types.FloatFilter']
+    litresRatingCount: Union[None, _int, 'types.IntFilter']
+    series: Union[None, _str, 'types.StringFilter']
+    translator: Union[None, _str, 'types.StringFilter']
+    volume: Union[None, _str, 'types.StringFilter']
+    year: Union[None, _str, 'types.StringFilter']
+    isbn: Union[None, _str, 'types.StringFilter']
+    copyrightHolder: Union[None, _str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     genre: 'GenreRelationFilter'
     ageCategory: 'AgeCategoryRelationFilter'
     votes: 'VoteListRelationFilter'
@@ -7802,10 +8236,23 @@ class BookWhereInputRecursive4(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     title: Union[_str, 'types.StringFilter']
     author: Union[_str, 'types.StringFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    description: Union[None, _str, 'types.StringFilter']
+    coverUrl: Union[None, _str, 'types.StringFilter']
+    litresId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
+    litresRating: Union[None, _float, 'types.FloatFilter']
+    litresRatingCount: Union[None, _int, 'types.IntFilter']
+    series: Union[None, _str, 'types.StringFilter']
+    translator: Union[None, _str, 'types.StringFilter']
+    volume: Union[None, _str, 'types.StringFilter']
+    year: Union[None, _str, 'types.StringFilter']
+    isbn: Union[None, _str, 'types.StringFilter']
+    copyrightHolder: Union[None, _str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     genre: 'GenreRelationFilter'
     ageCategory: 'AgeCategoryRelationFilter'
     votes: 'VoteListRelationFilter'
@@ -7825,10 +8272,23 @@ class BookScalarWhereWithAggregatesInput(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     title: Union[_str, 'types.StringWithAggregatesFilter']
     author: Union[_str, 'types.StringWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    description: Union[_str, 'types.StringWithAggregatesFilter']
+    coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
+    litresId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    litresRating: Union[_float, 'types.FloatWithAggregatesFilter']
+    litresRatingCount: Union[_int, 'types.IntWithAggregatesFilter']
+    series: Union[_str, 'types.StringWithAggregatesFilter']
+    translator: Union[_str, 'types.StringWithAggregatesFilter']
+    volume: Union[_str, 'types.StringWithAggregatesFilter']
+    year: Union[_str, 'types.StringWithAggregatesFilter']
+    isbn: Union[_str, 'types.StringWithAggregatesFilter']
+    copyrightHolder: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['BookScalarWhereWithAggregatesInputRecursive1']
     OR: List['BookScalarWhereWithAggregatesInputRecursive1']
@@ -7840,10 +8300,23 @@ class BookScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     title: Union[_str, 'types.StringWithAggregatesFilter']
     author: Union[_str, 'types.StringWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    description: Union[_str, 'types.StringWithAggregatesFilter']
+    coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
+    litresId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    litresRating: Union[_float, 'types.FloatWithAggregatesFilter']
+    litresRatingCount: Union[_int, 'types.IntWithAggregatesFilter']
+    series: Union[_str, 'types.StringWithAggregatesFilter']
+    translator: Union[_str, 'types.StringWithAggregatesFilter']
+    volume: Union[_str, 'types.StringWithAggregatesFilter']
+    year: Union[_str, 'types.StringWithAggregatesFilter']
+    isbn: Union[_str, 'types.StringWithAggregatesFilter']
+    copyrightHolder: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['BookScalarWhereWithAggregatesInputRecursive2']
     OR: List['BookScalarWhereWithAggregatesInputRecursive2']
@@ -7855,10 +8328,23 @@ class BookScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     title: Union[_str, 'types.StringWithAggregatesFilter']
     author: Union[_str, 'types.StringWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    description: Union[_str, 'types.StringWithAggregatesFilter']
+    coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
+    litresId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    litresRating: Union[_float, 'types.FloatWithAggregatesFilter']
+    litresRatingCount: Union[_int, 'types.IntWithAggregatesFilter']
+    series: Union[_str, 'types.StringWithAggregatesFilter']
+    translator: Union[_str, 'types.StringWithAggregatesFilter']
+    volume: Union[_str, 'types.StringWithAggregatesFilter']
+    year: Union[_str, 'types.StringWithAggregatesFilter']
+    isbn: Union[_str, 'types.StringWithAggregatesFilter']
+    copyrightHolder: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['BookScalarWhereWithAggregatesInputRecursive3']
     OR: List['BookScalarWhereWithAggregatesInputRecursive3']
@@ -7870,10 +8356,23 @@ class BookScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     title: Union[_str, 'types.StringWithAggregatesFilter']
     author: Union[_str, 'types.StringWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    description: Union[_str, 'types.StringWithAggregatesFilter']
+    coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
+    litresId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    litresRating: Union[_float, 'types.FloatWithAggregatesFilter']
+    litresRatingCount: Union[_int, 'types.IntWithAggregatesFilter']
+    series: Union[_str, 'types.StringWithAggregatesFilter']
+    translator: Union[_str, 'types.StringWithAggregatesFilter']
+    volume: Union[_str, 'types.StringWithAggregatesFilter']
+    year: Union[_str, 'types.StringWithAggregatesFilter']
+    isbn: Union[_str, 'types.StringWithAggregatesFilter']
+    copyrightHolder: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['BookScalarWhereWithAggregatesInputRecursive4']
     OR: List['BookScalarWhereWithAggregatesInputRecursive4']
@@ -7885,10 +8384,23 @@ class BookScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     title: Union[_str, 'types.StringWithAggregatesFilter']
     author: Union[_str, 'types.StringWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    description: Union[_str, 'types.StringWithAggregatesFilter']
+    coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
+    litresId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    litresRating: Union[_float, 'types.FloatWithAggregatesFilter']
+    litresRatingCount: Union[_int, 'types.IntWithAggregatesFilter']
+    series: Union[_str, 'types.StringWithAggregatesFilter']
+    translator: Union[_str, 'types.StringWithAggregatesFilter']
+    volume: Union[_str, 'types.StringWithAggregatesFilter']
+    year: Union[_str, 'types.StringWithAggregatesFilter']
+    isbn: Union[_str, 'types.StringWithAggregatesFilter']
+    copyrightHolder: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
 
 
@@ -7896,10 +8408,23 @@ class BookGroupByOutput(TypedDict, total=False):
     id: _int
     title: _str
     author: _str
-    genreId: _int
+    description: _str
+    coverUrl: _str
+    litresId: _int
+    genreId: _str
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
+    litresRating: _float
+    litresRatingCount: _int
+    series: _str
+    translator: _str
+    volume: _str
+    year: _str
+    isbn: _str
+    copyrightHolder: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     _sum: 'BookSumAggregateOutput'
     _avg: 'BookAvgAggregateOutput'
     _min: 'BookMinAggregateOutput'
@@ -7910,17 +8435,21 @@ class BookGroupByOutput(TypedDict, total=False):
 class BookAvgAggregateOutput(TypedDict, total=False):
     """Book output for aggregating averages"""
     id: float
-    genreId: float
+    litresId: float
     ageCategoryId: float
     rating: float
+    litresRating: float
+    litresRatingCount: float
 
 
 class BookSumAggregateOutput(TypedDict, total=False):
     """Book output for aggregating sums"""
     id: _int
-    genreId: _int
+    litresId: _int
     ageCategoryId: _int
     rating: _float
+    litresRating: _float
+    litresRatingCount: _int
 
 
 class BookScalarAggregateOutput(TypedDict, total=False):
@@ -7928,10 +8457,23 @@ class BookScalarAggregateOutput(TypedDict, total=False):
     id: _int
     title: _str
     author: _str
-    genreId: _int
+    description: _str
+    coverUrl: _str
+    litresId: _int
+    genreId: _str
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
+    litresRating: _float
+    litresRatingCount: _int
+    series: _str
+    translator: _str
+    volume: _str
+    year: _str
+    isbn: _str
+    copyrightHolder: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 BookMinAggregateOutput = BookScalarAggregateOutput
@@ -7943,10 +8485,23 @@ class BookMaxAggregateInput(TypedDict, total=False):
     id: bool
     title: bool
     author: bool
+    description: bool
+    coverUrl: bool
+    litresId: bool
     genreId: bool
     ageCategoryId: bool
     rating: bool
     isPremium: bool
+    litresRating: bool
+    litresRatingCount: bool
+    series: bool
+    translator: bool
+    volume: bool
+    year: bool
+    isbn: bool
+    copyrightHolder: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class BookMinAggregateInput(TypedDict, total=False):
@@ -7954,18 +8509,33 @@ class BookMinAggregateInput(TypedDict, total=False):
     id: bool
     title: bool
     author: bool
+    description: bool
+    coverUrl: bool
+    litresId: bool
     genreId: bool
     ageCategoryId: bool
     rating: bool
     isPremium: bool
+    litresRating: bool
+    litresRatingCount: bool
+    series: bool
+    translator: bool
+    volume: bool
+    year: bool
+    isbn: bool
+    copyrightHolder: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class BookNumberAggregateInput(TypedDict, total=False):
     """Book input for aggregating numbers"""
     id: bool
-    genreId: bool
+    litresId: bool
     ageCategoryId: bool
     rating: bool
+    litresRating: bool
+    litresRatingCount: bool
 
 
 BookAvgAggregateInput = BookNumberAggregateInput
@@ -7978,10 +8548,23 @@ BookCountAggregateInput = TypedDict(
         'id': bool,
         'title': bool,
         'author': bool,
+        'description': bool,
+        'coverUrl': bool,
+        'litresId': bool,
         'genreId': bool,
         'ageCategoryId': bool,
         'rating': bool,
         'isPremium': bool,
+        'litresRating': bool,
+        'litresRatingCount': bool,
+        'series': bool,
+        'translator': bool,
+        'volume': bool,
+        'year': bool,
+        'isbn': bool,
+        'copyrightHolder': bool,
+        'createdAt': bool,
+        'updatedAt': bool,
         '_all': bool,
     },
     total=False,
@@ -7993,10 +8576,23 @@ BookCountAggregateOutput = TypedDict(
         'id': int,
         'title': int,
         'author': int,
+        'description': int,
+        'coverUrl': int,
+        'litresId': int,
         'genreId': int,
         'ageCategoryId': int,
         'rating': int,
         'isPremium': int,
+        'litresRating': int,
+        'litresRatingCount': int,
+        'series': int,
+        'translator': int,
+        'volume': int,
+        'year': int,
+        'isbn': int,
+        'copyrightHolder': int,
+        'createdAt': int,
+        'updatedAt': int,
         '_all': int,
     },
     total=False,
@@ -8007,10 +8603,23 @@ BookKeys = Literal[
     'id',
     'title',
     'author',
+    'description',
+    'coverUrl',
+    'litresId',
     'genreId',
     'ageCategoryId',
     'rating',
     'isPremium',
+    'litresRating',
+    'litresRatingCount',
+    'series',
+    'translator',
+    'volume',
+    'year',
+    'isbn',
+    'copyrightHolder',
+    'createdAt',
+    'updatedAt',
     'genre',
     'ageCategory',
     'votes',
@@ -8022,10 +8631,23 @@ BookScalarFieldKeys = Literal[
     'id',
     'title',
     'author',
+    'description',
+    'coverUrl',
+    'litresId',
     'genreId',
     'ageCategoryId',
     'rating',
     'isPremium',
+    'litresRating',
+    'litresRatingCount',
+    'series',
+    'translator',
+    'volume',
+    'year',
+    'isbn',
+    'copyrightHolder',
+    'createdAt',
+    'updatedAt',
 ]
 BookScalarFieldKeysT = TypeVar('BookScalarFieldKeysT', bound=BookScalarFieldKeys)
 
@@ -8045,14 +8667,15 @@ class UserBookOptionalCreateInput(TypedDict, total=False):
     id: _int
     userId: _int
     bookId: _int
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     user: 'UserCreateNestedWithoutRelationsInput'
     book: 'BookCreateNestedWithoutRelationsInput'
 
 
 class UserBookCreateInput(UserBookOptionalCreateInput):
     """Required arguments to the UserBook create method"""
+    status: _str
 
 
 # TODO: remove this in favour of without explicit relations
@@ -8063,12 +8686,13 @@ class UserBookOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     id: _int
     userId: _int
     bookId: _int
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserBookCreateWithoutRelationsInput(UserBookOptionalCreateWithoutRelationsInput):
     """Required arguments to the UserBook create method, without relations"""
+    status: _str
 
 class UserBookConnectOrCreateWithoutRelationsInput(TypedDict):
     create: 'UserBookCreateWithoutRelationsInput'
@@ -8119,8 +8743,9 @@ UserBookWhereUniqueInput = Union[
 class UserBookUpdateInput(TypedDict, total=False):
     """Optional arguments for updating a record"""
     id: Union[AtomicIntInput, _int]
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    status: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     user: 'UserUpdateOneWithoutRelationsInput'
     book: 'BookUpdateOneWithoutRelationsInput'
 
@@ -8128,8 +8753,9 @@ class UserBookUpdateInput(TypedDict, total=False):
 class UserBookUpdateManyMutationInput(TypedDict, total=False):
     """Arguments for updating many records"""
     id: Union[AtomicIntInput, _int]
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    status: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 class UserBookUpdateManyWithoutRelationsInput(TypedDict, total=False):
@@ -8196,10 +8822,18 @@ _UserBook_status_OrderByInput = TypedDict(
     total=True
 )
 
-_UserBook_addedAt_OrderByInput = TypedDict(
-    '_UserBook_addedAt_OrderByInput',
+_UserBook_createdAt_OrderByInput = TypedDict(
+    '_UserBook_createdAt_OrderByInput',
     {
-        'addedAt': 'SortOrder',
+        'createdAt': 'SortOrder',
+    },
+    total=True
+)
+
+_UserBook_updatedAt_OrderByInput = TypedDict(
+    '_UserBook_updatedAt_OrderByInput',
+    {
+        'updatedAt': 'SortOrder',
     },
     total=True
 )
@@ -8227,7 +8861,8 @@ UserBookOrderByInput = Union[
     '_UserBook_userId_OrderByInput',
     '_UserBook_bookId_OrderByInput',
     '_UserBook_status_OrderByInput',
-    '_UserBook_addedAt_OrderByInput',
+    '_UserBook_createdAt_OrderByInput',
+    '_UserBook_updatedAt_OrderByInput',
     '_UserBook_RelevanceOrderByInput',
 ]
 
@@ -8388,24 +9023,32 @@ class FindManyUserArgsFromUserBookRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromUserBook(TypedDict, total=False):
     """Relational arguments for UserBook"""
+    parent: Union[bool, 'GenreArgsFromUserBookRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserBookRecursive1']
     books: Union[bool, 'FindManyBookArgsFromUserBookRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserBookRecursive1']
 
 
 class GenreIncludeFromUserBookRecursive1(TypedDict, total=False):
     """Relational arguments for UserBook"""
+    parent: Union[bool, 'GenreArgsFromUserBookRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserBookRecursive2']
     books: Union[bool, 'FindManyBookArgsFromUserBookRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserBookRecursive2']
 
 
 class GenreIncludeFromUserBookRecursive2(TypedDict, total=False):
     """Relational arguments for UserBook"""
+    parent: Union[bool, 'GenreArgsFromUserBookRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserBookRecursive3']
     books: Union[bool, 'FindManyBookArgsFromUserBookRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserBookRecursive3']
 
 
 class GenreIncludeFromUserBookRecursive3(TypedDict, total=False):
     """Relational arguments for UserBook"""
+    parent: Union[bool, 'GenreArgsFromUserBookRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromUserBookRecursive4']
     books: Union[bool, 'FindManyBookArgsFromUserBookRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromUserBookRecursive4']
 
@@ -9499,8 +10142,9 @@ class UserBookWhereInput(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     userId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    status: Union[_str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     user: 'UserRelationFilter'
     book: 'BookRelationFilter'
 
@@ -9516,8 +10160,9 @@ class UserBookWhereInputRecursive1(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     userId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    status: Union[_str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     user: 'UserRelationFilter'
     book: 'BookRelationFilter'
 
@@ -9533,8 +10178,9 @@ class UserBookWhereInputRecursive2(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     userId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    status: Union[_str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     user: 'UserRelationFilter'
     book: 'BookRelationFilter'
 
@@ -9550,8 +10196,9 @@ class UserBookWhereInputRecursive3(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     userId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    status: Union[_str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     user: 'UserRelationFilter'
     book: 'BookRelationFilter'
 
@@ -9567,8 +10214,9 @@ class UserBookWhereInputRecursive4(TypedDict, total=False):
     id: Union[_int, 'types.IntFilter']
     userId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    status: Union[_str, 'types.StringFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
     user: 'UserRelationFilter'
     book: 'BookRelationFilter'
 
@@ -9584,8 +10232,9 @@ class UserBookScalarWhereWithAggregatesInput(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     userId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    status: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserBookScalarWhereWithAggregatesInputRecursive1']
     OR: List['UserBookScalarWhereWithAggregatesInputRecursive1']
@@ -9597,8 +10246,9 @@ class UserBookScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     userId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    status: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserBookScalarWhereWithAggregatesInputRecursive2']
     OR: List['UserBookScalarWhereWithAggregatesInputRecursive2']
@@ -9610,8 +10260,9 @@ class UserBookScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     userId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    status: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserBookScalarWhereWithAggregatesInputRecursive3']
     OR: List['UserBookScalarWhereWithAggregatesInputRecursive3']
@@ -9623,8 +10274,9 @@ class UserBookScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     userId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    status: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
     AND: List['UserBookScalarWhereWithAggregatesInputRecursive4']
     OR: List['UserBookScalarWhereWithAggregatesInputRecursive4']
@@ -9636,8 +10288,9 @@ class UserBookScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     id: Union[_int, 'types.IntWithAggregatesFilter']
     userId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
-    status: 'enums.BookStatus'
-    addedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    status: Union[_str, 'types.StringWithAggregatesFilter']
+    createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
+    updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
 
 
@@ -9645,8 +10298,9 @@ class UserBookGroupByOutput(TypedDict, total=False):
     id: _int
     userId: _int
     bookId: _int
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    status: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
     _sum: 'UserBookSumAggregateOutput'
     _avg: 'UserBookAvgAggregateOutput'
     _min: 'UserBookMinAggregateOutput'
@@ -9673,8 +10327,9 @@ class UserBookScalarAggregateOutput(TypedDict, total=False):
     id: _int
     userId: _int
     bookId: _int
-    status: 'enums.BookStatus'
-    addedAt: datetime.datetime
+    status: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
 
 
 UserBookMinAggregateOutput = UserBookScalarAggregateOutput
@@ -9687,7 +10342,8 @@ class UserBookMaxAggregateInput(TypedDict, total=False):
     userId: bool
     bookId: bool
     status: bool
-    addedAt: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class UserBookMinAggregateInput(TypedDict, total=False):
@@ -9696,7 +10352,8 @@ class UserBookMinAggregateInput(TypedDict, total=False):
     userId: bool
     bookId: bool
     status: bool
-    addedAt: bool
+    createdAt: bool
+    updatedAt: bool
 
 
 class UserBookNumberAggregateInput(TypedDict, total=False):
@@ -9717,7 +10374,8 @@ UserBookCountAggregateInput = TypedDict(
         'userId': bool,
         'bookId': bool,
         'status': bool,
-        'addedAt': bool,
+        'createdAt': bool,
+        'updatedAt': bool,
         '_all': bool,
     },
     total=False,
@@ -9730,7 +10388,8 @@ UserBookCountAggregateOutput = TypedDict(
         'userId': int,
         'bookId': int,
         'status': int,
-        'addedAt': int,
+        'createdAt': int,
+        'updatedAt': int,
         '_all': int,
     },
     total=False,
@@ -9742,7 +10401,8 @@ UserBookKeys = Literal[
     'userId',
     'bookId',
     'status',
-    'addedAt',
+    'createdAt',
+    'updatedAt',
     'user',
     'book',
 ]
@@ -9751,7 +10411,8 @@ UserBookScalarFieldKeys = Literal[
     'userId',
     'bookId',
     'status',
-    'addedAt',
+    'createdAt',
+    'updatedAt',
 ]
 UserBookScalarFieldKeysT = TypeVar('UserBookScalarFieldKeysT', bound=UserBookScalarFieldKeys)
 
@@ -10111,24 +10772,32 @@ class FindManyUserArgsFromVoteRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromVote(TypedDict, total=False):
     """Relational arguments for Vote"""
+    parent: Union[bool, 'GenreArgsFromVoteRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromVoteRecursive1']
     books: Union[bool, 'FindManyBookArgsFromVoteRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromVoteRecursive1']
 
 
 class GenreIncludeFromVoteRecursive1(TypedDict, total=False):
     """Relational arguments for Vote"""
+    parent: Union[bool, 'GenreArgsFromVoteRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromVoteRecursive2']
     books: Union[bool, 'FindManyBookArgsFromVoteRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromVoteRecursive2']
 
 
 class GenreIncludeFromVoteRecursive2(TypedDict, total=False):
     """Relational arguments for Vote"""
+    parent: Union[bool, 'GenreArgsFromVoteRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromVoteRecursive3']
     books: Union[bool, 'FindManyBookArgsFromVoteRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromVoteRecursive3']
 
 
 class GenreIncludeFromVoteRecursive3(TypedDict, total=False):
     """Relational arguments for Vote"""
+    parent: Union[bool, 'GenreArgsFromVoteRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromVoteRecursive4']
     books: Union[bool, 'FindManyBookArgsFromVoteRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromVoteRecursive4']
 
@@ -11850,24 +12519,32 @@ class FindManyUserArgsFromReadingProgressRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromReadingProgress(TypedDict, total=False):
     """Relational arguments for ReadingProgress"""
+    parent: Union[bool, 'GenreArgsFromReadingProgressRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromReadingProgressRecursive1']
     books: Union[bool, 'FindManyBookArgsFromReadingProgressRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromReadingProgressRecursive1']
 
 
 class GenreIncludeFromReadingProgressRecursive1(TypedDict, total=False):
     """Relational arguments for ReadingProgress"""
+    parent: Union[bool, 'GenreArgsFromReadingProgressRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromReadingProgressRecursive2']
     books: Union[bool, 'FindManyBookArgsFromReadingProgressRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromReadingProgressRecursive2']
 
 
 class GenreIncludeFromReadingProgressRecursive2(TypedDict, total=False):
     """Relational arguments for ReadingProgress"""
+    parent: Union[bool, 'GenreArgsFromReadingProgressRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromReadingProgressRecursive3']
     books: Union[bool, 'FindManyBookArgsFromReadingProgressRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromReadingProgressRecursive3']
 
 
 class GenreIncludeFromReadingProgressRecursive3(TypedDict, total=False):
     """Relational arguments for ReadingProgress"""
+    parent: Union[bool, 'GenreArgsFromReadingProgressRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromReadingProgressRecursive4']
     books: Union[bool, 'FindManyBookArgsFromReadingProgressRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromReadingProgressRecursive4']
 
@@ -13251,7 +13928,7 @@ ReadingProgressRelationalFieldKeys = Literal[
 class WeeklyResultOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the WeeklyResult create method"""
     id: _int
-    genreId: _int
+    genreId: Optional[_str]
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -13273,7 +13950,7 @@ class WeeklyResultCreateInput(WeeklyResultOptionalCreateInput):
 class WeeklyResultOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the WeeklyResult create method, without relations"""
     id: _int
-    genreId: _int
+    genreId: Optional[_str]
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -13311,7 +13988,7 @@ _WeeklyResultCompoundweekNumber_genreId_ageCategoryIdKeyInner = TypedDict(
     '_WeeklyResultCompoundweekNumber_genreId_ageCategoryIdKeyInner',
     {
         'weekNumber': '_int',
-        'genreId': '_int',
+        'genreId': '_str',
         'ageCategoryId': '_int',
     },
     total=True
@@ -13625,24 +14302,32 @@ class FindManyUserArgsFromWeeklyResultRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromWeeklyResult(TypedDict, total=False):
     """Relational arguments for WeeklyResult"""
+    parent: Union[bool, 'GenreArgsFromWeeklyResultRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromWeeklyResultRecursive1']
     books: Union[bool, 'FindManyBookArgsFromWeeklyResultRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromWeeklyResultRecursive1']
 
 
 class GenreIncludeFromWeeklyResultRecursive1(TypedDict, total=False):
     """Relational arguments for WeeklyResult"""
+    parent: Union[bool, 'GenreArgsFromWeeklyResultRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromWeeklyResultRecursive2']
     books: Union[bool, 'FindManyBookArgsFromWeeklyResultRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromWeeklyResultRecursive2']
 
 
 class GenreIncludeFromWeeklyResultRecursive2(TypedDict, total=False):
     """Relational arguments for WeeklyResult"""
+    parent: Union[bool, 'GenreArgsFromWeeklyResultRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromWeeklyResultRecursive3']
     books: Union[bool, 'FindManyBookArgsFromWeeklyResultRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromWeeklyResultRecursive3']
 
 
 class GenreIncludeFromWeeklyResultRecursive3(TypedDict, total=False):
     """Relational arguments for WeeklyResult"""
+    parent: Union[bool, 'GenreArgsFromWeeklyResultRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromWeeklyResultRecursive4']
     books: Union[bool, 'FindManyBookArgsFromWeeklyResultRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromWeeklyResultRecursive4']
 
@@ -14735,7 +15420,7 @@ class WeeklyResultWhereInput(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -14756,7 +15441,7 @@ class WeeklyResultWhereInputRecursive1(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -14777,7 +15462,7 @@ class WeeklyResultWhereInputRecursive2(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -14798,7 +15483,7 @@ class WeeklyResultWhereInputRecursive3(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -14819,7 +15504,7 @@ class WeeklyResultWhereInputRecursive4(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[_int, 'types.IntFilter']
+    genreId: Union[None, _str, 'types.StringFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -14840,7 +15525,7 @@ class WeeklyResultScalarWhereWithAggregatesInput(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -14855,7 +15540,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive1(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -14870,7 +15555,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive2(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -14885,7 +15570,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive3(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -14900,7 +15585,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive4(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_int, 'types.IntWithAggregatesFilter']
+    genreId: Union[_str, 'types.StringWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -14911,7 +15596,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive4(TypedDict, total=Fals
 class WeeklyResultGroupByOutput(TypedDict, total=False):
     id: _int
     weekNumber: _int
-    genreId: _int
+    genreId: _str
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -14927,7 +15612,6 @@ class WeeklyResultAvgAggregateOutput(TypedDict, total=False):
     """WeeklyResult output for aggregating averages"""
     id: float
     weekNumber: float
-    genreId: float
     ageCategoryId: float
     bookId: float
     leaderUserId: float
@@ -14938,7 +15622,6 @@ class WeeklyResultSumAggregateOutput(TypedDict, total=False):
     """WeeklyResult output for aggregating sums"""
     id: _int
     weekNumber: _int
-    genreId: _int
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -14949,7 +15632,7 @@ class WeeklyResultScalarAggregateOutput(TypedDict, total=False):
     """WeeklyResult output including scalar fields"""
     id: _int
     weekNumber: _int
-    genreId: _int
+    genreId: _str
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -14986,7 +15669,6 @@ class WeeklyResultNumberAggregateInput(TypedDict, total=False):
     """WeeklyResult input for aggregating numbers"""
     id: bool
     weekNumber: bool
-    genreId: bool
     ageCategoryId: bool
     bookId: bool
     leaderUserId: bool
@@ -15375,24 +16057,32 @@ class FindManyUserArgsFromNotificationRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromNotification(TypedDict, total=False):
     """Relational arguments for Notification"""
+    parent: Union[bool, 'GenreArgsFromNotificationRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromNotificationRecursive1']
     books: Union[bool, 'FindManyBookArgsFromNotificationRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromNotificationRecursive1']
 
 
 class GenreIncludeFromNotificationRecursive1(TypedDict, total=False):
     """Relational arguments for Notification"""
+    parent: Union[bool, 'GenreArgsFromNotificationRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromNotificationRecursive2']
     books: Union[bool, 'FindManyBookArgsFromNotificationRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromNotificationRecursive2']
 
 
 class GenreIncludeFromNotificationRecursive2(TypedDict, total=False):
     """Relational arguments for Notification"""
+    parent: Union[bool, 'GenreArgsFromNotificationRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromNotificationRecursive3']
     books: Union[bool, 'FindManyBookArgsFromNotificationRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromNotificationRecursive3']
 
 
 class GenreIncludeFromNotificationRecursive3(TypedDict, total=False):
     """Relational arguments for Notification"""
+    parent: Union[bool, 'GenreArgsFromNotificationRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromNotificationRecursive4']
     books: Union[bool, 'FindManyBookArgsFromNotificationRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromNotificationRecursive4']
 
@@ -17035,24 +17725,32 @@ class FindManyUserArgsFromAdvertisementRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromAdvertisement(TypedDict, total=False):
     """Relational arguments for Advertisement"""
+    parent: Union[bool, 'GenreArgsFromAdvertisementRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAdvertisementRecursive1']
     books: Union[bool, 'FindManyBookArgsFromAdvertisementRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAdvertisementRecursive1']
 
 
 class GenreIncludeFromAdvertisementRecursive1(TypedDict, total=False):
     """Relational arguments for Advertisement"""
+    parent: Union[bool, 'GenreArgsFromAdvertisementRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAdvertisementRecursive2']
     books: Union[bool, 'FindManyBookArgsFromAdvertisementRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAdvertisementRecursive2']
 
 
 class GenreIncludeFromAdvertisementRecursive2(TypedDict, total=False):
     """Relational arguments for Advertisement"""
+    parent: Union[bool, 'GenreArgsFromAdvertisementRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAdvertisementRecursive3']
     books: Union[bool, 'FindManyBookArgsFromAdvertisementRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAdvertisementRecursive3']
 
 
 class GenreIncludeFromAdvertisementRecursive3(TypedDict, total=False):
     """Relational arguments for Advertisement"""
+    parent: Union[bool, 'GenreArgsFromAdvertisementRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromAdvertisementRecursive4']
     books: Union[bool, 'FindManyBookArgsFromAdvertisementRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromAdvertisementRecursive4']
 
@@ -18684,24 +19382,32 @@ class FindManyUserArgsFromPartnerRecursive4(TypedDict, total=False):
 
 class GenreIncludeFromPartner(TypedDict, total=False):
     """Relational arguments for Partner"""
+    parent: Union[bool, 'GenreArgsFromPartnerRecursive1']
+    subgenres: Union[bool, 'FindManyGenreArgsFromPartnerRecursive1']
     books: Union[bool, 'FindManyBookArgsFromPartnerRecursive1']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromPartnerRecursive1']
 
 
 class GenreIncludeFromPartnerRecursive1(TypedDict, total=False):
     """Relational arguments for Partner"""
+    parent: Union[bool, 'GenreArgsFromPartnerRecursive2']
+    subgenres: Union[bool, 'FindManyGenreArgsFromPartnerRecursive2']
     books: Union[bool, 'FindManyBookArgsFromPartnerRecursive2']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromPartnerRecursive2']
 
 
 class GenreIncludeFromPartnerRecursive2(TypedDict, total=False):
     """Relational arguments for Partner"""
+    parent: Union[bool, 'GenreArgsFromPartnerRecursive3']
+    subgenres: Union[bool, 'FindManyGenreArgsFromPartnerRecursive3']
     books: Union[bool, 'FindManyBookArgsFromPartnerRecursive3']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromPartnerRecursive3']
 
 
 class GenreIncludeFromPartnerRecursive3(TypedDict, total=False):
     """Relational arguments for Partner"""
+    parent: Union[bool, 'GenreArgsFromPartnerRecursive4']
+    subgenres: Union[bool, 'FindManyGenreArgsFromPartnerRecursive4']
     books: Union[bool, 'FindManyBookArgsFromPartnerRecursive4']
     weeklyResults: Union[bool, 'FindManyWeeklyResultArgsFromPartnerRecursive4']
 

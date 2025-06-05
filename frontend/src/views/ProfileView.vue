@@ -1,65 +1,47 @@
 <template>
   <div class="profile-page">
-    <div class="container mt-4 pb-5">
-      <div class="profile-card">
-        <div class="rank-badge">
-          <i class="bi bi-trophy-fill"></i>
-          <span>Топ 5</span>
-        </div>
-
-        <div class="profile-header">
-          <div class="profile-avatar">
-            <img v-if="userData && userData.avatar" :src="userData.avatar" alt="Аватар">
-            <div v-else class="initials-circle">
-              {{ userInitials }}
-            </div>
-          </div>
-          <div class="profile-info">
-            <h2 class="profile-username">{{ userData?.username || 'Загрузка...' }}</h2>
-            <p v-if="userData?.about" class="profile-about">{{ userData.about }}</p>
-            <p v-else class="profile-about placeholder" style="cursor: auto; background-color: transparent;">Расскажите о себе...</p>
-          </div>
-        </div>
-
-        <!-- Секция статистики -->
-        <div class="stats-section mt-2">
-          <h5 class="section-title mb-3">Статистика чтения</h5>
-          
-          <div class="stats-grid">
-            <div class="stat-item main-stat">
-              <div class="stat-icon">
-                <i class="bi bi-book-fill"></i>
-              </div>
-              <div class="stat-content">
-                <span class="stat-value">{{ userData?.stats?.total_count ?? 0 }}</span>
-                <span class="stat-label">Всего прочитано</span>
-              </div>
+    <div class="container mx-auto px-4 py-8">
+      <div class="max-w-4xl mx-auto">
+        <!-- Профиль -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+          <div class="flex items-center space-x-6">
+            <!-- Аватар -->
+            <div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center text-3xl font-bold text-white">
+              {{ userData?.username?.charAt(0).toUpperCase() }}
             </div>
             
-            <div class="stat-item">
-              <div class="stat-icon">
-                <i class="bi bi-bookmark-star-fill"></i>
-              </div>
-              <div class="stat-content">
-                <span class="stat-value">{{ userData?.stats?.read_count ?? 0 }}</span>
-                <span class="stat-label">Всего отметок прогресса</span>
-              </div>
+            <!-- Информация -->
+            <div>
+              <h1 class="text-3xl font-bold text-gray-900">{{ userData?.username }}</h1>
+              <p class="text-gray-600">{{ userData?.email }}</p>
             </div>
-          </div>
-
-          <div class="history-button-wrapper">
-            <button class="btn btn-history">
-              <i class="bi bi-clock-history"></i>
-              История отметок прогресса
-            </button>
           </div>
         </div>
 
-        <div class="profile-actions">
-          <RouterLink to="/profile/settings" class="btn btn-outline-light">
-            <i class="bi bi-gear"></i>
-            Настройки
-          </RouterLink>
+        <!-- Статистика -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Читаю сейчас</h3>
+            <p class="text-3xl font-bold text-primary">{{ userData?.stats?.reading || 0 }}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">Прочитано</h3>
+            <p class="text-3xl font-bold text-green-600">{{ userData?.stats?.completed || 0 }}</p>
+          </div>
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">В планах</h3>
+            <p class="text-3xl font-bold text-blue-600">{{ userData?.stats?.planned || 0 }}</p>
+          </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="flex justify-end space-x-4">
+          <button 
+            @click="logout" 
+            class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Выйти
+          </button>
         </div>
       </div>
     </div>
@@ -67,24 +49,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
-import type { User } from '@/types';
-import { useUserStore } from '@/stores/user';
-import { storeToRefs } from 'pinia';
+import { onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
 
-const router = useRouter();
-const userStore = useUserStore();
-const { userData, userInitials, isLoggedIn } = storeToRefs(userStore);
+const router = useRouter()
+const userStore = useUserStore()
+const { userData } = storeToRefs(userStore)
+
+onMounted(async () => {
+  await userStore.fetchUserData()
+})
 
 const logout = () => {
-  userStore.clearAuthData();
-  router.push('/auth/login');
-};
-
-// onMounted здесь не нужен для загрузки данных, т.к. это делает сам стор
-// при инициализации, если есть токен. Данные будут реактивно обновляться.
+  userStore.clearAuthData()
+  router.push('/login')
+}
 </script>
 
 <style scoped>

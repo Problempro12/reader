@@ -12,10 +12,10 @@ datasource db {
 }
 
 enum BookStatus {
-  READING // Читаю сейчас
-  READ // Прочитано
-  PLANNING // В планах
-  DROPPED // Заброшено
+  READING
+  READ
+  PLANNING
+  DROPPED
 }
 
 model User {
@@ -32,13 +32,20 @@ model User {
   notifications       Notification[]
   leaderResults       WeeklyResult[]   @relation("Leader")
   userBooks           UserBook[] // Добавляем связь с UserBook
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
 }
 
 model Genre {
-  id          Int            @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
+  parentId    Int?
+  parent      Genre?   @relation("GenreToSubgenre", fields: [parentId], references: [id])
+  subgenres   Genre[]  @relation("GenreToSubgenre")
   books       Book[]
   weeklyResults WeeklyResult[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model AgeCategory {
@@ -52,30 +59,43 @@ model Book {
   id              Int              @id @default(autoincrement())
   title           String
   author          String
-  genreId         Int
+  description     String?
+  coverUrl        String?
+  litresId        Int             @unique
+  genreId         Int?
   ageCategoryId   Int
-  rating          Float            @default(0)
-  isPremium       Boolean          @default(false)
-  genre           Genre            @relation(fields: [genreId], references: [id])
-  ageCategory     AgeCategory      @relation(fields: [ageCategoryId], references: [id])
+  rating          Float           @default(0)
+  isPremium       Boolean         @default(false)
+  litresRating    Float?
+  litresRatingCount Int?
+  series          String?
+  translator      String?
+  volume          String?
+  year            String?
+  isbn            String?
+  copyrightHolder String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  genre           Genre?          @relation(fields: [genreId], references: [id])
+  ageCategory     AgeCategory     @relation(fields: [ageCategoryId], references: [id])
   votes           Vote[]
   readingProgress ReadingProgress[]
   weeklyResults   WeeklyResult[]
-  userBooks       UserBook[] // Добавляем связь с UserBook
+  userBooks       UserBook[]
 }
 
 // Новая модель для связи пользователя и книги со статусом чтения
 model UserBook {
-  id        Int        @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   userId    Int
   bookId    Int
-  status    BookStatus @default(READING) // Статус чтения
-  addedAt   DateTime   @default(now()) // Дата добавления в список
+  status    String   // "reading", "completed", "planned"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  book      Book     @relation(fields: [bookId], references: [id])
 
-  user      User       @relation(fields: [userId], references: [id])
-  book      Book       @relation(fields: [bookId], references: [id])
-
-  @@unique([userId, bookId]) // Пользователь может добавить одну книгу только один раз
+  @@unique([userId, bookId])
 }
 
 model Vote {
@@ -106,12 +126,12 @@ model ReadingProgress {
 model WeeklyResult {
   id              Int          @id @default(autoincrement())
   weekNumber      Int
-  genreId         Int
+  genreId         Int?
   ageCategoryId   Int
   bookId          Int
   leaderUserId    Int
   totalMarks      Int
-  genre           Genre        @relation(fields: [genreId], references: [id])
+  genre           Genre?       @relation(fields: [genreId], references: [id])
   ageCategory     AgeCategory  @relation(fields: [ageCategoryId], references: [id])
   book            Book         @relation(fields: [bookId], references: [id])
   leader          User         @relation("Leader", fields: [leaderUserId], references: [id])
