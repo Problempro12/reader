@@ -13,11 +13,34 @@ from asgiref.sync import sync_to_async
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from users.backends import EmailBackend
 
 User = get_user_model()
 
 def run_async(coro):
     return asyncio.run(coro)
+
+async def create_prisma_user(user):
+    prisma = Prisma()
+    await prisma.connect()
+    try:
+        prisma_user = await prisma.user.create(
+            data={
+                'id': str(user.id),
+                'email': user.email,
+                'username': user.username,
+                'is_premium': False,
+                'is_staff': user.is_staff,
+                'is_superuser': user.is_superuser
+            }
+        )
+        print(f"Пользователь создан в Prisma: {prisma_user}")
+        return prisma_user
+    except Exception as e:
+        print(f"Ошибка при создании пользователя в Prisma: {str(e)}")
+        raise e
+    finally:
+        await prisma.disconnect()
 
 # Create your views here.
 
@@ -95,16 +118,17 @@ class UserLoginView(APIView):
             
             print("Данные валидны, пытаемся аутентифицировать пользователя")
             
-            # Используем стандартную функцию authenticate для аутентификации через настроенные бэкенды
-            user = authenticate(request, email=serializer.validated_data['email'], password=serializer.validated_data['password']) 
+            # Используем EmailBackend для аутентификации
+            backend = EmailBackend()
+            user = backend.authenticate(request, email=serializer.validated_data['email'], password=serializer.validated_data['password'])
             
             if user is not None:
                 print(f"Пользователь аутентифицирован: {user}")
                 # Аутентификация успешна, генерируем токены
                 refresh = RefreshToken.for_user(user)
-                
+
                 # Получаем данные пользователя через сериализатор
-                serializer = self.get_serializer(user)
+                serializer = UserSerializer(user)
                 
                 response_data = {
                     'refresh': str(refresh),
@@ -130,37 +154,67 @@ class UserProfileView(APIView):
 
     def get(self, request):
         async def get_profile():
-            user = request.user
-            prisma = Prisma()
-            await prisma.connect()
+            try:
+                user = request.user
+                print(f"Получение профиля для пользователя: {user.id}")
+                print(f"Данные пользователя: {user.__dict__}")
 
-            # Получаем статистику по книгам
-            user_books = await prisma.userbook.find_many(
-                where={
-                    'userId': user.id
+                prisma = Prisma()
+                await prisma.connect()
+                print("Подключение к Prisma успешно")
+
+                # Получаем статистику по книгам
+                try:
+                    user_books = await prisma.userbook.find_many(
+                        where={
+                            'userId': user.id  # Передаем ID как целое число
+                                                                            }
+                    )
+                    print(f"Найдено книг пользователя: {len(user_books)}")
+                    print(f"Данные user_books: {user_books}") # Добавлено логирование user_books
+                except Exception as e:
+                    print(f"Ошибка при получении книг пользователя: {str(e)}")
+                    user_books = []
+
+                # Группируем книги по статусу
+                stats = {
+                    'reading': 0,
+                    'completed': 0,
+                    'planned': 0
                 }
-            )
 
-            # Группируем книги по статусу
-            stats = {
-                'reading': 0,
-                'completed': 0,
-                'planned': 0
-            }
-            
-            for book in user_books:
-                stats[book.status] += 1
+                for book in user_books:
+                    # Убедитесь, что поле 'status' существует и имеет ожидаемые значения
+                    if hasattr(book, 'status') and book.status in stats:
+                        stats[book.status] += 1
+                    else:
+                         print(f"Предупреждение: Неожиданный статус книги или отсутствует поле 'status': {book}")
 
-            await prisma.disconnect()
-            
-            return Response({
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
-                'stats': stats,
-                'is_staff': user.is_staff,
-                'is_superuser': user.is_superuser
-            })
+
+                print(f"Рассчитанная статистика: {stats}") # Добавлено логирование stats
+
+                await prisma.disconnect()
+                print("Отключение от Prisma успешно")
+
+                response_data = {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'stats': stats,
+                    'is_staff': user.is_staff,
+                    'is_superuser': user.is_superuser
+                }
+                print("Данные профиля:", response_data)
+
+                return Response(response_data)
+            except Exception as e:
+                print(f"Ошибка при получении профиля: {str(e)}")
+                if 'prisma' in locals():
+                    await prisma.disconnect()
+                return Response(
+                    {'error': f'Ошибка при получении профиля: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
 
         return run_async(get_profile())
 

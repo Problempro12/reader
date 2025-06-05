@@ -1188,10 +1188,11 @@ BookStatusListUpdate = Union[
 class UserOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the User create method"""
     id: _int
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    avatar: Optional[_str]
+    about: Optional[_str]
     votes: 'VoteCreateManyNestedWithoutRelationsInput'
     readingProgress: 'ReadingProgressCreateManyNestedWithoutRelationsInput'
     notifications: 'NotificationCreateManyNestedWithoutRelationsInput'
@@ -1214,10 +1215,11 @@ class UserCreateInput(UserOptionalCreateInput):
 class UserOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the User create method, without relations"""
     id: _int
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    avatar: Optional[_str]
+    about: Optional[_str]
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
 
@@ -1271,10 +1273,11 @@ class UserUpdateInput(TypedDict, total=False):
     email: _str
     username: _str
     passwordHash: _str
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    avatar: Optional[_str]
+    about: Optional[_str]
     votes: 'VoteUpdateManyWithoutRelationsInput'
     readingProgress: 'ReadingProgressUpdateManyWithoutRelationsInput'
     notifications: 'NotificationUpdateManyWithoutRelationsInput'
@@ -1290,10 +1293,11 @@ class UserUpdateManyMutationInput(TypedDict, total=False):
     email: _str
     username: _str
     passwordHash: _str
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime]
     hideAds: _bool
+    avatar: Optional[_str]
+    about: Optional[_str]
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
 
@@ -1362,14 +1366,6 @@ _User_passwordHash_OrderByInput = TypedDict(
     total=True
 )
 
-_User_registrationDate_OrderByInput = TypedDict(
-    '_User_registrationDate_OrderByInput',
-    {
-        'registrationDate': 'SortOrder',
-    },
-    total=True
-)
-
 _User_isPremium_OrderByInput = TypedDict(
     '_User_isPremium_OrderByInput',
     {
@@ -1390,6 +1386,22 @@ _User_hideAds_OrderByInput = TypedDict(
     '_User_hideAds_OrderByInput',
     {
         'hideAds': 'SortOrder',
+    },
+    total=True
+)
+
+_User_avatar_OrderByInput = TypedDict(
+    '_User_avatar_OrderByInput',
+    {
+        'avatar': 'SortOrder',
+    },
+    total=True
+)
+
+_User_about_OrderByInput = TypedDict(
+    '_User_about_OrderByInput',
+    {
+        'about': 'SortOrder',
     },
     total=True
 )
@@ -1433,10 +1445,11 @@ UserOrderByInput = Union[
     '_User_email_OrderByInput',
     '_User_username_OrderByInput',
     '_User_passwordHash_OrderByInput',
-    '_User_registrationDate_OrderByInput',
     '_User_isPremium_OrderByInput',
     '_User_premiumExpirationDate_OrderByInput',
     '_User_hideAds_OrderByInput',
+    '_User_avatar_OrderByInput',
+    '_User_about_OrderByInput',
     '_User_createdAt_OrderByInput',
     '_User_updatedAt_OrderByInput',
     '_User_RelevanceOrderByInput',
@@ -2722,10 +2735,11 @@ class UserWhereInput(TypedDict, total=False):
     email: Union[_str, 'types.StringFilter']
     username: Union[_str, 'types.StringFilter']
     passwordHash: Union[_str, 'types.StringFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
     premiumExpirationDate: Union[None, datetime.datetime, 'types.DateTimeFilter']
     hideAds: Union[_bool, 'types.BooleanFilter']
+    avatar: Union[None, _str, 'types.StringFilter']
+    about: Union[None, _str, 'types.StringFilter']
     votes: 'VoteListRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
     notifications: 'NotificationListRelationFilter'
@@ -2747,10 +2761,11 @@ class UserWhereInputRecursive1(TypedDict, total=False):
     email: Union[_str, 'types.StringFilter']
     username: Union[_str, 'types.StringFilter']
     passwordHash: Union[_str, 'types.StringFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
     premiumExpirationDate: Union[None, datetime.datetime, 'types.DateTimeFilter']
     hideAds: Union[_bool, 'types.BooleanFilter']
+    avatar: Union[None, _str, 'types.StringFilter']
+    about: Union[None, _str, 'types.StringFilter']
     votes: 'VoteListRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
     notifications: 'NotificationListRelationFilter'
@@ -2772,10 +2787,11 @@ class UserWhereInputRecursive2(TypedDict, total=False):
     email: Union[_str, 'types.StringFilter']
     username: Union[_str, 'types.StringFilter']
     passwordHash: Union[_str, 'types.StringFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
     premiumExpirationDate: Union[None, datetime.datetime, 'types.DateTimeFilter']
     hideAds: Union[_bool, 'types.BooleanFilter']
+    avatar: Union[None, _str, 'types.StringFilter']
+    about: Union[None, _str, 'types.StringFilter']
     votes: 'VoteListRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
     notifications: 'NotificationListRelationFilter'
@@ -2797,10 +2813,11 @@ class UserWhereInputRecursive3(TypedDict, total=False):
     email: Union[_str, 'types.StringFilter']
     username: Union[_str, 'types.StringFilter']
     passwordHash: Union[_str, 'types.StringFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
     premiumExpirationDate: Union[None, datetime.datetime, 'types.DateTimeFilter']
     hideAds: Union[_bool, 'types.BooleanFilter']
+    avatar: Union[None, _str, 'types.StringFilter']
+    about: Union[None, _str, 'types.StringFilter']
     votes: 'VoteListRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
     notifications: 'NotificationListRelationFilter'
@@ -2822,10 +2839,11 @@ class UserWhereInputRecursive4(TypedDict, total=False):
     email: Union[_str, 'types.StringFilter']
     username: Union[_str, 'types.StringFilter']
     passwordHash: Union[_str, 'types.StringFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
     premiumExpirationDate: Union[None, datetime.datetime, 'types.DateTimeFilter']
     hideAds: Union[_bool, 'types.BooleanFilter']
+    avatar: Union[None, _str, 'types.StringFilter']
+    about: Union[None, _str, 'types.StringFilter']
     votes: 'VoteListRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
     notifications: 'NotificationListRelationFilter'
@@ -2847,10 +2865,11 @@ class UserScalarWhereWithAggregatesInput(TypedDict, total=False):
     email: Union[_str, 'types.StringWithAggregatesFilter']
     username: Union[_str, 'types.StringWithAggregatesFilter']
     passwordHash: Union[_str, 'types.StringWithAggregatesFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    avatar: Union[_str, 'types.StringWithAggregatesFilter']
+    about: Union[_str, 'types.StringWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -2865,10 +2884,11 @@ class UserScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     email: Union[_str, 'types.StringWithAggregatesFilter']
     username: Union[_str, 'types.StringWithAggregatesFilter']
     passwordHash: Union[_str, 'types.StringWithAggregatesFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    avatar: Union[_str, 'types.StringWithAggregatesFilter']
+    about: Union[_str, 'types.StringWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -2883,10 +2903,11 @@ class UserScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     email: Union[_str, 'types.StringWithAggregatesFilter']
     username: Union[_str, 'types.StringWithAggregatesFilter']
     passwordHash: Union[_str, 'types.StringWithAggregatesFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    avatar: Union[_str, 'types.StringWithAggregatesFilter']
+    about: Union[_str, 'types.StringWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -2901,10 +2922,11 @@ class UserScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     email: Union[_str, 'types.StringWithAggregatesFilter']
     username: Union[_str, 'types.StringWithAggregatesFilter']
     passwordHash: Union[_str, 'types.StringWithAggregatesFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    avatar: Union[_str, 'types.StringWithAggregatesFilter']
+    about: Union[_str, 'types.StringWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -2919,10 +2941,11 @@ class UserScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     email: Union[_str, 'types.StringWithAggregatesFilter']
     username: Union[_str, 'types.StringWithAggregatesFilter']
     passwordHash: Union[_str, 'types.StringWithAggregatesFilter']
-    registrationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
     premiumExpirationDate: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     hideAds: Union[_bool, 'types.BooleanWithAggregatesFilter']
+    avatar: Union[_str, 'types.StringWithAggregatesFilter']
+    about: Union[_str, 'types.StringWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -2933,10 +2956,11 @@ class UserGroupByOutput(TypedDict, total=False):
     email: _str
     username: _str
     passwordHash: _str
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: datetime.datetime
     hideAds: _bool
+    avatar: _str
+    about: _str
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
     _sum: 'UserSumAggregateOutput'
@@ -2962,10 +2986,11 @@ class UserScalarAggregateOutput(TypedDict, total=False):
     email: _str
     username: _str
     passwordHash: _str
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: datetime.datetime
     hideAds: _bool
+    avatar: _str
+    about: _str
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
 
@@ -2980,10 +3005,11 @@ class UserMaxAggregateInput(TypedDict, total=False):
     email: bool
     username: bool
     passwordHash: bool
-    registrationDate: bool
     isPremium: bool
     premiumExpirationDate: bool
     hideAds: bool
+    avatar: bool
+    about: bool
     createdAt: bool
     updatedAt: bool
 
@@ -2994,10 +3020,11 @@ class UserMinAggregateInput(TypedDict, total=False):
     email: bool
     username: bool
     passwordHash: bool
-    registrationDate: bool
     isPremium: bool
     premiumExpirationDate: bool
     hideAds: bool
+    avatar: bool
+    about: bool
     createdAt: bool
     updatedAt: bool
 
@@ -3018,10 +3045,11 @@ UserCountAggregateInput = TypedDict(
         'email': bool,
         'username': bool,
         'passwordHash': bool,
-        'registrationDate': bool,
         'isPremium': bool,
         'premiumExpirationDate': bool,
         'hideAds': bool,
+        'avatar': bool,
+        'about': bool,
         'createdAt': bool,
         'updatedAt': bool,
         '_all': bool,
@@ -3036,10 +3064,11 @@ UserCountAggregateOutput = TypedDict(
         'email': int,
         'username': int,
         'passwordHash': int,
-        'registrationDate': int,
         'isPremium': int,
         'premiumExpirationDate': int,
         'hideAds': int,
+        'avatar': int,
+        'about': int,
         'createdAt': int,
         'updatedAt': int,
         '_all': int,
@@ -3053,10 +3082,11 @@ UserKeys = Literal[
     'email',
     'username',
     'passwordHash',
-    'registrationDate',
     'isPremium',
     'premiumExpirationDate',
     'hideAds',
+    'avatar',
+    'about',
     'votes',
     'readingProgress',
     'notifications',
@@ -3070,10 +3100,11 @@ UserScalarFieldKeys = Literal[
     'email',
     'username',
     'passwordHash',
-    'registrationDate',
     'isPremium',
     'premiumExpirationDate',
     'hideAds',
+    'avatar',
+    'about',
     'createdAt',
     'updatedAt',
 ]
@@ -3091,8 +3122,8 @@ UserRelationalFieldKeys = Literal[
 
 class GenreOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the Genre create method"""
-    id: _str
-    parentId: Optional[_str]
+    id: _int
+    parentId: Optional[_int]
     parent: 'GenreCreateNestedWithoutRelationsInput'
     subgenres: 'GenreCreateManyNestedWithoutRelationsInput'
     books: 'BookCreateManyNestedWithoutRelationsInput'
@@ -3111,8 +3142,8 @@ class GenreCreateInput(GenreOptionalCreateInput):
 
 class GenreOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the Genre create method, without relations"""
-    id: _str
-    parentId: Optional[_str]
+    id: _int
+    parentId: Optional[_int]
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
 
@@ -3139,7 +3170,7 @@ class GenreCreateManyNestedWithoutRelationsInput(TypedDict, total=False):
 _GenreWhereUnique_id_Input = TypedDict(
     '_GenreWhereUnique_id_Input',
     {
-        'id': '_str',
+        'id': '_int',
     },
     total=True
 )
@@ -3149,7 +3180,7 @@ GenreWhereUniqueInput = _GenreWhereUnique_id_Input
 
 class GenreUpdateInput(TypedDict, total=False):
     """Optional arguments for updating a record"""
-    id: _str
+    id: Union[AtomicIntInput, _int]
     name: _str
     parent: 'GenreUpdateOneWithoutRelationsInput'
     subgenres: 'GenreUpdateManyWithoutRelationsInput'
@@ -3161,7 +3192,7 @@ class GenreUpdateInput(TypedDict, total=False):
 
 class GenreUpdateManyMutationInput(TypedDict, total=False):
     """Arguments for updating many records"""
-    id: _str
+    id: Union[AtomicIntInput, _int]
     name: _str
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
@@ -4541,9 +4572,9 @@ FindFirstGenreArgs = FindManyGenreArgsFromGenre
 
 class GenreWhereInput(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringFilter']
+    id: Union[_int, 'types.IntFilter']
     name: Union[_str, 'types.StringFilter']
-    parentId: Union[None, _str, 'types.StringFilter']
+    parentId: Union[None, _int, 'types.IntFilter']
     parent: 'GenreRelationFilter'
     subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
@@ -4560,9 +4591,9 @@ class GenreWhereInput(TypedDict, total=False):
 
 class GenreWhereInputRecursive1(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringFilter']
+    id: Union[_int, 'types.IntFilter']
     name: Union[_str, 'types.StringFilter']
-    parentId: Union[None, _str, 'types.StringFilter']
+    parentId: Union[None, _int, 'types.IntFilter']
     parent: 'GenreRelationFilter'
     subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
@@ -4579,9 +4610,9 @@ class GenreWhereInputRecursive1(TypedDict, total=False):
 
 class GenreWhereInputRecursive2(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringFilter']
+    id: Union[_int, 'types.IntFilter']
     name: Union[_str, 'types.StringFilter']
-    parentId: Union[None, _str, 'types.StringFilter']
+    parentId: Union[None, _int, 'types.IntFilter']
     parent: 'GenreRelationFilter'
     subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
@@ -4598,9 +4629,9 @@ class GenreWhereInputRecursive2(TypedDict, total=False):
 
 class GenreWhereInputRecursive3(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringFilter']
+    id: Union[_int, 'types.IntFilter']
     name: Union[_str, 'types.StringFilter']
-    parentId: Union[None, _str, 'types.StringFilter']
+    parentId: Union[None, _int, 'types.IntFilter']
     parent: 'GenreRelationFilter'
     subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
@@ -4617,9 +4648,9 @@ class GenreWhereInputRecursive3(TypedDict, total=False):
 
 class GenreWhereInputRecursive4(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringFilter']
+    id: Union[_int, 'types.IntFilter']
     name: Union[_str, 'types.StringFilter']
-    parentId: Union[None, _str, 'types.StringFilter']
+    parentId: Union[None, _int, 'types.IntFilter']
     parent: 'GenreRelationFilter'
     subgenres: 'GenreListRelationFilter'
     books: 'BookListRelationFilter'
@@ -4636,9 +4667,9 @@ class GenreWhereInputRecursive4(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInput(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringWithAggregatesFilter']
+    id: Union[_int, 'types.IntWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
-    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_int, 'types.IntWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -4649,9 +4680,9 @@ class GenreScalarWhereWithAggregatesInput(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringWithAggregatesFilter']
+    id: Union[_int, 'types.IntWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
-    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_int, 'types.IntWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -4662,9 +4693,9 @@ class GenreScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringWithAggregatesFilter']
+    id: Union[_int, 'types.IntWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
-    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_int, 'types.IntWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -4675,9 +4706,9 @@ class GenreScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringWithAggregatesFilter']
+    id: Union[_int, 'types.IntWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
-    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_int, 'types.IntWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
@@ -4688,18 +4719,18 @@ class GenreScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
 
 class GenreScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     """Genre arguments for searching"""
-    id: Union[_str, 'types.StringWithAggregatesFilter']
+    id: Union[_int, 'types.IntWithAggregatesFilter']
     name: Union[_str, 'types.StringWithAggregatesFilter']
-    parentId: Union[_str, 'types.StringWithAggregatesFilter']
+    parentId: Union[_int, 'types.IntWithAggregatesFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeWithAggregatesFilter']
 
 
 
 class GenreGroupByOutput(TypedDict, total=False):
-    id: _str
+    id: _int
     name: _str
-    parentId: _str
+    parentId: _int
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
     _sum: 'GenreSumAggregateOutput'
@@ -4711,17 +4742,21 @@ class GenreGroupByOutput(TypedDict, total=False):
 
 class GenreAvgAggregateOutput(TypedDict, total=False):
     """Genre output for aggregating averages"""
+    id: float
+    parentId: float
 
 
 class GenreSumAggregateOutput(TypedDict, total=False):
     """Genre output for aggregating sums"""
+    id: _int
+    parentId: _int
 
 
 class GenreScalarAggregateOutput(TypedDict, total=False):
     """Genre output including scalar fields"""
-    id: _str
+    id: _int
     name: _str
-    parentId: _str
+    parentId: _int
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
 
@@ -4750,6 +4785,8 @@ class GenreMinAggregateInput(TypedDict, total=False):
 
 class GenreNumberAggregateInput(TypedDict, total=False):
     """Genre input for aggregating numbers"""
+    id: bool
+    parentId: bool
 
 
 GenreAvgAggregateInput = GenreNumberAggregateInput
@@ -6432,7 +6469,7 @@ class BookOptionalCreateInput(TypedDict, total=False):
     id: _int
     description: Optional[_str]
     coverUrl: Optional[_str]
-    genreId: Optional[_str]
+    genreId: Optional[_int]
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
@@ -6469,7 +6506,7 @@ class BookOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     id: _int
     description: Optional[_str]
     coverUrl: Optional[_str]
-    genreId: Optional[_str]
+    genreId: Optional[_int]
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
@@ -8095,7 +8132,7 @@ class BookWhereInput(TypedDict, total=False):
     description: Union[None, _str, 'types.StringFilter']
     coverUrl: Union[None, _str, 'types.StringFilter']
     litresId: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
@@ -8131,7 +8168,7 @@ class BookWhereInputRecursive1(TypedDict, total=False):
     description: Union[None, _str, 'types.StringFilter']
     coverUrl: Union[None, _str, 'types.StringFilter']
     litresId: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
@@ -8167,7 +8204,7 @@ class BookWhereInputRecursive2(TypedDict, total=False):
     description: Union[None, _str, 'types.StringFilter']
     coverUrl: Union[None, _str, 'types.StringFilter']
     litresId: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
@@ -8203,7 +8240,7 @@ class BookWhereInputRecursive3(TypedDict, total=False):
     description: Union[None, _str, 'types.StringFilter']
     coverUrl: Union[None, _str, 'types.StringFilter']
     litresId: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
@@ -8239,7 +8276,7 @@ class BookWhereInputRecursive4(TypedDict, total=False):
     description: Union[None, _str, 'types.StringFilter']
     coverUrl: Union[None, _str, 'types.StringFilter']
     litresId: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     rating: Union[_float, 'types.FloatFilter']
     isPremium: Union[_bool, 'types.BooleanFilter']
@@ -8275,7 +8312,7 @@ class BookScalarWhereWithAggregatesInput(TypedDict, total=False):
     description: Union[_str, 'types.StringWithAggregatesFilter']
     coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
     litresId: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
@@ -8303,7 +8340,7 @@ class BookScalarWhereWithAggregatesInputRecursive1(TypedDict, total=False):
     description: Union[_str, 'types.StringWithAggregatesFilter']
     coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
     litresId: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
@@ -8331,7 +8368,7 @@ class BookScalarWhereWithAggregatesInputRecursive2(TypedDict, total=False):
     description: Union[_str, 'types.StringWithAggregatesFilter']
     coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
     litresId: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
@@ -8359,7 +8396,7 @@ class BookScalarWhereWithAggregatesInputRecursive3(TypedDict, total=False):
     description: Union[_str, 'types.StringWithAggregatesFilter']
     coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
     litresId: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
@@ -8387,7 +8424,7 @@ class BookScalarWhereWithAggregatesInputRecursive4(TypedDict, total=False):
     description: Union[_str, 'types.StringWithAggregatesFilter']
     coverUrl: Union[_str, 'types.StringWithAggregatesFilter']
     litresId: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     rating: Union[_float, 'types.FloatWithAggregatesFilter']
     isPremium: Union[_bool, 'types.BooleanWithAggregatesFilter']
@@ -8411,7 +8448,7 @@ class BookGroupByOutput(TypedDict, total=False):
     description: _str
     coverUrl: _str
     litresId: _int
-    genreId: _str
+    genreId: _int
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
@@ -8436,6 +8473,7 @@ class BookAvgAggregateOutput(TypedDict, total=False):
     """Book output for aggregating averages"""
     id: float
     litresId: float
+    genreId: float
     ageCategoryId: float
     rating: float
     litresRating: float
@@ -8446,6 +8484,7 @@ class BookSumAggregateOutput(TypedDict, total=False):
     """Book output for aggregating sums"""
     id: _int
     litresId: _int
+    genreId: _int
     ageCategoryId: _int
     rating: _float
     litresRating: _float
@@ -8460,7 +8499,7 @@ class BookScalarAggregateOutput(TypedDict, total=False):
     description: _str
     coverUrl: _str
     litresId: _int
-    genreId: _str
+    genreId: _int
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
@@ -8532,6 +8571,7 @@ class BookNumberAggregateInput(TypedDict, total=False):
     """Book input for aggregating numbers"""
     id: bool
     litresId: bool
+    genreId: bool
     ageCategoryId: bool
     rating: bool
     litresRating: bool
@@ -13928,7 +13968,7 @@ ReadingProgressRelationalFieldKeys = Literal[
 class WeeklyResultOptionalCreateInput(TypedDict, total=False):
     """Optional arguments to the WeeklyResult create method"""
     id: _int
-    genreId: Optional[_str]
+    genreId: Optional[_int]
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -13950,7 +13990,7 @@ class WeeklyResultCreateInput(WeeklyResultOptionalCreateInput):
 class WeeklyResultOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     """Optional arguments to the WeeklyResult create method, without relations"""
     id: _int
-    genreId: Optional[_str]
+    genreId: Optional[_int]
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -13988,7 +14028,7 @@ _WeeklyResultCompoundweekNumber_genreId_ageCategoryIdKeyInner = TypedDict(
     '_WeeklyResultCompoundweekNumber_genreId_ageCategoryIdKeyInner',
     {
         'weekNumber': '_int',
-        'genreId': '_str',
+        'genreId': '_int',
         'ageCategoryId': '_int',
     },
     total=True
@@ -15420,7 +15460,7 @@ class WeeklyResultWhereInput(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -15441,7 +15481,7 @@ class WeeklyResultWhereInputRecursive1(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -15462,7 +15502,7 @@ class WeeklyResultWhereInputRecursive2(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -15483,7 +15523,7 @@ class WeeklyResultWhereInputRecursive3(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -15504,7 +15544,7 @@ class WeeklyResultWhereInputRecursive4(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntFilter']
     weekNumber: Union[_int, 'types.IntFilter']
-    genreId: Union[None, _str, 'types.StringFilter']
+    genreId: Union[None, _int, 'types.IntFilter']
     ageCategoryId: Union[_int, 'types.IntFilter']
     bookId: Union[_int, 'types.IntFilter']
     leaderUserId: Union[_int, 'types.IntFilter']
@@ -15525,7 +15565,7 @@ class WeeklyResultScalarWhereWithAggregatesInput(TypedDict, total=False):
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -15540,7 +15580,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive1(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -15555,7 +15595,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive2(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -15570,7 +15610,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive3(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -15585,7 +15625,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive4(TypedDict, total=Fals
     """WeeklyResult arguments for searching"""
     id: Union[_int, 'types.IntWithAggregatesFilter']
     weekNumber: Union[_int, 'types.IntWithAggregatesFilter']
-    genreId: Union[_str, 'types.StringWithAggregatesFilter']
+    genreId: Union[_int, 'types.IntWithAggregatesFilter']
     ageCategoryId: Union[_int, 'types.IntWithAggregatesFilter']
     bookId: Union[_int, 'types.IntWithAggregatesFilter']
     leaderUserId: Union[_int, 'types.IntWithAggregatesFilter']
@@ -15596,7 +15636,7 @@ class WeeklyResultScalarWhereWithAggregatesInputRecursive4(TypedDict, total=Fals
 class WeeklyResultGroupByOutput(TypedDict, total=False):
     id: _int
     weekNumber: _int
-    genreId: _str
+    genreId: _int
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -15612,6 +15652,7 @@ class WeeklyResultAvgAggregateOutput(TypedDict, total=False):
     """WeeklyResult output for aggregating averages"""
     id: float
     weekNumber: float
+    genreId: float
     ageCategoryId: float
     bookId: float
     leaderUserId: float
@@ -15622,6 +15663,7 @@ class WeeklyResultSumAggregateOutput(TypedDict, total=False):
     """WeeklyResult output for aggregating sums"""
     id: _int
     weekNumber: _int
+    genreId: _int
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -15632,7 +15674,7 @@ class WeeklyResultScalarAggregateOutput(TypedDict, total=False):
     """WeeklyResult output including scalar fields"""
     id: _int
     weekNumber: _int
-    genreId: _str
+    genreId: _int
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -15669,6 +15711,7 @@ class WeeklyResultNumberAggregateInput(TypedDict, total=False):
     """WeeklyResult input for aggregating numbers"""
     id: bool
     weekNumber: bool
+    genreId: bool
     ageCategoryId: bool
     bookId: bool
     leaderUserId: bool

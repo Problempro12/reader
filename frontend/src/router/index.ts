@@ -122,13 +122,31 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
   const requiresAuth = to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some((record: { meta: { requiresAdmin?: boolean } }) => record.meta.requiresAdmin)
 
-  if (requiresAuth && !isAuthenticated) {
+  if (requiresAuth) {
+    if (!isAuthenticated) {
     console.log('Требуется аутентификация, перенаправление на страницу входа')
     next({ 
       name: 'login',
       query: { redirect: to.fullPath }
     })
-  } else if (requiresAdmin && !isAdmin) {
+      return
+    }
+
+    // Проверяем валидность токена
+    try {
+      await userStore.fetchUserData()
+    } catch (error) {
+      console.log('Токен недействителен, перенаправление на страницу входа')
+      userStore.clearAuthData()
+      next({ 
+        name: 'login',
+        query: { redirect: to.fullPath }
+      })
+      return
+    }
+  }
+
+  if (requiresAdmin && !isAdmin) {
     console.log('Доступ запрещен: требуется права администратора')
     console.log('Текущие права:', { is_staff: userData.is_staff, is_superuser: userData.is_superuser })
     next({ name: 'home' })

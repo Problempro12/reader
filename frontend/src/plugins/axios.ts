@@ -10,6 +10,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('authToken');
+    console.log('Запрос:', config.url, 'Токен:', token ? 'Присутствует' : 'Отсутствует');
     
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,9 +26,12 @@ axiosInstance.interceptors.request.use(
 
 // Добавляем интерсептор для обработки ошибок авторизации
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log('Успешный ответ:', response.config.url);
+    return response;
+  },
   async (error) => {
-    console.error('Ошибка ответа:', error);
+    console.error('Ошибка ответа:', error.config?.url, error.response?.status);
     
     if (error.code === 'ERR_NETWORK') {
       console.error('Ошибка сети. Проверьте, запущен ли сервер.');
@@ -44,12 +48,17 @@ axiosInstance.interceptors.response.use(
         // Пробуем обновить токен
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
-          const response = await axios.post('/api/token/refresh/', {
+          console.log('Попытка обновления токена...');
+          const response = await axiosInstance.post('users/token/refresh/', {
             refresh: refreshToken
           });
           
           const { access } = response.data;
+          console.log('Токен обновлен');
           localStorage.setItem('authToken', access);
+          
+          // Обновляем токен в axios
+          axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access}`;
           
           // Повторяем оригинальный запрос с новым токеном
           originalRequest.headers.Authorization = `Bearer ${access}`;
@@ -61,6 +70,7 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('authToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
+        delete axiosInstance.defaults.headers.common['Authorization'];
         
         if (router.currentRoute.value.path !== '/auth/login') {
           router.push('/auth/login');

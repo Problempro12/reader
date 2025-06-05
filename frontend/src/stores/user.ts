@@ -38,6 +38,13 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
     
+    // Обновляем токен в axios
+    if (token) {
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axiosInstance.defaults.headers.common['Authorization'];
+    }
+    
     // Проверяем данные после сохранения
     console.log('Store: данные после сохранения:', {
       authToken: authToken.value ? 'Присутствует' : 'Отсутствует',
@@ -51,6 +58,8 @@ export const useUserStore = defineStore('user', () => {
     userData.value = null;
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('refreshToken');
+    delete axiosInstance.defaults.headers.common['Authorization'];
   };
 
   // Функция для загрузки данных пользователя с бэкенда

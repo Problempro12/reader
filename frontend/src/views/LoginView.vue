@@ -70,7 +70,7 @@ const login = async () => {
     
     console.log('Сохранение данных в localStorage...')
     // Сохраняем токены в localStorage
-    localStorage.setItem('authToken', response.data.token)
+    localStorage.setItem('authToken', response.data.access)
     localStorage.setItem('refreshToken', response.data.refresh)
     localStorage.setItem('user', JSON.stringify(response.data.user))
     
@@ -84,13 +84,16 @@ const login = async () => {
     
     console.log('Обновление состояния store...')
     // Обновляем состояние store
-    userStore.setAuthData(response.data.token, response.data.user)
+    userStore.setAuthData(response.data.access, response.data.user)
     
     // Проверяем данные в store
     console.log('Данные в store после обновления:', {
       userData: userStore.userData,
       isAdmin: userStore.userData?.is_staff || userStore.userData?.is_superuser
     })
+    
+    // Обновляем токен в axios
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`
     
     // Перенаправляем на предыдущий маршрут или на главную
     const redirectPath = route.query.redirect as string || '/'

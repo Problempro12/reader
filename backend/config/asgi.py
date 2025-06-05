@@ -16,5 +16,7 @@ from django.urls import path
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 application = ProtocolTypeRouter({
-    "http": get_asgi_application(),
+    "http": AuthMiddlewareStack(
+        get_asgi_application()
+    ),
 })

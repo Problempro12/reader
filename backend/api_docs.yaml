@@ -1,0 +1,340 @@
+openapi: 3.0.0
+info:
+  title: Reader API
+  version: 1.0.0
+  description: API для системы управления чтением книг
+
+servers:
+  - url: http://localhost:8000/api
+    description: Локальный сервер разработки
+  - url: https://api.reader.com/api
+    description: Продакшн сервер
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        is_premium:
+          type: boolean
+        is_staff:
+          type: boolean
+        is_superuser:
+          type: boolean
+
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        author:
+          type: string
+        genre:
+          $ref: '#/components/schemas/Genre'
+        ageCategory:
+          $ref: '#/components/schemas/AgeCategory'
+
+    Genre:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    AgeCategory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+
+    Vote:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        weekNumber:
+          type: integer
+
+    ReadingProgress:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        weekNumber:
+          type: integer
+        marks:
+          type: integer
+
+paths:
+  /users/register:
+    post:
+      summary: Регистрация нового пользователя
+      tags:
+        - Пользователи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+      responses:
+        '201':
+          description: Пользователь успешно зарегистрирован
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: Неверные данные
+
+  /users/login:
+    post:
+      summary: Вход пользователя
+      tags:
+        - Пользователи
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  refresh:
+                    type: string
+                  access:
+                    type: string
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Неверные учетные данные
+
+  /books:
+    get:
+      summary: Получение списка книг
+      tags:
+        - Книги
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: query
+          name: genre
+          schema:
+            type: string
+          description: Фильтр по жанру
+        - in: query
+          name: ageCategory
+          schema:
+            type: string
+          description: Фильтр по возрастной категории
+      responses:
+        '200':
+          description: Список книг
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '401':
+          description: Не авторизован
+
+    post:
+      summary: Создание новой книги
+      tags:
+        - Книги
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - author
+                - genreId
+                - ageCategoryId
+              properties:
+                title:
+                  type: string
+                author:
+                  type: string
+                genreId:
+                  type: string
+                  format: uuid
+                ageCategoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Книга создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '401':
+          description: Не авторизован
+        '400':
+          description: Неверные данные
+
+  /books/{id}:
+    get:
+      summary: Получение информации о книге
+      tags:
+        - Книги
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Информация о книге
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Книга не найдена
+
+  /books/vote:
+    post:
+      summary: Голосование за книгу
+      tags:
+        - Голосования
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookId
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Голос успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vote'
+        '400':
+          description: Неверные данные
+        '401':
+          description: Не авторизован
+
+  /books/progress:
+    post:
+      summary: Создание записи о прогрессе чтения
+      tags:
+        - Прогресс чтения
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - bookId
+                - marks
+              properties:
+                bookId:
+                  type: string
+                  format: uuid
+                marks:
+                  type: integer
+                  minimum: 1
+      responses:
+        '201':
+          description: Прогресс успешно создан
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadingProgress'
+        '400':
+          description: Неверные данные
+        '401':
+          description: Не авторизован 

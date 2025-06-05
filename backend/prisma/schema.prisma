@@ -23,15 +23,16 @@ model User {
   email               String           @unique
   username            String
   passwordHash        String
-  registrationDate    DateTime         @default(now())
   isPremium           Boolean          @default(false)
   premiumExpirationDate DateTime?
   hideAds             Boolean          @default(false)
+  avatar              String?
+  about               String?          @db.Text
   votes               Vote[]
   readingProgress     ReadingProgress[]
   notifications       Notification[]
   leaderResults       WeeklyResult[]   @relation("Leader")
-  userBooks           UserBook[] // Добавляем связь с UserBook
+  userBooks           UserBook[]
   createdAt           DateTime         @default(now())
   updatedAt           DateTime         @updatedAt
 }
@@ -44,8 +45,8 @@ model Genre {
   subgenres   Genre[]  @relation("GenreToSubgenre")
   books       Book[]
   weeklyResults WeeklyResult[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime? @default(now())
+  updatedAt   DateTime? @updatedAt
 }
 
 model AgeCategory {
@@ -61,7 +62,7 @@ model Book {
   author          String
   description     String?
   coverUrl        String?
-  litresId        Int             @unique
+  litresId        Int?            @unique
   genreId         Int?
   ageCategoryId   Int
   rating          Float           @default(0)

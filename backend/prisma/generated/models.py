@@ -63,10 +63,11 @@ class User(bases.BaseUser):
     email: _str
     username: _str
     passwordHash: _str
-    registrationDate: datetime.datetime
     isPremium: _bool
     premiumExpirationDate: Optional[datetime.datetime] = None
     hideAds: _bool
+    avatar: Optional[_str] = None
+    about: Optional[_str] = None
     votes: Optional[List['models.Vote']] = None
     readingProgress: Optional[List['models.ReadingProgress']] = None
     notifications: Optional[List['models.Notification']] = None
@@ -201,9 +202,9 @@ class User(bases.BaseUser):
 class Genre(bases.BaseGenre):
     """Represents a Genre record"""
 
-    id: _str
+    id: _int
     name: _str
-    parentId: Optional[_str] = None
+    parentId: Optional[_int] = None
     parent: Optional['models.Genre'] = None
     subgenres: Optional[List['models.Genre']] = None
     books: Optional[List['models.Book']] = None
@@ -474,7 +475,7 @@ class Book(bases.BaseBook):
     description: Optional[_str] = None
     coverUrl: Optional[_str] = None
     litresId: _int
-    genreId: Optional[_str] = None
+    genreId: Optional[_int] = None
     ageCategoryId: _int
     rating: _float
     isPremium: _bool
@@ -1027,7 +1028,7 @@ class WeeklyResult(bases.BaseWeeklyResult):
 
     id: _int
     weekNumber: _int
-    genreId: Optional[_str] = None
+    genreId: Optional[_int] = None
     ageCategoryId: _int
     bookId: _int
     leaderUserId: _int
@@ -1597,14 +1598,6 @@ _User_fields: Dict['types.UserKeys', PartialModelField] = OrderedDict(
             'is_relational': False,
             'documentation': None,
         }),
-        ('registrationDate', {
-            'name': 'registrationDate',
-            'is_list': False,
-            'optional': False,
-            'type': 'datetime.datetime',
-            'is_relational': False,
-            'documentation': None,
-        }),
         ('isPremium', {
             'name': 'isPremium',
             'is_list': False,
@@ -1626,6 +1619,22 @@ _User_fields: Dict['types.UserKeys', PartialModelField] = OrderedDict(
             'is_list': False,
             'optional': False,
             'type': '_bool',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('avatar', {
+            'name': 'avatar',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('about', {
+            'name': 'about',
+            'is_list': False,
+            'optional': True,
+            'type': '_str',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1700,7 +1709,7 @@ _Genre_fields: Dict['types.GenreKeys', PartialModelField] = OrderedDict(
             'name': 'id',
             'is_list': False,
             'optional': False,
-            'type': '_str',
+            'type': '_int',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1716,7 +1725,7 @@ _Genre_fields: Dict['types.GenreKeys', PartialModelField] = OrderedDict(
             'name': 'parentId',
             'is_list': False,
             'optional': True,
-            'type': '_str',
+            'type': '_int',
             'is_relational': False,
             'documentation': None,
         }),
@@ -1874,7 +1883,7 @@ _Book_fields: Dict['types.BookKeys', PartialModelField] = OrderedDict(
             'name': 'genreId',
             'is_list': False,
             'optional': True,
-            'type': '_str',
+            'type': '_int',
             'is_relational': False,
             'documentation': None,
         }),
@@ -2272,7 +2281,7 @@ _WeeklyResult_fields: Dict['types.WeeklyResultKeys', PartialModelField] = Ordere
             'name': 'genreId',
             'is_list': False,
             'optional': True,
-            'type': '_str',
+            'type': '_int',
             'is_relational': False,
             'documentation': None,
         }),

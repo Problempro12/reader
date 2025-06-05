@@ -9,9 +9,19 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from bs4 import BeautifulSoup
+from asgiref.sync import sync_to_async
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from functools import wraps
 
 def run_async(coro):
     return asyncio.run(coro)
+
+def async_view(view_func):
+    @wraps(view_func)
+    async def wrapped_view(self, request, *args, **kwargs):
+        return await sync_to_async(view_func)(self, request, *args, **kwargs)
+    return wrapped_view
 
 # Create your views here.
 
@@ -158,14 +168,16 @@ class WeeklyResultListView(generics.ListAPIView):
 
 class ScrapeLitresView(APIView):
     permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
 
-    async def post(self, request):
+    def post(self, request):
         """Получение информации о книге с LitRes по URL"""
         url = request.data.get('url')
         if not url:
             return Response({'error': 'URL не указан'}, status=400)
 
         try:
+            print(f"Пользователь: {request.user.username}")
             print(f"Начинаем запрос к LitRes: {url}")
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -239,42 +251,6 @@ class ScrapeLitresView(APIView):
                     genres.append(genre_text)
             print(f"Найдены жанры: {genres}")
 
-            # Находим или создаем жанры в базе данных
-            genre_ids = []
-            prisma = Prisma() # Создаем новый экземпляр Prisma для этой операции
-            await prisma.connect() # Подключаемся к базе данных
-
-            for genre_name in genres:
-                print(f"Ищем жанр в базе данных: '{genre_name}'")
-                # Ищем жанр в базе
-                genre = await prisma.genre.find_first(
-                    where={
-                        'OR': [
-                            {'name': genre_name},
-                            {'subgenres': {'some': {'name': genre_name}}}
-                        ]
-                    }
-                )
-
-                if genre:
-                    print(f"Жанр найдет в базе: '{genre.name}' (ID: {genre.id})")
-                    genre_ids.append(genre.id)
-                else:
-                    # Если жанр не найден, создаем его
-                    print(f"Жанр '{genre_name}' не найден. Создаем новый.")
-                    try:
-                        new_genre = await prisma.genre.create(
-                            data={'name': genre_name}
-                        )
-                        print(f"Новый жанр создан: '{new_genre.name}' (ID: {new_genre.id})")
-                        genre_ids.append(new_genre.id)
-                    except Exception as create_error:
-                        print(f"Ошибка при создании жанра '{genre_name}': {str(create_error)}")
-                        # Можно добавить логику для пропуска этого жанра или возврата ошибки
-
-            await prisma.disconnect() # Отключаемся от базы данных
-            print(f"Все найденные/созданные ID жанров: {genre_ids}")
-
             # Ищем возрастной рейтинг в новой структуре
             age_rating_div = soup.select_one('div.CharacteristicsBlock-module__6QUqXW__characteristic:has(div.CharacteristicsBlock-module__6QUqXW__characteristic__title:contains("Возрастное ограничение"))')
             age_rating = None
@@ -322,40 +298,95 @@ class ScrapeLitresView(APIView):
 
             # Ищем рейтинг в новой структуре
             rating = soup.select_one('div[itemprop="aggregateRating"]')
-            rating_value = float(rating.select_one('meta[itemprop="ratingValue"]')['content']) if rating else None
-            rating_count = int(rating.select_one('meta[itemprop="ratingCount"]')['content']) if rating else None
+            rating_value = None
+            rating_count = None
+            if rating:
+                rating_value_elem = rating.select_one('meta[itemprop="ratingValue"]')
+                rating_count_elem = rating.select_one('meta[itemprop="ratingCount"]')
+                if rating_value_elem:
+                    rating_value = float(rating_value_elem['content'])
+                if rating_count_elem:
+                    rating_count = int(rating_count_elem['content'])
             print(f"Найден рейтинг: {rating_value} ({rating_count} оценок)")
 
-            # Добавляем отладочную информацию
-            print("\nОтладочная информация:")
-            for div in soup.select('div.CharacteristicsBlock-module__6QUqXW__characteristic'):
-                print(f"Характеристика: {div.text.strip()}")
-                print("Все span элементы:", [span.text.strip() for span in div.find_all('span')])
-                print("---")
+            # Создаем асинхронную функцию для работы с базой данных
+            async def save_book():
+                prisma = Prisma()
+                await prisma.connect()
+                try:
+                    # Находим или создаем жанры
+                    genre_ids = []
+                    for genre_name in genres:
+                        print(f"Ищем жанр в базе данных: '{genre_name}'")
+                        # Ищем жанр по имени
+                        genre = await prisma.genre.find_first(
+                            where={
+                                'name': genre_name
+                            }
+                        )
 
-            # Создаем книгу с жанрами
-            book = await prisma.book.create(
-                data={
-                    'title': title,
-                    'author': author,
-                    'coverUrl': cover, # Исправил на coverUrl
-                    'description': description,
-                    # 'ageRating': age_rating, # Удалил, так как ageRating - связь
-                    'series': series,
-                    'translator': translator,
-                    'litresRating': rating_value, # Исправил на litresRating
-                    'litresRatingCount': rating_count, # Исправил на litresRatingCount
-                    'volume': volume,
-                    'year': year,
-                    'copyrightHolder': copyright_holder,
-                    'genres': {
-                         'connect': [{'id': genre_id} for genre_id in genre_ids]
-                     } if genre_ids else {}, # Добавил проверку genre_ids
-                    'ageCategory': { # Добавляем связь с ageCategory
-                        'connect': {'id': 1} # Временно используем ID 1, нужно будет найти правильный ID
+                        if genre:
+                            print(f"Жанр найден в базе: '{genre.name}' (ID: {genre.id})")
+                            genre_ids.append(genre.id)
+                        else:
+                            print(f"Жанр '{genre_name}' не найден. Создаем новый.")
+                            try:
+                                new_genre = await prisma.genre.create(
+                                    data={
+                                        'name': genre_name,
+                                        'createdAt': datetime.now(),
+                                        'updatedAt': datetime.now()
+                                    }
+                                )
+                                print(f"Новый жанр создан: '{new_genre.name}' (ID: {new_genre.id})")
+                                genre_ids.append(new_genre.id)
+                            except Exception as create_error:
+                                print(f"Ошибка при создании жанра '{genre_name}': {str(create_error)}")
+                                continue
+
+                    # Проверяем наличие возрастной категории
+                    age_category = await prisma.agecategory.find_first()
+                    if not age_category:
+                        print("Создаем базовую возрастную категорию")
+                        age_category = await prisma.agecategory.create(
+                            data={
+                                'name': 'Для всех'
+                            }
+                        )
+                    age_category_id = age_category.id
+
+                    # Создаем книгу с жанрами
+                    book_data = {
+                        'title': title,
+                        'author': author,
+                        'coverUrl': cover,
+                        'description': description,
+                        'series': series if series else None,
+                        'translator': translator if translator else None,
+                        'litresRating': rating_value if rating_value else None,
+                        'litresRatingCount': rating_count if rating_count else None,
+                        'volume': volume if volume else None,
+                        'year': year if year else None,
+                        'copyrightHolder': copyright_holder if copyright_holder else None,
+                        'ageCategory': {
+                            'connect': {'id': age_category_id}
+                        }
                     }
-                }
-            )
+
+                    # Добавляем жанры только если они есть
+                    if genre_ids:
+                        book_data['genres'] = {
+                            'connect': [{'id': genre_id} for genre_id in genre_ids]
+                        }
+
+                    book = await prisma.book.create(data=book_data)
+                    print(f"Книга успешно создана: {book.id}")
+                    return book
+                finally:
+                    await prisma.disconnect()
+
+            # Запускаем асинхронную функцию и ждем результат
+            book = run_async(save_book())
 
             return Response({
                 'id': book.id,
@@ -377,6 +408,7 @@ class ScrapeLitresView(APIView):
                     'copyright_holder': copyright_holder
                 }
             })
+
         except requests.exceptions.RequestException as e:
             print(f"Ошибка запроса к LitRes: {str(e)}")
             return Response({'error': f'Ошибка запроса к LitRes: {e}'}, status=500)
