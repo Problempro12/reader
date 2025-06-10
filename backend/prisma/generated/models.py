@@ -491,7 +491,7 @@ class Book(bases.BaseBook):
     copyrightHolder: Optional[_str] = None
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
-    genreId: Optional[_int] = None
+    genreId: _int
     ageCategory: Optional['models.AgeCategory'] = None
     genre: Optional['models.Genre'] = None
     readingProgress: Optional[List['models.ReadingProgress']] = None
@@ -4387,7 +4387,7 @@ _Book_fields: Dict['types.BookKeys', PartialModelField] = OrderedDict(
         ('genreId', {
             'name': 'genreId',
             'is_list': False,
-            'optional': True,
+            'optional': False,
             'type': '_int',
             'is_relational': False,
             'documentation': None,

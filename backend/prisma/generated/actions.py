@@ -3257,6 +3257,7 @@ class BookActions(Generic[_PrismaModelT]):
                 'title': 'bhhfibbigf',
                 'author': 'ijdbeffgg',
                 'ageCategoryId': 995405759,
+                'genreId': 2102736524,
             },
         )
         ```
@@ -3311,15 +3312,17 @@ class BookActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Book record
-                    'title': 'cbachdgfce',
-                    'author': 'chbfcacbd',
-                    'ageCategoryId': 456633834,
+                    'title': 'chbfcacbd',
+                    'author': 'efggddide',
+                    'ageCategoryId': 2058258651,
+                    'genreId': 1583689592,
                 },
                 {
                     # data to create a Book record
-                    'title': 'caficfigfb',
-                    'author': 'bfidgijfjc',
-                    'ageCategoryId': 878442065,
+                    'title': 'ihieecagf',
+                    'author': 'bghfciaafe',
+                    'ageCategoryId': 1627576247,
+                    'genreId': 2054802212,
                 },
             ],
             skip_duplicates=True,
@@ -3373,7 +3376,7 @@ class BookActions(Generic[_PrismaModelT]):
         ```py
         book = await Book.prisma().delete(
             where={
-                'id': 1675280054,
+                'id': 60335757,
             },
         )
         ```
@@ -3425,7 +3428,7 @@ class BookActions(Generic[_PrismaModelT]):
         ```py
         book = await Book.prisma().find_unique(
             where={
-                'id': 1627576247,
+                'id': 684462146,
             },
         )
         ```
@@ -3476,7 +3479,7 @@ class BookActions(Generic[_PrismaModelT]):
         ```py
         book = await Book.prisma().find_unique_or_raise(
             where={
-                'id': 2054802212,
+                'id': 1625503827,
             },
         )
         ```
@@ -3728,7 +3731,7 @@ class BookActions(Generic[_PrismaModelT]):
         ```py
         book = await Book.prisma().update(
             where={
-                'id': 60335757,
+                'id': 521827728,
             },
             data={
                 # data to update the Book record to
@@ -3785,19 +3788,21 @@ class BookActions(Generic[_PrismaModelT]):
         ```py
         book = await Book.prisma().upsert(
             where={
-                'id': 684462146,
+                'id': 1266032265,
             },
             data={
                 'create': {
-                    'id': 684462146,
-                    'title': 'caficfigfb',
-                    'author': 'bfidgijfjc',
-                    'ageCategoryId': 878442065,
+                    'id': 1266032265,
+                    'title': 'ihieecagf',
+                    'author': 'bghfciaafe',
+                    'ageCategoryId': 1627576247,
+                    'genreId': 2054802212,
                 },
                 'update': {
-                    'title': 'caficfigfb',
-                    'author': 'bfidgijfjc',
-                    'ageCategoryId': 878442065,
+                    'title': 'ihieecagf',
+                    'author': 'bghfciaafe',
+                    'ageCategoryId': 1627576247,
+                    'genreId': 2054802212,
                 },
             },
         )
@@ -3845,7 +3850,7 @@ class BookActions(Generic[_PrismaModelT]):
         # update all Book records
         total = await Book.prisma().update_many(
             data={
-                'externalId': 'bgcffadich'
+                'externalId': 'jdcfdcgc'
             },
             where={}
         )
@@ -4208,7 +4213,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         users = await UserBook.prisma().query_raw(
             'SELECT * FROM UserBook WHERE id = $1',
-            521827728,
+            2053047983,
         )
         ```
         """
@@ -4248,7 +4253,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         user = await UserBook.prisma().query_first(
             'SELECT * FROM UserBook WHERE userId = $1',
-            1266032265,
+            685333180,
         )
         ```
         """
@@ -4287,9 +4292,9 @@ class UserBookActions(Generic[_PrismaModelT]):
         userbook = await UserBook.prisma().create(
             data={
                 # data to create a UserBook record
-                'userId': 93253262,
-                'bookId': 2053047983,
-                'status': 'gifdddbia',
+                'userId': 127474245,
+                'bookId': 948921754,
+                'status': 'bjgejjabff',
             },
         )
         ```
@@ -4344,15 +4349,15 @@ class UserBookActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a UserBook record
-                    'userId': 127474245,
-                    'bookId': 948921754,
-                    'status': 'bjgejjabff',
-                },
-                {
-                    # data to create a UserBook record
                     'userId': 1228891816,
                     'bookId': 255202753,
                     'status': 'bccdfhdigc',
+                },
+                {
+                    # data to create a UserBook record
+                    'userId': 541269159,
+                    'bookId': 1064846676,
+                    'status': 'faidicegb',
                 },
             ],
             skip_duplicates=True,
@@ -4406,7 +4411,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         userbook = await UserBook.prisma().delete(
             where={
-                'id': 541269159,
+                'id': 1024265714,
             },
         )
         ```
@@ -4458,7 +4463,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         userbook = await UserBook.prisma().find_unique(
             where={
-                'id': 1064846676,
+                'id': 872078403,
             },
         )
         ```
@@ -4509,7 +4514,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         userbook = await UserBook.prisma().find_unique_or_raise(
             where={
-                'id': 508382461,
+                'id': 1874748096,
             },
         )
         ```
@@ -4761,7 +4766,7 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         userbook = await UserBook.prisma().update(
             where={
-                'id': 1024265714,
+                'id': 916896761,
             },
             data={
                 # data to update the UserBook record to
@@ -4818,19 +4823,19 @@ class UserBookActions(Generic[_PrismaModelT]):
         ```py
         userbook = await UserBook.prisma().upsert(
             where={
-                'id': 872078403,
+                'id': 769267518,
             },
             data={
                 'create': {
-                    'id': 872078403,
-                    'userId': 1228891816,
-                    'bookId': 255202753,
-                    'status': 'bccdfhdigc',
+                    'id': 769267518,
+                    'userId': 541269159,
+                    'bookId': 1064846676,
+                    'status': 'faidicegb',
                 },
                 'update': {
-                    'userId': 1228891816,
-                    'bookId': 255202753,
-                    'status': 'bccdfhdigc',
+                    'userId': 541269159,
+                    'bookId': 1064846676,
+                    'status': 'faidicegb',
                 },
             },
         )
@@ -5241,7 +5246,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         users = await Vote.prisma().query_raw(
             'SELECT * FROM Vote WHERE id = $1',
-            1874748096,
+            820312479,
         )
         ```
         """
@@ -5281,7 +5286,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         user = await Vote.prisma().query_first(
             'SELECT * FROM Vote WHERE userId = $1',
-            916896761,
+            92728044,
         )
         ```
         """
@@ -5320,9 +5325,9 @@ class VoteActions(Generic[_PrismaModelT]):
         vote = await Vote.prisma().create(
             data={
                 # data to create a Vote record
-                'userId': 769267518,
-                'bookId': 820312479,
-                'weekNumber': 92728044,
+                'userId': 344858293,
+                'bookId': 1121741130,
+                'weekNumber': 1495896251,
             },
         )
         ```
@@ -5377,15 +5382,15 @@ class VoteActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Vote record
-                    'userId': 344858293,
-                    'bookId': 1121741130,
-                    'weekNumber': 1495896251,
-                },
-                {
-                    # data to create a Vote record
                     'userId': 208521688,
                     'bookId': 860811569,
                     'weekNumber': 1660932118,
+                },
+                {
+                    # data to create a Vote record
+                    'userId': 525761943,
+                    'bookId': 736209796,
+                    'weekNumber': 493907821,
                 },
             ],
             skip_duplicates=True,
@@ -5439,7 +5444,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         vote = await Vote.prisma().delete(
             where={
-                'id': 525761943,
+                'id': 639686562,
             },
         )
         ```
@@ -5491,7 +5496,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         vote = await Vote.prisma().find_unique(
             where={
-                'id': 736209796,
+                'id': 654007347,
             },
         )
         ```
@@ -5542,7 +5547,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         vote = await Vote.prisma().find_unique_or_raise(
             where={
-                'id': 493907821,
+                'id': 1905261552,
             },
         )
         ```
@@ -5794,7 +5799,7 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         vote = await Vote.prisma().update(
             where={
-                'id': 639686562,
+                'id': 78746985,
             },
             data={
                 # data to update the Vote record to
@@ -5851,19 +5856,19 @@ class VoteActions(Generic[_PrismaModelT]):
         ```py
         vote = await Vote.prisma().upsert(
             where={
-                'id': 654007347,
+                'id': 1398328302,
             },
             data={
                 'create': {
-                    'id': 654007347,
-                    'userId': 208521688,
-                    'bookId': 860811569,
-                    'weekNumber': 1660932118,
+                    'id': 1398328302,
+                    'userId': 525761943,
+                    'bookId': 736209796,
+                    'weekNumber': 493907821,
                 },
                 'update': {
-                    'userId': 208521688,
-                    'bookId': 860811569,
-                    'weekNumber': 1660932118,
+                    'userId': 525761943,
+                    'bookId': 736209796,
+                    'weekNumber': 493907821,
                 },
             },
         )
@@ -5911,7 +5916,7 @@ class VoteActions(Generic[_PrismaModelT]):
         # update all Vote records
         total = await Vote.prisma().update_many(
             data={
-                'id': 1905261552
+                'id': 856000655
             },
             where={}
         )
@@ -6274,7 +6279,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         users = await ReadingProgress.prisma().query_raw(
             'SELECT * FROM ReadingProgress WHERE id = $1',
-            78746985,
+            1452336924,
         )
         ```
         """
@@ -6314,7 +6319,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         user = await ReadingProgress.prisma().query_first(
             'SELECT * FROM ReadingProgress WHERE userId = $1',
-            1398328302,
+            1573199653,
         )
         ```
         """
@@ -6353,9 +6358,9 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         readingprogress = await ReadingProgress.prisma().create(
             data={
                 # data to create a ReadingProgress record
-                'userId': 856000655,
-                'bookId': 1452336924,
-                'weekNumber': 1573199653,
+                'userId': 2013903098,
+                'bookId': 500965035,
+                'weekNumber': 1800624392,
             },
         )
         ```
@@ -6410,15 +6415,15 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a ReadingProgress record
-                    'userId': 2013903098,
-                    'bookId': 500965035,
-                    'weekNumber': 1800624392,
-                },
-                {
-                    # data to create a ReadingProgress record
                     'userId': 2077067425,
                     'bookId': 1672112838,
                     'weekNumber': 926677639,
+                },
+                {
+                    # data to create a ReadingProgress record
+                    'userId': 1447624116,
+                    'bookId': 1738083805,
+                    'weekNumber': 340946258,
                 },
             ],
             skip_duplicates=True,
@@ -6472,7 +6477,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         readingprogress = await ReadingProgress.prisma().delete(
             where={
-                'id': 1447624116,
+                'id': 601077795,
             },
         )
         ```
@@ -6524,7 +6529,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         readingprogress = await ReadingProgress.prisma().find_unique(
             where={
-                'id': 1738083805,
+                'id': 290603296,
             },
         )
         ```
@@ -6575,7 +6580,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         readingprogress = await ReadingProgress.prisma().find_unique_or_raise(
             where={
-                'id': 340946258,
+                'id': 1855826649,
             },
         )
         ```
@@ -6827,7 +6832,7 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         readingprogress = await ReadingProgress.prisma().update(
             where={
-                'id': 601077795,
+                'id': 1611009182,
             },
             data={
                 # data to update the ReadingProgress record to
@@ -6884,19 +6889,19 @@ class ReadingProgressActions(Generic[_PrismaModelT]):
         ```py
         readingprogress = await ReadingProgress.prisma().upsert(
             where={
-                'id': 290603296,
+                'id': 446673791,
             },
             data={
                 'create': {
-                    'id': 290603296,
-                    'userId': 2077067425,
-                    'bookId': 1672112838,
-                    'weekNumber': 926677639,
+                    'id': 446673791,
+                    'userId': 1447624116,
+                    'bookId': 1738083805,
+                    'weekNumber': 340946258,
                 },
                 'update': {
-                    'userId': 2077067425,
-                    'bookId': 1672112838,
-                    'weekNumber': 926677639,
+                    'userId': 1447624116,
+                    'bookId': 1738083805,
+                    'weekNumber': 340946258,
                 },
             },
         )
@@ -7307,7 +7312,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         users = await WeeklyResult.prisma().query_raw(
             'SELECT * FROM WeeklyResult WHERE id = $1',
-            1855826649,
+            300568396,
         )
         ```
         """
@@ -7347,7 +7352,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         user = await WeeklyResult.prisma().query_first(
             'SELECT * FROM WeeklyResult WHERE weekNumber = $1',
-            1611009182,
+            632626069,
         )
         ```
         """
@@ -7386,11 +7391,11 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         weeklyresult = await WeeklyResult.prisma().create(
             data={
                 # data to create a WeeklyResult record
-                'weekNumber': 446673791,
-                'ageCategoryId': 300568396,
-                'bookId': 632626069,
-                'leaderUserId': 1724011690,
-                'totalMarks': 470157467,
+                'weekNumber': 1724011690,
+                'ageCategoryId': 470157467,
+                'bookId': 1209209912,
+                'leaderUserId': 1536744465,
+                'totalMarks': 424218998,
             },
         )
         ```
@@ -7445,19 +7450,19 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a WeeklyResult record
-                    'weekNumber': 1209209912,
-                    'ageCategoryId': 1536744465,
-                    'bookId': 424218998,
-                    'leaderUserId': 2125632375,
-                    'totalMarks': 536951780,
+                    'weekNumber': 2125632375,
+                    'ageCategoryId': 536951780,
+                    'bookId': 924723277,
+                    'leaderUserId': 1621937922,
+                    'totalMarks': 1848832019,
                 },
                 {
                     # data to create a WeeklyResult record
-                    'weekNumber': 924723277,
-                    'ageCategoryId': 1621937922,
-                    'bookId': 1848832019,
-                    'leaderUserId': 1921528400,
-                    'totalMarks': 2100427849,
+                    'weekNumber': 1921528400,
+                    'ageCategoryId': 2100427849,
+                    'bookId': 849140046,
+                    'leaderUserId': 928152175,
+                    'totalMarks': 273032060,
                 },
             ],
             skip_duplicates=True,
@@ -7511,7 +7516,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         weeklyresult = await WeeklyResult.prisma().delete(
             where={
-                'id': 849140046,
+                'id': 982848517,
             },
         )
         ```
@@ -7563,7 +7568,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         weeklyresult = await WeeklyResult.prisma().find_unique(
             where={
-                'id': 928152175,
+                'id': 510737498,
             },
         )
         ```
@@ -7614,7 +7619,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         weeklyresult = await WeeklyResult.prisma().find_unique_or_raise(
             where={
-                'id': 273032060,
+                'id': 2117488267,
             },
         )
         ```
@@ -7866,7 +7871,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         weeklyresult = await WeeklyResult.prisma().update(
             where={
-                'id': 982848517,
+                'id': 1401944936,
             },
             data={
                 # data to update the WeeklyResult record to
@@ -7923,23 +7928,23 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         ```py
         weeklyresult = await WeeklyResult.prisma().upsert(
             where={
-                'id': 510737498,
+                'id': 1297607553,
             },
             data={
                 'create': {
-                    'id': 510737498,
-                    'weekNumber': 924723277,
-                    'ageCategoryId': 1621937922,
-                    'bookId': 1848832019,
-                    'leaderUserId': 1921528400,
-                    'totalMarks': 2100427849,
+                    'id': 1297607553,
+                    'weekNumber': 1921528400,
+                    'ageCategoryId': 2100427849,
+                    'bookId': 849140046,
+                    'leaderUserId': 928152175,
+                    'totalMarks': 273032060,
                 },
                 'update': {
-                    'weekNumber': 924723277,
-                    'ageCategoryId': 1621937922,
-                    'bookId': 1848832019,
-                    'leaderUserId': 1921528400,
-                    'totalMarks': 2100427849,
+                    'weekNumber': 1921528400,
+                    'ageCategoryId': 2100427849,
+                    'bookId': 849140046,
+                    'leaderUserId': 928152175,
+                    'totalMarks': 273032060,
                 },
             },
         )
@@ -7987,7 +7992,7 @@ class WeeklyResultActions(Generic[_PrismaModelT]):
         # update all WeeklyResult records
         total = await WeeklyResult.prisma().update_many(
             data={
-                'totalMarks': 2117488267
+                'totalMarks': 519488550
             },
             where={}
         )
@@ -8350,7 +8355,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         users = await Notification.prisma().query_raw(
             'SELECT * FROM Notification WHERE id = $1',
-            1401944936,
+            976832615,
         )
         ```
         """
@@ -8390,7 +8395,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         user = await Notification.prisma().query_first(
             'SELECT * FROM Notification WHERE userId = $1',
-            1297607553,
+            1696425492,
         )
         ```
         """
@@ -8429,8 +8434,8 @@ class NotificationActions(Generic[_PrismaModelT]):
         notification = await Notification.prisma().create(
             data={
                 # data to create a Notification record
-                'userId': 519488550,
-                'message': 'jhgidcgbf',
+                'userId': 169262781,
+                'message': 'bacdaibgfa',
             },
         )
         ```
@@ -8485,13 +8490,13 @@ class NotificationActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Notification record
-                    'userId': 1696425492,
-                    'message': 'bgjcgchib',
+                    'userId': 327681027,
+                    'message': 'fchheijjc',
                 },
                 {
                     # data to create a Notification record
-                    'userId': 1023081650,
-                    'message': 'dchgibach',
+                    'userId': 2029357497,
+                    'message': 'bdbifjhbbi',
                 },
             ],
             skip_duplicates=True,
@@ -8545,7 +8550,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         notification = await Notification.prisma().delete(
             where={
-                'id': 527748992,
+                'id': 2122112351,
             },
         )
         ```
@@ -8597,7 +8602,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         notification = await Notification.prisma().find_unique(
             where={
-                'id': 2029357497,
+                'id': 1024943020,
             },
         )
         ```
@@ -8648,7 +8653,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         notification = await Notification.prisma().find_unique_or_raise(
             where={
-                'id': 1318597118,
+                'id': 1717307509,
             },
         )
         ```
@@ -8900,7 +8905,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         notification = await Notification.prisma().update(
             where={
-                'id': 2122112351,
+                'id': 1598124042,
             },
             data={
                 # data to update the Notification record to
@@ -8957,17 +8962,17 @@ class NotificationActions(Generic[_PrismaModelT]):
         ```py
         notification = await Notification.prisma().upsert(
             where={
-                'id': 1024943020,
+                'id': 817623163,
             },
             data={
                 'create': {
-                    'id': 1024943020,
-                    'userId': 1023081650,
-                    'message': 'dchgibach',
+                    'id': 817623163,
+                    'userId': 2029357497,
+                    'message': 'bdbifjhbbi',
                 },
                 'update': {
-                    'userId': 1023081650,
-                    'message': 'dchgibach',
+                    'userId': 2029357497,
+                    'message': 'bdbifjhbbi',
                 },
             },
         )
@@ -9015,7 +9020,7 @@ class NotificationActions(Generic[_PrismaModelT]):
         # update all Notification records
         total = await Notification.prisma().update_many(
             data={
-                'userId': 1717307509
+                'userId': 1030557336
             },
             where={}
         )
@@ -9378,7 +9383,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         users = await Advertisement.prisma().query_raw(
             'SELECT * FROM Advertisement WHERE id = $1',
-            1598124042,
+            1131525873,
         )
         ```
         """
@@ -9418,7 +9423,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         user = await Advertisement.prisma().query_first(
             'SELECT * FROM Advertisement WHERE content = $1',
-            'ibhgcdbgd',
+            'cbagggbji',
         )
         ```
         """
@@ -9457,8 +9462,8 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         advertisement = await Advertisement.prisma().create(
             data={
                 # data to create a Advertisement record
-                'content': 'badaffhddg',
-                'partnerId': 1131525873,
+                'content': 'bchgafhjed',
+                'partnerId': 745569348,
             },
         )
         ```
@@ -9513,13 +9518,13 @@ class AdvertisementActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Advertisement record
-                    'content': 'cbagggbji',
-                    'partnerId': 1276057943,
+                    'content': 'dahihgbeb',
+                    'partnerId': 1674049122,
                 },
                 {
                     # data to create a Advertisement record
-                    'content': 'heffgjdei',
-                    'partnerId': 307876141,
+                    'content': 'bfcgifeged',
+                    'partnerId': 958077104,
                 },
             ],
             skip_duplicates=True,
@@ -9573,7 +9578,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         advertisement = await Advertisement.prisma().delete(
             where={
-                'id': 1674049122,
+                'id': 1513050921,
             },
         )
         ```
@@ -9625,7 +9630,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         advertisement = await Advertisement.prisma().find_unique(
             where={
-                'id': 1526854643,
+                'id': 204674734,
             },
         )
         ```
@@ -9676,7 +9681,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         advertisement = await Advertisement.prisma().find_unique_or_raise(
             where={
-                'id': 958077104,
+                'id': 2067651663,
             },
         )
         ```
@@ -9928,7 +9933,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         advertisement = await Advertisement.prisma().update(
             where={
-                'id': 1513050921,
+                'id': 1183911900,
             },
             data={
                 # data to update the Advertisement record to
@@ -9985,17 +9990,17 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         ```py
         advertisement = await Advertisement.prisma().upsert(
             where={
-                'id': 204674734,
+                'id': 1589704933,
             },
             data={
                 'create': {
-                    'id': 204674734,
-                    'content': 'heffgjdei',
-                    'partnerId': 307876141,
+                    'id': 1589704933,
+                    'content': 'bfcgifeged',
+                    'partnerId': 958077104,
                 },
                 'update': {
-                    'content': 'heffgjdei',
-                    'partnerId': 307876141,
+                    'content': 'bfcgifeged',
+                    'partnerId': 958077104,
                 },
             },
         )
@@ -10043,7 +10048,7 @@ class AdvertisementActions(Generic[_PrismaModelT]):
         # update all Advertisement records
         total = await Advertisement.prisma().update_many(
             data={
-                'content': 'caghgfbggd'
+                'content': 'bcedehfiji'
             },
             where={}
         )
@@ -10406,7 +10411,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         users = await Partner.prisma().query_raw(
             'SELECT * FROM Partner WHERE id = $1',
-            1183911900,
+            1369828971,
         )
         ```
         """
@@ -10446,7 +10451,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         user = await Partner.prisma().query_first(
             'SELECT * FROM Partner WHERE name = $1',
-            'bfijhaejdd',
+            'bghifjdeia',
         )
         ```
         """
@@ -10485,8 +10490,8 @@ class PartnerActions(Generic[_PrismaModelT]):
         partner = await Partner.prisma().create(
             data={
                 # data to create a Partner record
-                'name': 'bcedehfiji',
-                'contactInfo': 'bdgjicijhb',
+                'name': 'eadfcbbcb',
+                'contactInfo': 'geihgahba',
             },
         )
         ```
@@ -10541,13 +10546,13 @@ class PartnerActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Partner record
-                    'name': 'bghifjdeia',
-                    'contactInfo': 'eadfcbbcb',
+                    'name': 'gahdcdhbj',
+                    'contactInfo': 'begiijahea',
                 },
                 {
                     # data to create a Partner record
-                    'name': 'geihgahba',
-                    'contactInfo': 'gahdcdhbj',
+                    'name': 'gcjadjaaf',
+                    'contactInfo': 'bcbebgiaic',
                 },
             ],
             skip_duplicates=True,
@@ -10601,7 +10606,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         partner = await Partner.prisma().delete(
             where={
-                'id': 1468890740,
+                'id': 898613219,
             },
         )
         ```
@@ -10653,7 +10658,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         partner = await Partner.prisma().find_unique(
             where={
-                'id': 629039005,
+                'id': 658378208,
             },
         )
         ```
@@ -10704,7 +10709,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         partner = await Partner.prisma().find_unique_or_raise(
             where={
-                'id': 1214168082,
+                'id': 954620057,
             },
         )
         ```
@@ -10956,7 +10961,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         partner = await Partner.prisma().update(
             where={
-                'id': 898613219,
+                'id': 1214809950,
             },
             data={
                 # data to update the Partner record to
@@ -11013,17 +11018,17 @@ class PartnerActions(Generic[_PrismaModelT]):
         ```py
         partner = await Partner.prisma().upsert(
             where={
-                'id': 658378208,
+                'id': 1047820095,
             },
             data={
                 'create': {
-                    'id': 658378208,
-                    'name': 'geihgahba',
-                    'contactInfo': 'gahdcdhbj',
+                    'id': 1047820095,
+                    'name': 'gcjadjaaf',
+                    'contactInfo': 'bcbebgiaic',
                 },
                 'update': {
-                    'name': 'geihgahba',
-                    'contactInfo': 'gahdcdhbj',
+                    'name': 'gcjadjaaf',
+                    'contactInfo': 'bcbebgiaic',
                 },
             },
         )
@@ -11071,7 +11076,7 @@ class PartnerActions(Generic[_PrismaModelT]):
         # update all Partner records
         total = await Partner.prisma().update_many(
             data={
-                'contactInfo': 'jfegcaafh'
+                'contactInfo': 'bdachdeiga'
             },
             where={}
         )
@@ -11434,7 +11439,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         users = await Achievement.prisma().query_raw(
             'SELECT * FROM Achievement WHERE id = $1',
-            1214809950,
+            893052245,
         )
         ```
         """
@@ -11474,7 +11479,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         user = await Achievement.prisma().query_first(
             'SELECT * FROM Achievement WHERE name = $1',
-            'baehicaajf',
+            'ciaaiddag',
         )
         ```
         """
@@ -11513,10 +11518,10 @@ class AchievementActions(Generic[_PrismaModelT]):
         achievement = await Achievement.prisma().create(
             data={
                 # data to create a Achievement record
-                'name': 'bdachdeiga',
-                'description': 'ijdafccef',
-                'type': 'ciaaiddag',
-                'criteria': Json({'fejggijff': True}),
+                'name': 'fejggijff',
+                'description': 'hghjaaai',
+                'type': 'cajicjjdef',
+                'criteria': Json({'cefjaadec': True}),
             },
         )
         ```
@@ -11571,17 +11576,17 @@ class AchievementActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a Achievement record
-                    'name': 'hghjaaai',
-                    'description': 'cajicjjdef',
-                    'type': 'cefjaadec',
-                    'criteria': Json({'ibbigdigd': True}),
+                    'name': 'ibbigdigd',
+                    'description': 'bdiiiabbii',
+                    'type': 'hfcfhhadh',
+                    'criteria': Json({'bbihggdcji': True}),
                 },
                 {
                     # data to create a Achievement record
-                    'name': 'bdiiiabbii',
-                    'description': 'hfcfhhadh',
-                    'type': 'bbihggdcji',
-                    'criteria': Json({'hgjgibdgd': True}),
+                    'name': 'hgjgibdgd',
+                    'description': 'bcbecjfice',
+                    'type': 'bacbebhjjd',
+                    'criteria': Json({'dfbfaddhe': True}),
                 },
             ],
             skip_duplicates=True,
@@ -11635,7 +11640,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         achievement = await Achievement.prisma().delete(
             where={
-                'id': 1214295824,
+                'id': 1321184815,
             },
         )
         ```
@@ -11687,7 +11692,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         achievement = await Achievement.prisma().find_unique(
             where={
-                'id': 1021417993,
+                'id': 369732668,
             },
         )
         ```
@@ -11738,7 +11743,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         achievement = await Achievement.prisma().find_unique_or_raise(
             where={
-                'id': 351503374,
+                'id': 1191235013,
             },
         )
         ```
@@ -11990,7 +11995,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         achievement = await Achievement.prisma().update(
             where={
-                'id': 1321184815,
+                'id': 627561242,
             },
             data={
                 # data to update the Achievement record to
@@ -12047,21 +12052,21 @@ class AchievementActions(Generic[_PrismaModelT]):
         ```py
         achievement = await Achievement.prisma().upsert(
             where={
-                'id': 369732668,
+                'id': 1872952907,
             },
             data={
                 'create': {
-                    'id': 369732668,
-                    'name': 'bdiiiabbii',
-                    'description': 'hfcfhhadh',
-                    'type': 'bbihggdcji',
-                    'criteria': Json({'hgjgibdgd': True}),
+                    'id': 1872952907,
+                    'name': 'hgjgibdgd',
+                    'description': 'bcbecjfice',
+                    'type': 'bacbebhjjd',
+                    'criteria': Json({'dfbfaddhe': True}),
                 },
                 'update': {
-                    'name': 'bdiiiabbii',
-                    'description': 'hfcfhhadh',
-                    'type': 'bbihggdcji',
-                    'criteria': Json({'hgjgibdgd': True}),
+                    'name': 'hgjgibdgd',
+                    'description': 'bcbecjfice',
+                    'type': 'bacbebhjjd',
+                    'criteria': Json({'dfbfaddhe': True}),
                 },
             },
         )
@@ -12109,7 +12114,7 @@ class AchievementActions(Generic[_PrismaModelT]):
         # update all Achievement records
         total = await Achievement.prisma().update_many(
             data={
-                'reward': 1191235013
+                'reward': 1793282088
             },
             where={}
         )
@@ -12472,7 +12477,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         users = await UserAchievement.prisma().query_raw(
             'SELECT * FROM UserAchievement WHERE id = $1',
-            627561242,
+            1814397249,
         )
         ```
         """
@@ -12512,7 +12517,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         user = await UserAchievement.prisma().query_first(
             'SELECT * FROM UserAchievement WHERE userId = $1',
-            1872952907,
+            1923090150,
         )
         ```
         """
@@ -12551,8 +12556,8 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         userachievement = await UserAchievement.prisma().create(
             data={
                 # data to create a UserAchievement record
-                'userId': 1793282088,
-                'achievementId': 1814397249,
+                'userId': 1277244455,
+                'achievementId': 1160857300,
             },
         )
         ```
@@ -12607,13 +12612,13 @@ class UserAchievementActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a UserAchievement record
-                    'userId': 1923090150,
-                    'achievementId': 1277244455,
+                    'userId': 361230461,
+                    'achievementId': 1406511986,
                 },
                 {
                     # data to create a UserAchievement record
-                    'userId': 1160857300,
-                    'achievementId': 361230461,
+                    'userId': 1482877891,
+                    'achievementId': 566623296,
                 },
             ],
             skip_duplicates=True,
@@ -12667,7 +12672,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         userachievement = await UserAchievement.prisma().delete(
             where={
-                'id': 1406511986,
+                'id': 229119865,
             },
         )
         ```
@@ -12719,7 +12724,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         userachievement = await UserAchievement.prisma().find_unique(
             where={
-                'id': 1482877891,
+                'id': 1750011070,
             },
         )
         ```
@@ -12770,7 +12775,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         userachievement = await UserAchievement.prisma().find_unique_or_raise(
             where={
-                'id': 566623296,
+                'id': 410943775,
             },
         )
         ```
@@ -13022,7 +13027,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         userachievement = await UserAchievement.prisma().update(
             where={
-                'id': 229119865,
+                'id': 909024364,
             },
             data={
                 # data to update the UserAchievement record to
@@ -13079,17 +13084,17 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         ```py
         userachievement = await UserAchievement.prisma().upsert(
             where={
-                'id': 1750011070,
+                'id': 755610165,
             },
             data={
                 'create': {
-                    'id': 1750011070,
-                    'userId': 1160857300,
-                    'achievementId': 361230461,
+                    'id': 755610165,
+                    'userId': 1482877891,
+                    'achievementId': 566623296,
                 },
                 'update': {
-                    'userId': 1160857300,
-                    'achievementId': 361230461,
+                    'userId': 1482877891,
+                    'achievementId': 566623296,
                 },
             },
         )
@@ -13137,7 +13142,7 @@ class UserAchievementActions(Generic[_PrismaModelT]):
         # update all UserAchievement records
         total = await UserAchievement.prisma().update_many(
             data={
-                'userId': 410943775
+                'userId': 1802188490
             },
             where={}
         )
@@ -13500,7 +13505,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         users = await auth_group.prisma().query_raw(
             'SELECT * FROM auth_group WHERE id = $1',
-            909024364,
+            294916155,
         )
         ```
         """
@@ -13540,7 +13545,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         user = await auth_group.prisma().query_first(
             'SELECT * FROM auth_group WHERE name = $1',
-            'hffgbabgf',
+            'fgeahddae',
         )
         ```
         """
@@ -13579,7 +13584,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         auth_group = await auth_group.prisma().create(
             data={
                 # data to create a auth_group record
-                'name': 'biacbiieja',
+                'name': 'diageigcf',
             },
         )
         ```
@@ -13634,11 +13639,11 @@ class auth_groupActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a auth_group record
-                    'name': 'cjejbgbff',
+                    'name': 'badagbgeha',
                 },
                 {
                     # data to create a auth_group record
-                    'name': 'fgeahddae',
+                    'name': 'ibgebbjch',
                 },
             ],
             skip_duplicates=True,
@@ -13692,7 +13697,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         auth_group = await auth_group.prisma().delete(
             where={
-                'id': 380648625,
+                'id': 1084099844,
             },
         )
         ```
@@ -13744,7 +13749,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         auth_group = await auth_group.prisma().find_unique(
             where={
-                'id': 1030616470,
+                'id': 1079702253,
             },
         )
         ```
@@ -13795,7 +13800,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         auth_group = await auth_group.prisma().find_unique_or_raise(
             where={
-                'id': 816411927,
+                'id': 755750178,
             },
         )
         ```
@@ -14047,7 +14052,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         auth_group = await auth_group.prisma().update(
             where={
-                'id': 1084099844,
+                'id': 1128680371,
             },
             data={
                 # data to update the auth_group record to
@@ -14104,15 +14109,15 @@ class auth_groupActions(Generic[_PrismaModelT]):
         ```py
         auth_group = await auth_group.prisma().upsert(
             where={
-                'id': 1079702253,
+                'id': 259061104,
             },
             data={
                 'create': {
-                    'id': 1079702253,
-                    'name': 'fgeahddae',
+                    'id': 259061104,
+                    'name': 'ibgebbjch',
                 },
                 'update': {
-                    'name': 'fgeahddae',
+                    'name': 'ibgebbjch',
                 },
             },
         )
@@ -14160,7 +14165,7 @@ class auth_groupActions(Generic[_PrismaModelT]):
         # update all auth_group records
         total = await auth_group.prisma().update_many(
             data={
-                'name': 'hffhfabhi'
+                'name': 'bbbfhdidef'
             },
             where={}
         )
@@ -14523,7 +14528,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users = await auth_group_permissions.prisma().query_raw(
             'SELECT * FROM auth_group_permissions WHERE id = $1',
-            13544164452,
+            15645380904,
         )
         ```
         """
@@ -14563,7 +14568,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         user = await auth_group_permissions.prisma().query_first(
             'SELECT * FROM auth_group_permissions WHERE group_id = $1',
-            259061104,
+            1573908495,
         )
         ```
         """
@@ -14602,8 +14607,8 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         auth_group_permissions = await auth_group_permissions.prisma().create(
             data={
                 # data to create a auth_group_permissions record
-                'group_id': 1115738345,
-                'permission_id': 1303781742,
+                'group_id': 1195899036,
+                'permission_id': 739021477,
             },
         )
         ```
@@ -14658,13 +14663,13 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a auth_group_permissions record
-                    'group_id': 1573908495,
-                    'permission_id': 1195899036,
+                    'group_id': 1722214010,
+                    'permission_id': 1269136939,
                 },
                 {
                     # data to create a auth_group_permissions record
-                    'group_id': 739021477,
-                    'permission_id': 1722214010,
+                    'group_id': 573178504,
+                    'permission_id': 1440265249,
                 },
             ],
             skip_duplicates=True,
@@ -14718,7 +14723,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         auth_group_permissions = await auth_group_permissions.prisma().delete(
             where={
-                'id': 15229643268,
+                'id': 14228865864,
             },
         )
         ```
@@ -14770,7 +14775,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         auth_group_permissions = await auth_group_permissions.prisma().find_unique(
             where={
-                'id': 6878142048,
+                'id': 20330698836,
             },
         )
         ```
@@ -14821,7 +14826,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         auth_group_permissions = await auth_group_permissions.prisma().find_unique_or_raise(
             where={
-                'id': 17283182988,
+                'id': 22876321392,
             },
         )
         ```
@@ -15073,7 +15078,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         auth_group_permissions = await auth_group_permissions.prisma().update(
             where={
-                'id': 14228865864,
+                'id': 22935064668,
             },
             data={
                 # data to update the auth_group_permissions record to
@@ -15130,17 +15135,17 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         ```py
         auth_group_permissions = await auth_group_permissions.prisma().upsert(
             where={
-                'id': 20330698836,
+                'id': 1755152856,
             },
             data={
                 'create': {
-                    'id': 20330698836,
-                    'group_id': 739021477,
-                    'permission_id': 1722214010,
+                    'id': 1755152856,
+                    'group_id': 573178504,
+                    'permission_id': 1440265249,
                 },
                 'update': {
-                    'group_id': 739021477,
-                    'permission_id': 1722214010,
+                    'group_id': 573178504,
+                    'permission_id': 1440265249,
                 },
             },
         )
@@ -15188,7 +15193,7 @@ class auth_group_permissionsActions(Generic[_PrismaModelT]):
         # update all auth_group_permissions records
         total = await auth_group_permissions.prisma().update_many(
             data={
-                'permission_id': 1906360116
+                'permission_id': 1719240611
             },
             where={}
         )
@@ -15551,7 +15556,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         users = await auth_permission.prisma().query_raw(
             'SELECT * FROM auth_permission WHERE id = $1',
-            1911255389,
+            1948555936,
         )
         ```
         """
@@ -15591,7 +15596,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         user = await auth_permission.prisma().query_first(
             'SELECT * FROM auth_permission WHERE name = $1',
-            'begcgchdi',
+            'bdidcfdfjd',
         )
         ```
         """
@@ -15630,9 +15635,9 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         auth_permission = await auth_permission.prisma().create(
             data={
                 # data to create a auth_permission record
-                'name': 'bhbjceagbb',
-                'content_type_id': 1948555936,
-                'codename': 'bdidcfdfjd',
+                'name': 'dfeggejja',
+                'content_type_id': 647166719,
+                'codename': 'dfhaijeie',
             },
         )
         ```
@@ -15687,15 +15692,15 @@ class auth_permissionActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a auth_permission record
-                    'name': 'dfeggejja',
-                    'content_type_id': 647166719,
-                    'codename': 'dfhaijeie',
-                },
-                {
-                    # data to create a auth_permission record
                     'name': 'gbcdjgicb',
                     'content_type_id': 1808130602,
                     'codename': 'bbfbheibcd',
+                },
+                {
+                    # data to create a auth_permission record
+                    'name': 'hiagajie',
+                    'content_type_id': 444983185,
+                    'codename': 'efgbahec',
                 },
             ],
             skip_duplicates=True,
@@ -15749,7 +15754,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         auth_permission = await auth_permission.prisma().delete(
             where={
-                'id': 78060984,
+                'id': 769084151,
             },
         )
         ```
@@ -15801,7 +15806,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         auth_permission = await auth_permission.prisma().find_unique(
             where={
-                'id': 444983185,
+                'id': 1334599012,
             },
         )
         ```
@@ -15852,7 +15857,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         auth_permission = await auth_permission.prisma().find_unique_or_raise(
             where={
-                'id': 45610742,
+                'id': 1116761037,
             },
         )
         ```
@@ -16104,7 +16109,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         auth_permission = await auth_permission.prisma().update(
             where={
-                'id': 769084151,
+                'id': 1172606082,
             },
             data={
                 # data to update the auth_permission record to
@@ -16161,19 +16166,19 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         ```py
         auth_permission = await auth_permission.prisma().upsert(
             where={
-                'id': 1334599012,
+                'id': 330014611,
             },
             data={
                 'create': {
-                    'id': 1334599012,
-                    'name': 'gbcdjgicb',
-                    'content_type_id': 1808130602,
-                    'codename': 'bbfbheibcd',
+                    'id': 330014611,
+                    'name': 'hiagajie',
+                    'content_type_id': 444983185,
+                    'codename': 'efgbahec',
                 },
                 'update': {
-                    'name': 'gbcdjgicb',
-                    'content_type_id': 1808130602,
-                    'codename': 'bbfbheibcd',
+                    'name': 'hiagajie',
+                    'content_type_id': 444983185,
+                    'codename': 'efgbahec',
                 },
             },
         )
@@ -16221,7 +16226,7 @@ class auth_permissionActions(Generic[_PrismaModelT]):
         # update all auth_permission records
         total = await auth_permission.prisma().update_many(
             data={
-                'name': 'bbbghgbadh'
+                'name': 'bhgibfgbbc'
             },
             where={}
         )
@@ -16584,7 +16589,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         users = await authtoken_token.prisma().query_raw(
             'SELECT * FROM authtoken_token WHERE key = $1',
-            'bbhcgagaic',
+            'hbgcihef',
         )
         ```
         """
@@ -16663,9 +16668,9 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         authtoken_token = await authtoken_token.prisma().create(
             data={
                 # data to create a authtoken_token record
-                'key': 'ddaabegbb',
+                'key': 'ffhgghde',
                 'created': datetime.datetime.utcnow(),
-                'user_id': 21217873344,
+                'user_id': 9744389940,
             },
         )
         ```
@@ -16720,15 +16725,15 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a authtoken_token record
-                    'key': 'hbgcihef',
+                    'key': 'bdcdfgccdg',
                     'created': datetime.datetime.utcnow(),
-                    'user_id': 669200808,
+                    'user_id': 525556284,
                 },
                 {
                     # data to create a authtoken_token record
-                    'key': 'ibcadcejf',
+                    'key': 'bdeffdadda',
                     'created': datetime.datetime.utcnow(),
-                    'user_id': 15882746832,
+                    'user_id': 23584647300,
                 },
             ],
             skip_duplicates=True,
@@ -16782,7 +16787,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         authtoken_token = await authtoken_token.prisma().delete(
             where={
-                'key': 'edhjgdfh',
+                'key': 'iaeihdeei',
             },
         )
         ```
@@ -16834,7 +16839,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         authtoken_token = await authtoken_token.prisma().find_unique(
             where={
-                'key': 'bdeffdadda',
+                'key': 'bfggejgfbd',
             },
         )
         ```
@@ -16885,7 +16890,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         authtoken_token = await authtoken_token.prisma().find_unique_or_raise(
             where={
-                'key': 'bjgfdihchf',
+                'key': 'ifaaaedja',
             },
         )
         ```
@@ -17137,7 +17142,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         authtoken_token = await authtoken_token.prisma().update(
             where={
-                'key': 'iaeihdeei',
+                'key': 'cbajdjjabf',
             },
             data={
                 # data to update the authtoken_token record to
@@ -17194,17 +17199,17 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         ```py
         authtoken_token = await authtoken_token.prisma().upsert(
             where={
-                'key': 'bfggejgfbd',
+                'key': 'bcicggedea',
             },
             data={
                 'create': {
-                    'key': 'bfggejgfbd',
+                    'key': 'bcicggedea',
                     'created': datetime.datetime.utcnow(),
-                    'user_id': 15882746832,
+                    'user_id': 23584647300,
                 },
                 'update': {
                     'created': datetime.datetime.utcnow(),
-                    'user_id': 15882746832,
+                    'user_id': 23584647300,
                 },
             },
         )
@@ -17252,7 +17257,7 @@ class authtoken_tokenActions(Generic[_PrismaModelT]):
         # update all authtoken_token records
         total = await authtoken_token.prisma().update_many(
             data={
-                'user_id': 10200052680
+                'user_id': 2894764764
             },
             where={}
         )
@@ -17615,7 +17620,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         users = await books_agecategory.prisma().query_raw(
             'SELECT * FROM books_agecategory WHERE id = $1',
-            25312788180,
+            5710363224,
         )
         ```
         """
@@ -17655,7 +17660,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         user = await books_agecategory.prisma().query_first(
             'SELECT * FROM books_agecategory WHERE name = $1',
-            'bcicggedea',
+            'bhbgccijjf',
         )
         ```
         """
@@ -17694,7 +17699,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         books_agecategory = await books_agecategory.prisma().create(
             data={
                 # data to create a books_agecategory record
-                'name': 'cebcdadjh',
+                'name': 'bigjhdgbjc',
             },
         )
         ```
@@ -17749,11 +17754,11 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a books_agecategory record
-                    'name': 'ehfigdgac',
+                    'name': 'bfifdebhfd',
                 },
                 {
                     # data to create a books_agecategory record
-                    'name': 'bhbgccijjf',
+                    'name': 'cjchbjde',
                 },
             ],
             skip_duplicates=True,
@@ -17807,7 +17812,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         books_agecategory = await books_agecategory.prisma().delete(
             where={
-                'id': 22436834304,
+                'id': 19058309748,
             },
         )
         ```
@@ -17859,7 +17864,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         books_agecategory = await books_agecategory.prisma().find_unique(
             where={
-                'id': 19024101036,
+                'id': 10780868112,
             },
         )
         ```
@@ -17910,7 +17915,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         books_agecategory = await books_agecategory.prisma().find_unique_or_raise(
             where={
-                'id': 351263208,
+                'id': 9329528700,
             },
         )
         ```
@@ -18162,7 +18167,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         books_agecategory = await books_agecategory.prisma().update(
             where={
-                'id': 19058309748,
+                'id': 5254734456,
             },
             data={
                 # data to update the books_agecategory record to
@@ -18219,15 +18224,15 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         ```py
         books_agecategory = await books_agecategory.prisma().upsert(
             where={
-                'id': 10780868112,
+                'id': 4720115652,
             },
             data={
                 'create': {
-                    'id': 10780868112,
-                    'name': 'bhbgccijjf',
+                    'id': 4720115652,
+                    'name': 'cjchbjde',
                 },
                 'update': {
-                    'name': 'bhbgccijjf',
+                    'name': 'cjchbjde',
                 },
             },
         )
@@ -18275,7 +18280,7 @@ class books_agecategoryActions(Generic[_PrismaModelT]):
         # update all books_agecategory records
         total = await books_agecategory.prisma().update_many(
             data={
-                'name': 'hhhegahcf'
+                'name': 'bgdicjhie'
             },
             where={}
         )
@@ -18638,7 +18643,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         users = await books_book.prisma().query_raw(
             'SELECT * FROM books_book WHERE id = $1',
-            5254734456,
+            2977832268,
         )
         ```
         """
@@ -18678,7 +18683,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         user = await books_book.prisma().query_first(
             'SELECT * FROM books_book WHERE title = $1',
-            'djddecjhb',
+            'debhbfada',
         )
         ```
         """
@@ -18717,14 +18722,14 @@ class books_bookActions(Generic[_PrismaModelT]):
         books_book = await books_book.prisma().create(
             data={
                 # data to create a books_book record
-                'title': 'bgdicjhie',
-                'author': 'ceibfcgij',
-                'cover': 'debhbfada',
-                'description': 'bgjchggecd',
-                'is_premium': True,
-                'rating': 1697895597.128637,
-                'series': 'igefhgdhb',
-                'translator': 'ejbiifbae',
+                'title': 'bgjchggecd',
+                'author': 'igggcfjg',
+                'cover': 'bgjhijffjh',
+                'description': 'bcigdhache',
+                'is_premium': False,
+                'rating': 491885104.39256,
+                'series': 'bdbjcdegag',
+                'translator': 'hbchfebch',
                 'created_at': datetime.datetime.utcnow(),
                 'updated_at': datetime.datetime.utcnow(),
             },
@@ -18781,27 +18786,27 @@ class books_bookActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a books_book record
-                    'title': 'djcfgedjd',
-                    'author': 'bdbjcdegag',
-                    'cover': 'hbchfebch',
-                    'description': 'bcjjffegfc',
-                    'is_premium': False,
-                    'rating': 811900218.39602,
-                    'series': 'geeeegace',
-                    'translator': 'bbgdigchd',
+                    'title': 'bcjjffegfc',
+                    'author': 'cahaeaicjd',
+                    'cover': 'ibbjaacbi',
+                    'description': 'djgacbcch',
+                    'is_premium': True,
+                    'rating': 116386273.30928,
+                    'series': 'ccedhdbj',
+                    'translator': 'bjaabjjjce',
                     'created_at': datetime.datetime.utcnow(),
                     'updated_at': datetime.datetime.utcnow(),
                 },
                 {
                     # data to create a books_book record
-                    'title': 'dajcifgdi',
-                    'author': 'ccedhdbj',
-                    'cover': 'bjaabjjjce',
-                    'description': 'cafhdcdcjd',
-                    'is_premium': True,
-                    'rating': 2052132707.135514,
-                    'series': 'ieahjgeb',
-                    'translator': 'hfeeddceg',
+                    'title': 'cafhdcdcjd',
+                    'author': 'bdeebbhbdi',
+                    'cover': 'cafcbdchah',
+                    'description': 'bdffbehbae',
+                    'is_premium': False,
+                    'rating': 754433246.31426,
+                    'series': 'cchghigae',
+                    'translator': 'ecdjjjhab',
                     'created_at': datetime.datetime.utcnow(),
                     'updated_at': datetime.datetime.utcnow(),
                 },
@@ -18857,7 +18862,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         books_book = await books_book.prisma().delete(
             where={
-                'id': 3771134196,
+                'id': 2163305208,
             },
         )
         ```
@@ -18909,7 +18914,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         books_book = await books_book.prisma().find_unique(
             where={
-                'id': 2732143248,
+                'id': 691297860,
             },
         )
         ```
@@ -18960,7 +18965,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         books_book = await books_book.prisma().find_unique_or_raise(
             where={
-                'id': 5087996412,
+                'id': 24370945440,
             },
         )
         ```
@@ -19212,7 +19217,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         books_book = await books_book.prisma().update(
             where={
-                'id': 2163305208,
+                'id': 23698382796,
             },
             data={
                 # data to update the books_book record to
@@ -19269,31 +19274,31 @@ class books_bookActions(Generic[_PrismaModelT]):
         ```py
         books_book = await books_book.prisma().upsert(
             where={
-                'id': 691297860,
+                'id': 23398347912,
             },
             data={
                 'create': {
-                    'id': 691297860,
-                    'title': 'dajcifgdi',
-                    'author': 'ccedhdbj',
-                    'cover': 'bjaabjjjce',
-                    'description': 'cafhdcdcjd',
-                    'is_premium': True,
-                    'rating': 2052132707.135514,
-                    'series': 'ieahjgeb',
-                    'translator': 'hfeeddceg',
+                    'id': 23398347912,
+                    'title': 'cafhdcdcjd',
+                    'author': 'bdeebbhbdi',
+                    'cover': 'cafcbdchah',
+                    'description': 'bdffbehbae',
+                    'is_premium': False,
+                    'rating': 754433246.31426,
+                    'series': 'cchghigae',
+                    'translator': 'ecdjjjhab',
                     'created_at': datetime.datetime.utcnow(),
                     'updated_at': datetime.datetime.utcnow(),
                 },
                 'update': {
-                    'title': 'dajcifgdi',
-                    'author': 'ccedhdbj',
-                    'cover': 'bjaabjjjce',
-                    'description': 'cafhdcdcjd',
-                    'is_premium': True,
-                    'rating': 2052132707.135514,
-                    'series': 'ieahjgeb',
-                    'translator': 'hfeeddceg',
+                    'title': 'cafhdcdcjd',
+                    'author': 'bdeebbhbdi',
+                    'cover': 'cafcbdchah',
+                    'description': 'bdffbehbae',
+                    'is_premium': False,
+                    'rating': 754433246.31426,
+                    'series': 'cchghigae',
+                    'translator': 'ecdjjjhab',
                     'created_at': datetime.datetime.utcnow(),
                     'updated_at': datetime.datetime.utcnow(),
                 },
@@ -19343,7 +19348,7 @@ class books_bookActions(Generic[_PrismaModelT]):
         # update all books_book records
         total = await books_book.prisma().update_many(
             data={
-                'is_premium': True
+                'is_premium': False
             },
             where={}
         )
@@ -19706,7 +19711,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         users = await books_genre.prisma().query_raw(
             'SELECT * FROM books_genre WHERE id = $1',
-            23698382796,
+            3837831600,
         )
         ```
         """
@@ -19746,7 +19751,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         user = await books_genre.prisma().query_first(
             'SELECT * FROM books_genre WHERE name = $1',
-            'bjejigcdcg',
+            'dgijbdiaf',
         )
         ```
         """
@@ -19785,7 +19790,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         books_genre = await books_genre.prisma().create(
             data={
                 # data to create a books_genre record
-                'name': 'bifiiibcah',
+                'name': 'begfaigba',
             },
         )
         ```
@@ -19840,11 +19845,11 @@ class books_genreActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a books_genre record
-                    'name': 'dbjibjdaa',
+                    'name': 'bdjiafcgjb',
                 },
                 {
                     # data to create a books_genre record
-                    'name': 'dgijbdiaf',
+                    'name': 'bficecgcfg',
                 },
             ],
             skip_duplicates=True,
@@ -19898,7 +19903,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         books_genre = await books_genre.prisma().delete(
             where={
-                'id': 1758103320,
+                'id': 2639331948,
             },
         )
         ```
@@ -19950,7 +19955,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         books_genre = await books_genre.prisma().find_unique(
             where={
-                'id': 16776632292,
+                'id': 4123341480,
             },
         )
         ```
@@ -20001,7 +20006,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         books_genre = await books_genre.prisma().find_unique_or_raise(
             where={
-                'id': 18989115072,
+                'id': 2421687348,
             },
         )
         ```
@@ -20253,7 +20258,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         books_genre = await books_genre.prisma().update(
             where={
-                'id': 2639331948,
+                'id': 3137070288,
             },
             data={
                 # data to update the books_genre record to
@@ -20310,15 +20315,15 @@ class books_genreActions(Generic[_PrismaModelT]):
         ```py
         books_genre = await books_genre.prisma().upsert(
             where={
-                'id': 4123341480,
+                'id': 635047740,
             },
             data={
                 'create': {
-                    'id': 4123341480,
-                    'name': 'dgijbdiaf',
+                    'id': 635047740,
+                    'name': 'bficecgcfg',
                 },
                 'update': {
-                    'name': 'dgijbdiaf',
+                    'name': 'bficecgcfg',
                 },
             },
         )
@@ -20366,7 +20371,7 @@ class books_genreActions(Generic[_PrismaModelT]):
         # update all books_genre records
         total = await books_genre.prisma().update_many(
             data={
-                'name': 'cabiahchj'
+                'name': 'bgdhaeacic'
             },
             where={}
         )
@@ -20729,7 +20734,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         users = await django_admin_log.prisma().query_raw(
             'SELECT * FROM django_admin_log WHERE id = $1',
-            261422524,
+            2055052747,
         )
         ```
         """
@@ -20809,10 +20814,10 @@ class django_admin_logActions(Generic[_PrismaModelT]):
             data={
                 # data to create a django_admin_log record
                 'action_time': datetime.datetime.utcnow(),
-                'object_repr': 'fcjcagef',
-                'action_flag': 1637040282,
-                'change_message': 'caffafcheh',
-                'user_id': 718975968,
+                'object_repr': 'fjjbegge',
+                'action_flag': 1388571841,
+                'change_message': 'cdcaejhgg',
+                'user_id': 11027581908,
             },
         )
         ```
@@ -20868,18 +20873,18 @@ class django_admin_logActions(Generic[_PrismaModelT]):
                 {
                     # data to create a django_admin_log record
                     'action_time': datetime.datetime.utcnow(),
-                    'object_repr': 'bdiifhbieb',
-                    'action_flag': 232049766,
-                    'change_message': 'jbijgfbfj',
-                    'user_id': 7981720560,
+                    'object_repr': 'ggfbeddia',
+                    'action_flag': 39949309,
+                    'change_message': 'bjabbfceji',
+                    'user_id': 19530237732,
                 },
                 {
                     # data to create a django_admin_log record
                     'action_time': datetime.datetime.utcnow(),
-                    'object_repr': 'djjejdaj',
-                    'action_flag': 1901152498,
-                    'change_message': 'bgchfbjibb',
-                    'user_id': 13130728704,
+                    'object_repr': 'bajecchdjc',
+                    'action_flag': 356020985,
+                    'change_message': 'bgdiddfadi',
+                    'user_id': 22698813300,
                 },
             ],
             skip_duplicates=True,
@@ -20933,7 +20938,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         django_admin_log = await django_admin_log.prisma().delete(
             where={
-                'id': 356020985,
+                'id': 1072778732,
             },
         )
         ```
@@ -20985,7 +20990,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         django_admin_log = await django_admin_log.prisma().find_unique(
             where={
-                'id': 1638335038,
+                'id': 1879328181,
             },
         )
         ```
@@ -21036,7 +21041,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         django_admin_log = await django_admin_log.prisma().find_unique_or_raise(
             where={
-                'id': 1891567775,
+                'id': 1577911370,
             },
         )
         ```
@@ -21288,7 +21293,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         django_admin_log = await django_admin_log.prisma().update(
             where={
-                'id': 1072778732,
+                'id': 504729531,
             },
             data={
                 # data to update the django_admin_log record to
@@ -21345,23 +21350,23 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         ```py
         django_admin_log = await django_admin_log.prisma().upsert(
             where={
-                'id': 1879328181,
+                'id': 110845144,
             },
             data={
                 'create': {
-                    'id': 1879328181,
+                    'id': 110845144,
                     'action_time': datetime.datetime.utcnow(),
-                    'object_repr': 'djjejdaj',
-                    'action_flag': 1901152498,
-                    'change_message': 'bgchfbjibb',
-                    'user_id': 13130728704,
+                    'object_repr': 'bajecchdjc',
+                    'action_flag': 356020985,
+                    'change_message': 'bgdiddfadi',
+                    'user_id': 22698813300,
                 },
                 'update': {
                     'action_time': datetime.datetime.utcnow(),
-                    'object_repr': 'djjejdaj',
-                    'action_flag': 1901152498,
-                    'change_message': 'bgchfbjibb',
-                    'user_id': 13130728704,
+                    'object_repr': 'bajecchdjc',
+                    'action_flag': 356020985,
+                    'change_message': 'bgdiddfadi',
+                    'user_id': 22698813300,
                 },
             },
         )
@@ -21409,7 +21414,7 @@ class django_admin_logActions(Generic[_PrismaModelT]):
         # update all django_admin_log records
         total = await django_admin_log.prisma().update_many(
             data={
-                'change_message': 'bfhhjbbdha'
+                'change_message': 'bdaacgjbaf'
             },
             where={}
         )
@@ -21772,7 +21777,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         users = await django_content_type.prisma().query_raw(
             'SELECT * FROM django_content_type WHERE id = $1',
-            504729531,
+            1881086742,
         )
         ```
         """
@@ -21812,7 +21817,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         user = await django_content_type.prisma().query_first(
             'SELECT * FROM django_content_type WHERE app_label = $1',
-            'bbaiefbee',
+            'baicdfeidj',
         )
         ```
         """
@@ -21851,8 +21856,8 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         django_content_type = await django_content_type.prisma().create(
             data={
                 # data to create a django_content_type record
-                'app_label': 'bdaacgjbaf',
-                'model': 'biibaighec',
+                'app_label': 'befgiciadg',
+                'model': 'cbcehahedh',
             },
         )
         ```
@@ -21907,13 +21912,13 @@ class django_content_typeActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a django_content_type record
-                    'app_label': 'baicdfeidj',
-                    'model': 'befgiciadg',
+                    'app_label': 'bcjihiaide',
+                    'model': 'bagfijcgfj',
                 },
                 {
                     # data to create a django_content_type record
-                    'app_label': 'cbcehahedh',
-                    'model': 'bcjihiaide',
+                    'app_label': 'bcggehiidc',
+                    'model': 'bjcdacgacf',
                 },
             ],
             skip_duplicates=True,
@@ -21967,7 +21972,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         django_content_type = await django_content_type.prisma().delete(
             where={
-                'id': 1065892659,
+                'id': 95844078,
             },
         )
         ```
@@ -22019,7 +22024,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         django_content_type = await django_content_type.prisma().find_unique(
             where={
-                'id': 1266478832,
+                'id': 1895913359,
             },
         )
         ```
@@ -22070,7 +22075,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         django_content_type = await django_content_type.prisma().find_unique_or_raise(
             where={
-                'id': 1923026025,
+                'id': 232393244,
             },
         )
         ```
@@ -22322,7 +22327,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         django_content_type = await django_content_type.prisma().update(
             where={
-                'id': 95844078,
+                'id': 1116931621,
             },
             data={
                 # data to update the django_content_type record to
@@ -22379,17 +22384,17 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         ```py
         django_content_type = await django_content_type.prisma().upsert(
             where={
-                'id': 1895913359,
+                'id': 1243026426,
             },
             data={
                 'create': {
-                    'id': 1895913359,
-                    'app_label': 'cbcehahedh',
-                    'model': 'bcjihiaide',
+                    'id': 1243026426,
+                    'app_label': 'bcggehiidc',
+                    'model': 'bjcdacgacf',
                 },
                 'update': {
-                    'app_label': 'cbcehahedh',
-                    'model': 'bcjihiaide',
+                    'app_label': 'bcggehiidc',
+                    'model': 'bjcdacgacf',
                 },
             },
         )
@@ -22437,7 +22442,7 @@ class django_content_typeActions(Generic[_PrismaModelT]):
         # update all django_content_type records
         total = await django_content_type.prisma().update_many(
             data={
-                'model': 'cdcdjdcee'
+                'model': 'cbdffjeh'
             },
             where={}
         )
@@ -22800,7 +22805,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         users = await django_migrations.prisma().query_raw(
             'SELECT * FROM django_migrations WHERE id = $1',
-            13403179452,
+            9974845536,
         )
         ```
         """
@@ -22840,7 +22845,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         user = await django_migrations.prisma().query_first(
             'SELECT * FROM django_migrations WHERE app = $1',
-            'bcedacgecg',
+            'bacegehahd',
         )
         ```
         """
@@ -22879,8 +22884,8 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         django_migrations = await django_migrations.prisma().create(
             data={
                 # data to create a django_migrations record
-                'app': 'cbdffjeh',
-                'name': 'idbcdhbci',
+                'app': 'ebedeihec',
+                'name': 'bajagjdfbb',
                 'applied': datetime.datetime.utcnow(),
             },
         )
@@ -22936,14 +22941,14 @@ class django_migrationsActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a django_migrations record
-                    'app': 'bacegehahd',
-                    'name': 'ebedeihec',
+                    'app': 'bggedbjggi',
+                    'name': 'hgbafifcf',
                     'applied': datetime.datetime.utcnow(),
                 },
                 {
                     # data to create a django_migrations record
-                    'app': 'bajagjdfbb',
-                    'name': 'bggedbjggi',
+                    'app': 'bejiecfecg',
+                    'name': 'bjgacaeagh',
                     'applied': datetime.datetime.utcnow(),
                 },
             ],
@@ -22998,7 +23003,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         django_migrations = await django_migrations.prisma().delete(
             where={
-                'id': 9132702300,
+                'id': 17290457472,
             },
         )
         ```
@@ -23050,7 +23055,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         django_migrations = await django_migrations.prisma().find_unique(
             where={
-                'id': 17981105112,
+                'id': 18187720236,
             },
         )
         ```
@@ -23101,7 +23106,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         django_migrations = await django_migrations.prisma().find_unique_or_raise(
             where={
-                'id': 23522448804,
+                'id': 11000978280,
             },
         )
         ```
@@ -23353,7 +23358,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         django_migrations = await django_migrations.prisma().update(
             where={
-                'id': 17290457472,
+                'id': 538910196,
             },
             data={
                 # data to update the django_migrations record to
@@ -23410,18 +23415,18 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         ```py
         django_migrations = await django_migrations.prisma().upsert(
             where={
-                'id': 18187720236,
+                'id': 5487877008,
             },
             data={
                 'create': {
-                    'id': 18187720236,
-                    'app': 'bajagjdfbb',
-                    'name': 'bggedbjggi',
+                    'id': 5487877008,
+                    'app': 'bejiecfecg',
+                    'name': 'bjgacaeagh',
                     'applied': datetime.datetime.utcnow(),
                 },
                 'update': {
-                    'app': 'bajagjdfbb',
-                    'name': 'bggedbjggi',
+                    'app': 'bejiecfecg',
+                    'name': 'bjgacaeagh',
                     'applied': datetime.datetime.utcnow(),
                 },
             },
@@ -23470,7 +23475,7 @@ class django_migrationsActions(Generic[_PrismaModelT]):
         # update all django_migrations records
         total = await django_migrations.prisma().update_many(
             data={
-                'app': 'jbgheibja'
+                'app': 'cadejecgbd'
             },
             where={}
         )
@@ -23833,7 +23838,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         users = await django_session.prisma().query_raw(
             'SELECT * FROM django_session WHERE session_key = $1',
-            'eejajbid',
+            'bahjhjjhcc',
         )
         ```
         """
@@ -23873,7 +23878,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         user = await django_session.prisma().query_first(
             'SELECT * FROM django_session WHERE session_data = $1',
-            'efhdcdaie',
+            'ebhbhbdff',
         )
         ```
         """
@@ -23912,8 +23917,8 @@ class django_sessionActions(Generic[_PrismaModelT]):
         django_session = await django_session.prisma().create(
             data={
                 # data to create a django_session record
-                'session_key': 'cadejecgbd',
-                'session_data': 'bahjhjjhcc',
+                'session_key': 'bdiefcdfhg',
+                'session_data': 'cheifeghd',
                 'expire_date': datetime.datetime.utcnow(),
             },
         )
@@ -23969,14 +23974,14 @@ class django_sessionActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a django_session record
-                    'session_key': 'ebhbhbdff',
-                    'session_data': 'bdiefcdfhg',
+                    'session_key': 'fgijheefe',
+                    'session_data': 'hcbgbhfch',
                     'expire_date': datetime.datetime.utcnow(),
                 },
                 {
                     # data to create a django_session record
-                    'session_key': 'cheifeghd',
-                    'session_data': 'fgijheefe',
+                    'session_key': 'bfbbbgbfhc',
+                    'session_data': 'ibijjdeb',
                     'expire_date': datetime.datetime.utcnow(),
                 },
             ],
@@ -24031,7 +24036,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         django_session = await django_session.prisma().delete(
             where={
-                'session_key': 'hcbgbhfch',
+                'session_key': 'caehiccddi',
             },
         )
         ```
@@ -24083,7 +24088,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         django_session = await django_session.prisma().find_unique(
             where={
-                'session_key': 'bfbbbgbfhc',
+                'session_key': 'bgcahjbafj',
             },
         )
         ```
@@ -24134,7 +24139,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         django_session = await django_session.prisma().find_unique_or_raise(
             where={
-                'session_key': 'ibijjdeb',
+                'session_key': 'bihhgeihca',
             },
         )
         ```
@@ -24386,7 +24391,7 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         django_session = await django_session.prisma().update(
             where={
-                'session_key': 'caehiccddi',
+                'session_key': 'bdgbfahbef',
             },
             data={
                 # data to update the django_session record to
@@ -24443,16 +24448,16 @@ class django_sessionActions(Generic[_PrismaModelT]):
         ```py
         django_session = await django_session.prisma().upsert(
             where={
-                'session_key': 'bgcahjbafj',
+                'session_key': 'fccjhidic',
             },
             data={
                 'create': {
-                    'session_key': 'bgcahjbafj',
-                    'session_data': 'fgijheefe',
+                    'session_key': 'fccjhidic',
+                    'session_data': 'ibijjdeb',
                     'expire_date': datetime.datetime.utcnow(),
                 },
                 'update': {
-                    'session_data': 'fgijheefe',
+                    'session_data': 'ibijjdeb',
                     'expire_date': datetime.datetime.utcnow(),
                 },
             },
@@ -24864,7 +24869,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         users = await token_blacklist_blacklistedtoken.prisma().query_raw(
             'SELECT * FROM token_blacklist_blacklistedtoken WHERE id = $1',
-            22531784640,
+            16384356660,
         )
         ```
         """
@@ -24944,7 +24949,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
             data={
                 # data to create a token_blacklist_blacklistedtoken record
                 'blacklisted_at': datetime.datetime.utcnow(),
-                'token_id': 16338085740,
+                'token_id': 21916896720,
             },
         )
         ```
@@ -25000,12 +25005,12 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
                 {
                     # data to create a token_blacklist_blacklistedtoken record
                     'blacklisted_at': datetime.datetime.utcnow(),
-                    'token_id': 6275740584,
+                    'token_id': 6117246012,
                 },
                 {
                     # data to create a token_blacklist_blacklistedtoken record
                     'blacklisted_at': datetime.datetime.utcnow(),
-                    'token_id': 16384356660,
+                    'token_id': 18578741304,
                 },
             ],
             skip_duplicates=True,
@@ -25059,7 +25064,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_blacklistedtoken = await token_blacklist_blacklistedtoken.prisma().delete(
             where={
-                'id': 21916896720,
+                'id': 8741626500,
             },
         )
         ```
@@ -25111,7 +25116,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_blacklistedtoken = await token_blacklist_blacklistedtoken.prisma().find_unique(
             where={
-                'id': 6117246012,
+                'id': 1294314720,
             },
         )
         ```
@@ -25162,7 +25167,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_blacklistedtoken = await token_blacklist_blacklistedtoken.prisma().find_unique_or_raise(
             where={
-                'id': 18578741304,
+                'id': 12498574860,
             },
         )
         ```
@@ -25414,7 +25419,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_blacklistedtoken = await token_blacklist_blacklistedtoken.prisma().update(
             where={
-                'id': 8741626500,
+                'id': 23127635400,
             },
             data={
                 # data to update the token_blacklist_blacklistedtoken record to
@@ -25471,17 +25476,17 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_blacklistedtoken = await token_blacklist_blacklistedtoken.prisma().upsert(
             where={
-                'id': 1294314720,
+                'id': 6243850452,
             },
             data={
                 'create': {
-                    'id': 1294314720,
+                    'id': 6243850452,
                     'blacklisted_at': datetime.datetime.utcnow(),
-                    'token_id': 16384356660,
+                    'token_id': 18578741304,
                 },
                 'update': {
                     'blacklisted_at': datetime.datetime.utcnow(),
-                    'token_id': 16384356660,
+                    'token_id': 18578741304,
                 },
             },
         )
@@ -25529,7 +25534,7 @@ class token_blacklist_blacklistedtokenActions(Generic[_PrismaModelT]):
         # update all token_blacklist_blacklistedtoken records
         total = await token_blacklist_blacklistedtoken.prisma().update_many(
             data={
-                'token_id': 12498574860
+                'token_id': 13593799920
             },
             where={}
         )
@@ -25892,7 +25897,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         users = await token_blacklist_outstandingtoken.prisma().query_raw(
             'SELECT * FROM token_blacklist_outstandingtoken WHERE id = $1',
-            23127635400,
+            12741788892,
         )
         ```
         """
@@ -25932,7 +25937,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         user = await token_blacklist_outstandingtoken.prisma().query_first(
             'SELECT * FROM token_blacklist_outstandingtoken WHERE token = $1',
-            'fcadcaihb',
+            'bidgcabjag',
         )
         ```
         """
@@ -25971,9 +25976,9 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().create(
             data={
                 # data to create a token_blacklist_outstandingtoken record
-                'token': 'bbdcibggga',
+                'token': 'hechjdjih',
                 'expires_at': datetime.datetime.utcnow(),
-                'jti': 'bagbibfheb',
+                'jti': 'cgfjefhci',
             },
         )
         ```
@@ -26028,15 +26033,15 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a token_blacklist_outstandingtoken record
-                    'token': 'bidgcabjag',
+                    'token': 'egcidbiab',
                     'expires_at': datetime.datetime.utcnow(),
-                    'jti': 'hechjdjih',
+                    'jti': 'cehjjfgeg',
                 },
                 {
                     # data to create a token_blacklist_outstandingtoken record
-                    'token': 'cgfjefhci',
+                    'token': 'hiaaaeeeh',
                     'expires_at': datetime.datetime.utcnow(),
-                    'jti': 'egcidbiab',
+                    'jti': 'ediajdeie',
                 },
             ],
             skip_duplicates=True,
@@ -26090,7 +26095,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().delete(
             where={
-                'id': 2975947752,
+                'id': 11237472636,
             },
         )
         ```
@@ -26142,7 +26147,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().find_unique(
             where={
-                'id': 9360053364,
+                'id': 21344584824,
             },
         )
         ```
@@ -26193,7 +26198,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().find_unique_or_raise(
             where={
-                'id': 5257121808,
+                'id': 13135722948,
             },
         )
         ```
@@ -26445,7 +26450,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().update(
             where={
-                'id': 11237472636,
+                'id': 21118554912,
             },
             data={
                 # data to update the token_blacklist_outstandingtoken record to
@@ -26502,19 +26507,19 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         ```py
         token_blacklist_outstandingtoken = await token_blacklist_outstandingtoken.prisma().upsert(
             where={
-                'id': 21344584824,
+                'id': 10584041292,
             },
             data={
                 'create': {
-                    'id': 21344584824,
-                    'token': 'cgfjefhci',
+                    'id': 10584041292,
+                    'token': 'hiaaaeeeh',
                     'expires_at': datetime.datetime.utcnow(),
-                    'jti': 'egcidbiab',
+                    'jti': 'ediajdeie',
                 },
                 'update': {
-                    'token': 'cgfjefhci',
+                    'token': 'hiaaaeeeh',
                     'expires_at': datetime.datetime.utcnow(),
-                    'jti': 'egcidbiab',
+                    'jti': 'ediajdeie',
                 },
             },
         )
@@ -26562,7 +26567,7 @@ class token_blacklist_outstandingtokenActions(Generic[_PrismaModelT]):
         # update all token_blacklist_outstandingtoken records
         total = await token_blacklist_outstandingtoken.prisma().update_many(
             data={
-                'jti': 'bajegedfhj'
+                'jti': 'bigjggdhac'
             },
             where={}
         )
@@ -26925,7 +26930,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users = await users_user.prisma().query_raw(
             'SELECT * FROM users_user WHERE id = $1',
-            21118554912,
+            18373436436,
         )
         ```
         """
@@ -26965,7 +26970,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         user = await users_user.prisma().query_first(
             'SELECT * FROM users_user WHERE password = $1',
-            'iicaadeeb',
+            'bdibjhdici',
         )
         ```
         """
@@ -27004,17 +27009,17 @@ class users_userActions(Generic[_PrismaModelT]):
         users_user = await users_user.prisma().create(
             data={
                 # data to create a users_user record
-                'password': 'bigjggdhac',
-                'is_superuser': False,
-                'username': 'bdibjhdici',
-                'first_name': 'bceigehcbd',
-                'last_name': 'caehahihfe',
-                'is_staff': False,
-                'is_active': True,
+                'password': 'bceigehcbd',
+                'is_superuser': True,
+                'username': 'jjacdhech',
+                'first_name': 'bbbjadabjc',
+                'last_name': 'hhaechedd',
+                'is_staff': True,
+                'is_active': False,
                 'date_joined': datetime.datetime.utcnow(),
-                'email': 'hhaechedd',
-                'is_premium': True,
-                'hide_ads': False,
+                'email': 'cbaagdieci',
+                'is_premium': False,
+                'hide_ads': True,
             },
         )
         ```
@@ -27069,31 +27074,31 @@ class users_userActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a users_user record
-                    'password': 'cbaagdieci',
-                    'is_superuser': False,
-                    'username': 'dhhdhfebi',
-                    'first_name': 'decchddih',
-                    'last_name': 'bbegbdehci',
-                    'is_staff': False,
-                    'is_active': True,
+                    'password': 'decchddih',
+                    'is_superuser': True,
+                    'username': 'bcebgbhhgb',
+                    'first_name': 'ghegfaceg',
+                    'last_name': 'hdeaejgah',
+                    'is_staff': True,
+                    'is_active': False,
                     'date_joined': datetime.datetime.utcnow(),
-                    'email': 'hdeaejgah',
-                    'is_premium': True,
-                    'hide_ads': False,
+                    'email': 'fcbbahcbi',
+                    'is_premium': False,
+                    'hide_ads': True,
                 },
                 {
                     # data to create a users_user record
-                    'password': 'fcbbahcbi',
-                    'is_superuser': False,
-                    'username': 'bfehccdcge',
-                    'first_name': 'ehcibdegf',
-                    'last_name': 'ebhjifbbi',
-                    'is_staff': False,
-                    'is_active': True,
+                    'password': 'ehcibdegf',
+                    'is_superuser': True,
+                    'username': 'jaigficdj',
+                    'first_name': 'bggcfifgbc',
+                    'last_name': 'bhidfjibgf',
+                    'is_staff': True,
+                    'is_active': False,
                     'date_joined': datetime.datetime.utcnow(),
-                    'email': 'bhidfjibgf',
-                    'is_premium': True,
-                    'hide_ads': False,
+                    'email': 'bbaecgicia',
+                    'is_premium': False,
+                    'hide_ads': True,
                 },
             ],
             skip_duplicates=True,
@@ -27147,7 +27152,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users_user = await users_user.prisma().delete(
             where={
-                'id': 13251219360,
+                'id': 18166180500,
             },
         )
         ```
@@ -27199,7 +27204,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users_user = await users_user.prisma().find_unique(
             where={
-                'id': 8916249036,
+                'id': 6709590960,
             },
         )
         ```
@@ -27250,7 +27255,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users_user = await users_user.prisma().find_unique_or_raise(
             where={
-                'id': 2123314824,
+                'id': 9058077852,
             },
         )
         ```
@@ -27502,7 +27507,7 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users_user = await users_user.prisma().update(
             where={
-                'id': 18166180500,
+                'id': 13815867672,
             },
             data={
                 # data to update the users_user record to
@@ -27559,35 +27564,35 @@ class users_userActions(Generic[_PrismaModelT]):
         ```py
         users_user = await users_user.prisma().upsert(
             where={
-                'id': 6709590960,
+                'id': 22397407716,
             },
             data={
                 'create': {
-                    'id': 6709590960,
-                    'password': 'fcbbahcbi',
-                    'is_superuser': False,
-                    'username': 'bfehccdcge',
-                    'first_name': 'ehcibdegf',
-                    'last_name': 'ebhjifbbi',
-                    'is_staff': False,
-                    'is_active': True,
+                    'id': 22397407716,
+                    'password': 'ehcibdegf',
+                    'is_superuser': True,
+                    'username': 'jaigficdj',
+                    'first_name': 'bggcfifgbc',
+                    'last_name': 'bhidfjibgf',
+                    'is_staff': True,
+                    'is_active': False,
                     'date_joined': datetime.datetime.utcnow(),
-                    'email': 'bhidfjibgf',
-                    'is_premium': True,
-                    'hide_ads': False,
+                    'email': 'bbaecgicia',
+                    'is_premium': False,
+                    'hide_ads': True,
                 },
                 'update': {
-                    'password': 'fcbbahcbi',
-                    'is_superuser': False,
-                    'username': 'bfehccdcge',
-                    'first_name': 'ehcibdegf',
-                    'last_name': 'ebhjifbbi',
-                    'is_staff': False,
-                    'is_active': True,
+                    'password': 'ehcibdegf',
+                    'is_superuser': True,
+                    'username': 'jaigficdj',
+                    'first_name': 'bggcfifgbc',
+                    'last_name': 'bhidfjibgf',
+                    'is_staff': True,
+                    'is_active': False,
                     'date_joined': datetime.datetime.utcnow(),
-                    'email': 'bhidfjibgf',
-                    'is_premium': True,
-                    'hide_ads': False,
+                    'email': 'bbaecgicia',
+                    'is_premium': False,
+                    'hide_ads': True,
                 },
             },
         )
@@ -27635,7 +27640,7 @@ class users_userActions(Generic[_PrismaModelT]):
         # update all users_user records
         total = await users_user.prisma().update_many(
             data={
-                'first_name': 'hfeidjicb'
+                'first_name': 'gfdbeaejg'
             },
             where={}
         )
@@ -27998,7 +28003,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users = await users_user_groups.prisma().query_raw(
             'SELECT * FROM users_user_groups WHERE id = $1',
-            13815867672,
+            2042809452,
         )
         ```
         """
@@ -28038,7 +28043,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         user = await users_user_groups.prisma().query_first(
             'SELECT * FROM users_user_groups WHERE user_id = $1',
-            22397407716,
+            11706578088,
         )
         ```
         """
@@ -28077,8 +28082,8 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         users_user_groups = await users_user_groups.prisma().create(
             data={
                 # data to create a users_user_groups record
-                'user_id': 7837685952,
-                'group_id': 170234121,
+                'user_id': 9706135092,
+                'group_id': 997936956,
             },
         )
         ```
@@ -28133,13 +28138,13 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a users_user_groups record
-                    'user_id': 11706578088,
-                    'group_id': 808844591,
+                    'user_id': 21351004476,
+                    'group_id': 51490330,
                 },
                 {
                     # data to create a users_user_groups record
-                    'user_id': 11975243472,
-                    'group_id': 1779250373,
+                    'user_id': 23290371972,
+                    'group_id': 424420136,
                 },
             ],
             skip_duplicates=True,
@@ -28193,7 +28198,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users_user_groups = await users_user_groups.prisma().delete(
             where={
-                'id': 617883960,
+                'id': 16321094412,
             },
         )
         ```
@@ -28245,7 +28250,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users_user_groups = await users_user_groups.prisma().find_unique(
             where={
-                'id': 23290371972,
+                'id': 3331774152,
             },
         )
         ```
@@ -28296,7 +28301,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users_user_groups = await users_user_groups.prisma().find_unique_or_raise(
             where={
-                'id': 5093041632,
+                'id': 6079423956,
             },
         )
         ```
@@ -28548,7 +28553,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users_user_groups = await users_user_groups.prisma().update(
             where={
-                'id': 16321094412,
+                'id': 15467771376,
             },
             data={
                 # data to update the users_user_groups record to
@@ -28605,17 +28610,17 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         ```py
         users_user_groups = await users_user_groups.prisma().upsert(
             where={
-                'id': 3331774152,
+                'id': 16680393180,
             },
             data={
                 'create': {
-                    'id': 3331774152,
-                    'user_id': 11975243472,
-                    'group_id': 1779250373,
+                    'id': 16680393180,
+                    'user_id': 23290371972,
+                    'group_id': 424420136,
                 },
                 'update': {
-                    'user_id': 11975243472,
-                    'group_id': 1779250373,
+                    'user_id': 23290371972,
+                    'group_id': 424420136,
                 },
             },
         )
@@ -28663,7 +28668,7 @@ class users_user_groupsActions(Generic[_PrismaModelT]):
         # update all users_user_groups records
         total = await users_user_groups.prisma().update_many(
             data={
-                'group_id': 506618663
+                'group_id': 1803544178
             },
             where={}
         )
@@ -29026,7 +29031,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users = await users_user_user_permissions.prisma().query_raw(
             'SELECT * FROM users_user_user_permissions WHERE id = $1',
-            15467771376,
+            21711847716,
         )
         ```
         """
@@ -29066,7 +29071,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         user = await users_user_user_permissions.prisma().query_first(
             'SELECT * FROM users_user_user_permissions WHERE user_id = $1',
-            16680393180,
+            4043978496,
         )
         ```
         """
@@ -29105,8 +29110,8 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         users_user_user_permissions = await users_user_user_permissions.prisma().create(
             data={
                 # data to create a users_user_user_permissions record
-                'user_id': 21642530136,
-                'permission_id': 1809320643,
+                'user_id': 5504871852,
+                'permission_id': 1340209086,
             },
         )
         ```
@@ -29161,13 +29166,13 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
             data=[
                 {
                     # data to create a users_user_user_permissions record
-                    'user_id': 4043978496,
-                    'permission_id': 458739321,
+                    'user_id': 11203953012,
+                    'permission_id': 1221525356,
                 },
                 {
                     # data to create a users_user_user_permissions record
-                    'user_id': 16082509032,
-                    'permission_id': 933662751,
+                    'user_id': 2313563772,
+                    'permission_id': 818008522,
                 },
             ],
             skip_duplicates=True,
@@ -29221,7 +29226,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users_user_user_permissions = await users_user_user_permissions.prisma().delete(
             where={
-                'id': 14658304272,
+                'id': 18658932420,
             },
         )
         ```
@@ -29273,7 +29278,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users_user_user_permissions = await users_user_user_permissions.prisma().find_unique(
             where={
-                'id': 2313563772,
+                'id': 13163809824,
             },
         )
         ```
@@ -29324,7 +29329,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users_user_user_permissions = await users_user_user_permissions.prisma().find_unique_or_raise(
             where={
-                'id': 9816102264,
+                'id': 20484844620,
             },
         )
         ```
@@ -29576,7 +29581,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users_user_user_permissions = await users_user_user_permissions.prisma().update(
             where={
-                'id': 18658932420,
+                'id': 22765045512,
             },
             data={
                 # data to update the users_user_user_permissions record to
@@ -29633,17 +29638,17 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         ```py
         users_user_user_permissions = await users_user_user_permissions.prisma().upsert(
             where={
-                'id': 13163809824,
+                'id': 2595533076,
             },
             data={
                 'create': {
-                    'id': 13163809824,
-                    'user_id': 16082509032,
-                    'permission_id': 933662751,
+                    'id': 2595533076,
+                    'user_id': 2313563772,
+                    'permission_id': 818008522,
                 },
                 'update': {
-                    'user_id': 16082509032,
-                    'permission_id': 933662751,
+                    'user_id': 2313563772,
+                    'permission_id': 818008522,
                 },
             },
         )
@@ -29691,7 +29696,7 @@ class users_user_user_permissionsActions(Generic[_PrismaModelT]):
         # update all users_user_user_permissions records
         total = await users_user_user_permissions.prisma().update_many(
             data={
-                'permission_id': 1707070385
+                'permission_id': 1418186756
             },
             where={}
         )

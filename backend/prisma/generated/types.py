@@ -12363,7 +12363,7 @@ class BookOptionalCreateInput(TypedDict, total=False):
     copyrightHolder: Optional[_str]
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
-    genreId: Optional[_int]
+    genreId: _int
     ageCategory: 'AgeCategoryCreateNestedWithoutRelationsInput'
     genre: 'GenreCreateNestedWithoutRelationsInput'
     readingProgress: 'ReadingProgressCreateManyNestedWithoutRelationsInput'
@@ -12401,7 +12401,7 @@ class BookOptionalCreateWithoutRelationsInput(TypedDict, total=False):
     copyrightHolder: Optional[_str]
     createdAt: datetime.datetime
     updatedAt: datetime.datetime
-    genreId: Optional[_int]
+    genreId: _int
 
 
 class BookCreateWithoutRelationsInput(BookOptionalCreateWithoutRelationsInput):
@@ -15984,7 +15984,7 @@ class BookWhereInput(TypedDict, total=False):
     copyrightHolder: Union[None, _str, 'types.StringFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
-    genreId: Union[None, _int, 'types.IntFilter']
+    genreId: Union[_int, 'types.IntFilter']
     ageCategory: 'AgeCategoryRelationFilter'
     genre: 'GenreRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
@@ -16021,7 +16021,7 @@ class BookWhereInputRecursive1(TypedDict, total=False):
     copyrightHolder: Union[None, _str, 'types.StringFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
-    genreId: Union[None, _int, 'types.IntFilter']
+    genreId: Union[_int, 'types.IntFilter']
     ageCategory: 'AgeCategoryRelationFilter'
     genre: 'GenreRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
@@ -16058,7 +16058,7 @@ class BookWhereInputRecursive2(TypedDict, total=False):
     copyrightHolder: Union[None, _str, 'types.StringFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
-    genreId: Union[None, _int, 'types.IntFilter']
+    genreId: Union[_int, 'types.IntFilter']
     ageCategory: 'AgeCategoryRelationFilter'
     genre: 'GenreRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
@@ -16095,7 +16095,7 @@ class BookWhereInputRecursive3(TypedDict, total=False):
     copyrightHolder: Union[None, _str, 'types.StringFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
-    genreId: Union[None, _int, 'types.IntFilter']
+    genreId: Union[_int, 'types.IntFilter']
     ageCategory: 'AgeCategoryRelationFilter'
     genre: 'GenreRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'
@@ -16132,7 +16132,7 @@ class BookWhereInputRecursive4(TypedDict, total=False):
     copyrightHolder: Union[None, _str, 'types.StringFilter']
     createdAt: Union[datetime.datetime, 'types.DateTimeFilter']
     updatedAt: Union[datetime.datetime, 'types.DateTimeFilter']
-    genreId: Union[None, _int, 'types.IntFilter']
+    genreId: Union[_int, 'types.IntFilter']
     ageCategory: 'AgeCategoryRelationFilter'
     genre: 'GenreRelationFilter'
     readingProgress: 'ReadingProgressListRelationFilter'

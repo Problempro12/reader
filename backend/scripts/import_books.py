@@ -134,16 +134,8 @@ async def import_books():
                         book_data = {
                             'title': title,
                             'author': author,
-                            'genre': {
-                                'connect': {
-                                    'id': genre_id
-                                }
-                            },
-                            'ageCategory': {
-                                'connect': {
-                                    'id': age_category.id
-                                }
-                            },
+                            'genreId': genre_id,  # Прямое указание ID жанра
+                            'ageCategoryId': age_category.id,  # Прямое указание ID возрастной категории
                             'isPremium': False,
                             'rating': 0.0,
                             'rating_count': 0  # Используем snake_case как в схеме
