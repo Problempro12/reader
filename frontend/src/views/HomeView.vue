@@ -5,6 +5,8 @@ import { RouterLink } from 'vue-router'
 import masterImg from '@/assets/books/мастер-и-маргарита.webp';
 import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
 import warImg from '@/assets/books/война-и-мир-2.jpg';
+import BookOfTheWeekVoting from '@/components/BookOfTheWeekVoting.vue';
+import ReadingProgress from '@/components/ReadingProgress.vue';
 
 defineComponent({
   name: 'HomeView'
@@ -60,98 +62,106 @@ onMounted(() => {
 
 <template>
   <div class="home-page">
-    <!-- Приветственный баннер -->
-    <div class="hero-section">
-      <div class="container">
-        <div class="row align-items-center min-vh-75">
-          <div class="col-lg-6" :class="{ 'fade-in': isVisible }">
-            <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
-            <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
-            <div class="d-flex gap-3">
-              <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
-                Начать читать
-                <i class="bi bi-arrow-right ms-2"></i>
-              </RouterLink>
-              <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
-                Присоединиться
-              </RouterLink>
-            </div>
-          </div>
-          <div class="col-lg-6 d-none d-lg-block">
-            <div class="floating-books">
-              <img :src="masterImg" alt="Книга" class="book-1">
-              <img :src="crimeImg" alt="Книга" class="book-2">
-              <img :src="warImg" alt="Книга" class="book-3">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Статистика чтения -->
-    <div class="stats-section py-5">
-      <div class="container">
-        <div class="row g-4">
-          <div class="col-md-3" v-for="(stat, index) in Object.entries(readingStats)" :key="index">
-            <div class="stat-card" :class="{ 'fade-in': isVisible }" :style="{ '--delay': index * 0.2 + 's' }">
-              <div class="stat-icon">
-                <i :class="[
-                  'bi',
-                  index === 0 ? 'bi-book' : 
-                  index === 1 ? 'bi-file-text' :
-                  index === 2 ? 'bi-calendar-check' :
-                  'bi-clock'
-                ]"></i>
+    <div class="container">
+      <!-- Голосование за книгу недели -->
+      <BookOfTheWeekVoting />
+      
+      <!-- Отметка прогресса чтения -->
+      <ReadingProgress />
+      
+      <!-- Приветственный баннер -->
+      <div class="hero-section">
+        <div class="container">
+          <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6" :class="{ 'fade-in': isVisible }">
+              <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
+              <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
+              <div class="d-flex gap-3">
+                <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
+                  Начать читать
+                  <i class="bi bi-arrow-right ms-2"></i>
+                </RouterLink>
+                <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
+                  Присоединиться
+                </RouterLink>
               </div>
-              <div class="stat-content">
-                <h3 class="stat-value">{{ stat[1] }}</h3>
-                <p class="stat-label">{{ 
-                  index === 0 ? 'Прочитано книг' :
-                  index === 1 ? 'Прочитано страниц' :
-                  index === 2 ? 'Дней подряд' :
-                  'Часов чтения'
-                }}</p>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+              <div class="floating-books">
+                <img :src="masterImg" alt="Книга" class="book-1">
+                <img :src="crimeImg" alt="Книга" class="book-2">
+                <img :src="warImg" alt="Книга" class="book-3">
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Рекомендуемые книги -->
-    <div class="books-section py-5">
-      <div class="container">
-        <h2 class="section-title mb-5">Продолжить чтение</h2>
-        <div class="row g-4">
-          <div v-for="book in featuredBooks" :key="book.id" class="col-md-4">
-            <div class="book-card" :class="{ 'fade-in': isVisible }">
-              <div class="book-cover">
-                <img :src="book.cover" :alt="book.title">
-                <div class="book-overlay">
-                  <RouterLink :to="`/app/books/${book.id}`" class="btn btn-light">
-                    Читать
-                  </RouterLink>
+      <!-- Статистика чтения -->
+      <div class="stats-section py-5">
+        <div class="container">
+          <div class="row g-4">
+            <div class="col-md-3" v-for="(stat, index) in Object.entries(readingStats)" :key="index">
+              <div class="stat-card" :class="{ 'fade-in': isVisible }" :style="{ '--delay': index * 0.2 + 's' }">
+                <div class="stat-icon">
+                  <i :class="[
+                    'bi',
+                    index === 0 ? 'bi-book' : 
+                    index === 1 ? 'bi-file-text' :
+                    index === 2 ? 'bi-calendar-check' :
+                    'bi-clock'
+                  ]"></i>
+                </div>
+                <div class="stat-content">
+                  <h3 class="stat-value">{{ stat[1] }}</h3>
+                  <p class="stat-label">{{ 
+                    index === 0 ? 'Прочитано книг' :
+                    index === 1 ? 'Прочитано страниц' :
+                    index === 2 ? 'Дней подряд' :
+                    'Часов чтения'
+                  }}</p>
                 </div>
               </div>
-              <div class="book-info">
-                <div class="book-genre">{{ book.genre }}</div>
-                <h3 class="book-title">{{ book.title }}</h3>
-                <p class="book-author">{{ book.author }}</p>
-                <p class="book-description">{{ book.description }}</p>
-                <div class="book-progress">
-                  <div class="progress">
-                    <div class="progress-bar" role="progressbar" 
-                         :style="{ width: book.progress + '%' }" 
-                         :aria-valuenow="book.progress" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                    </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Рекомендуемые книги -->
+      <div class="books-section py-5">
+        <div class="container">
+          <h2 class="section-title mb-5">Продолжить чтение</h2>
+          <div class="row g-4">
+            <div v-for="book in featuredBooks" :key="book.id" class="col-md-4">
+              <div class="book-card" :class="{ 'fade-in': isVisible }">
+                <div class="book-cover">
+                  <img :src="book.cover" :alt="book.title">
+                  <div class="book-overlay">
+                    <RouterLink :to="`/app/books/${book.id}`" class="btn btn-light">
+                      Читать
+                    </RouterLink>
                   </div>
-                  <span class="progress-text">{{ book.progress }}%</span>
                 </div>
-                <div class="book-rating">
-                  <i class="bi bi-star-fill"></i>
-                  <span>{{ book.rating }}</span>
+                <div class="book-info">
+                  <div class="book-genre">{{ book.genre }}</div>
+                  <h3 class="book-title">{{ book.title }}</h3>
+                  <p class="book-author">{{ book.author }}</p>
+                  <p class="book-description">{{ book.description }}</p>
+                  <div class="book-progress">
+                    <div class="progress">
+                      <div class="progress-bar" role="progressbar" 
+                           :style="{ width: book.progress + '%' }" 
+                           :aria-valuenow="book.progress" 
+                           aria-valuemin="0" 
+                           aria-valuemax="100">
+                      </div>
+                    </div>
+                    <span class="progress-text">{{ book.progress }}%</span>
+                  </div>
+                  <div class="book-rating">
+                    <i class="bi bi-star-fill"></i>
+                    <span>{{ book.rating }}</span>
+                  </div>
                 </div>
               </div>
             </div>

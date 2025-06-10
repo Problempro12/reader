@@ -14,6 +14,10 @@ import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
 import AchievementsView from '@/views/AchievementsView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import AdminBooksView from '@/views/admin/BooksView.vue'
+import TermsOfUseView from '@/views/TermsOfUseView.vue'
+import ContactView from '@/views/ContactView.vue'
+import BookReader from '@/components/BookReader.vue'
+import BookDetail from '@/views/BookDetail.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -83,6 +87,18 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
+      path: '/terms',
+      name: 'terms',
+      component: TermsOfUseView,
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/contact',
+      name: 'contact',
+      component: ContactView,
+      meta: { requiresAuth: false }
+    },
+    {
       path: '/admin',
       component: AdminLayout,
       meta: { requiresAuth: true, requiresAdmin: true },
@@ -93,8 +109,23 @@ const router = createRouter({
           component: AdminBooksView
         }
       ]
+    },
+    {
+      path: '/book/:id',
+      name: 'book-detail',
+      component: BookDetail,
+      props: true
+    },
+    {
+      path: '/book/:id/read',
+      name: 'book-reader',
+      component: BookReader,
+      props: true
     }
-  ]
+  ],
+  scrollBehavior() {
+    return { top: 0 }
+  }
 })
 
 router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {

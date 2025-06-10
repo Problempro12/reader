@@ -184,3 +184,183 @@ class BasePartner(_PrismaModel):
         return actions.PartnerActions[_PrismaModelT](client or get_client(), cls)
 
 
+class BaseAchievement(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['Achievement']] = 'Achievement'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.AchievementActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.AchievementActions[_PrismaModelT](client or get_client(), cls)
+
+
+class BaseUserAchievement(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['UserAchievement']] = 'UserAchievement'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.UserAchievementActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.UserAchievementActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseauth_group(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['auth_group']] = 'auth_group'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.auth_groupActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.auth_groupActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseauth_group_permissions(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['auth_group_permissions']] = 'auth_group_permissions'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.auth_group_permissionsActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.auth_group_permissionsActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseauth_permission(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['auth_permission']] = 'auth_permission'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.auth_permissionActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.auth_permissionActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseauthtoken_token(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['authtoken_token']] = 'authtoken_token'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.authtoken_tokenActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.authtoken_tokenActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basebooks_agecategory(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['books_agecategory']] = 'books_agecategory'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.books_agecategoryActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.books_agecategoryActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basebooks_book(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['books_book']] = 'books_book'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.books_bookActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.books_bookActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basebooks_genre(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['books_genre']] = 'books_genre'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.books_genreActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.books_genreActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basedjango_admin_log(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['django_admin_log']] = 'django_admin_log'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.django_admin_logActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.django_admin_logActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basedjango_content_type(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['django_content_type']] = 'django_content_type'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.django_content_typeActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.django_content_typeActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basedjango_migrations(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['django_migrations']] = 'django_migrations'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.django_migrationsActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.django_migrationsActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basedjango_session(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['django_session']] = 'django_session'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.django_sessionActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.django_sessionActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basetoken_blacklist_blacklistedtoken(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['token_blacklist_blacklistedtoken']] = 'token_blacklist_blacklistedtoken'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.token_blacklist_blacklistedtokenActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.token_blacklist_blacklistedtokenActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Basetoken_blacklist_outstandingtoken(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['token_blacklist_outstandingtoken']] = 'token_blacklist_outstandingtoken'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.token_blacklist_outstandingtokenActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.token_blacklist_outstandingtokenActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseusers_user(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['users_user']] = 'users_user'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.users_userActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.users_userActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseusers_user_groups(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['users_user_groups']] = 'users_user_groups'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.users_user_groupsActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.users_user_groupsActions[_PrismaModelT](client or get_client(), cls)
+
+
+class Baseusers_user_user_permissions(_PrismaModel):
+    __prisma_model__: ClassVar[Literal['users_user_user_permissions']] = 'users_user_user_permissions'  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @classmethod
+    def prisma(cls: Type[_PrismaModelT], client: Optional['Prisma'] = None) -> 'actions.users_user_user_permissionsActions[_PrismaModelT]':
+        from .client import get_client
+
+        return actions.users_user_user_permissionsActions[_PrismaModelT](client or get_client(), cls)
+
+

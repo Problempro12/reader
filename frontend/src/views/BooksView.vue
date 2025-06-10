@@ -312,15 +312,9 @@ const filteredBooks = computed(() => {
 });
 
 // Пагинация
-const totalPages = computed(() => 
+const totalPages = computed(() =>
   Math.ceil(filteredBooks.value.length / booksPerPage)
 );
-
-const paginatedBooks = computed(() => {
-  const start = (currentPage.value - 1) * booksPerPage;
-  const end = start + booksPerPage;
-  return filteredBooks.value.slice(start, end);
-});
 
 // Функции для работы с оценками
 const rateBook = (book: Book) => {

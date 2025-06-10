@@ -32,10 +32,21 @@
               </div>
               <div class="mb-3">
                 <label for="avatar" class="form-label mb-1">Аватар</label>
-                <input type="file" class="form-control d-none" id="avatar">
-                 <label for="avatar" class="btn btn-outline-secondary">Выберите файл</label>
+                <div class="d-flex align-items-center gap-3">
+                  <div class="avatar-preview" v-if="avatarPreview || userData?.avatar_url">
+                    <img :src="displayedAvatarUrl" alt="Превью аватара" class="w-32 h-32 rounded-full object-cover border-2 border-gray-300">
+                  </div>
+                  <div class="d-flex flex-column">
+                    <input type="file" class="form-control d-none" id="avatar" @change="handleFileSelect" accept="image/*">
+                    <label for="avatar" class="btn btn-outline-secondary">Выберите файл</label>
+                    <small class="text-light-50 mt-1">Максимальный размер: 5MB</small>
+                    <small v-if="error" class="text-danger mt-1">{{ error }}</small>
+                  </div>
+                </div>
               </div>
-              <button class="btn btn-primary">Сохранить изменения профиля</button>
+              <button class="btn btn-primary" @click="uploadAvatar">
+                {{ loading ? 'Загрузка...' : 'Сохранить изменения профиля' }}
+              </button>
             </div>
 
             <!-- Аккаунт Tab -->
@@ -50,8 +61,13 @@
                 <input type="password" class="form-control mb-2" id="password" placeholder="Новый пароль">
                  <input type="password" class="form-control" id="confirmPassword" placeholder="Повторите пароль">
               </div>
-               <button class="btn btn-primary me-2">Сохранить изменения аккаунта</button>
-               <button class="btn btn-danger">Удалить аккаунт</button>
+              <div class="d-flex justify-content-between align-items-center mt-4">
+                <div>
+                  <button class="btn btn-primary me-2">Сохранить изменения аккаунта</button>
+                  <button class="btn btn-danger me-2" @click="deleteAccount">Удалить аккаунт</button>
+                  <button class="btn btn-secondary" @click="logout">Выйти из аккаунта</button>
+                </div>
+              </div>
             </div>
 
             <!-- Премиум Tab -->
@@ -68,7 +84,148 @@
 </template>
 
 <script setup lang="ts">
-// Логика для настроек и переключения вкладок будет добавлена позже
+import { ref, computed, onMounted, watch } from 'vue';
+import { useUserStore } from '@/stores/user';
+import { storeToRefs } from 'pinia';
+import { useRouter } from 'vue-router';
+
+const userStore = useUserStore();
+const { userData, isLoggedIn } = storeToRefs(userStore);
+const { fetchUserData } = userStore;
+
+const selectedFile = ref<File | null>(null);
+const avatarPreview = ref<string | null>(null);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const router = useRouter();
+const activeTab = ref('account');
+
+// Добавляем отладочные логи для наблюдения за selectedFile и loading
+console.log('SettingsView: selectedFile начальное значение:', selectedFile.value);
+console.log('SettingsView: loading начальное значение:', loading.value);
+
+// Вычисляемое свойство для определения URL отображаемого аватара
+const displayedAvatarUrl = computed(() => {
+  // Используем VITE_BACKEND_URL из env если доступен, иначе дефолт
+  const backendBaseUrl = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
+  
+  if (avatarPreview.value) {
+    // Если есть превью, используем его (это Data URL)
+    return avatarPreview.value;
+  } else if (userData.value?.avatar_url) {
+    // Если есть аватар в userData, формируем полный URL
+    // Убираем дублирование /media/ в пути (хотя бэкенд теперь должен давать правильный URL)
+    const url = userData.value.avatar_url; // Просто используем URL из данных
+    console.log('SettingsView: Computed avatar URL:', url);
+    return url;
+  } else {
+    // Возвращаем пустую строку или URL дефолтной аватарки
+    console.log('SettingsView: userData.avatar_url is not set.');
+    return ''; // Можно заменить на URL дефолтной картинки
+  }
+});
+
+const handleFileSelect = (event: Event) => {
+  console.log('SettingsView: handleFileSelect вызвана');
+  const input = event.target as HTMLInputElement;
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    
+    // Проверяем тип файла
+    if (!file.type.startsWith('image/')) {
+      error.value = 'Пожалуйста, выберите изображение';
+      selectedFile.value = null; // Очищаем selectedFile при ошибке
+      avatarPreview.value = null;
+      console.log('SettingsView: Ошибка - не изображение. selectedFile:', selectedFile.value);
+      return;
+    }
+    
+    // Проверяем размер файла (максимум 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      error.value = 'Размер файла не должен превышать 5MB';
+      selectedFile.value = null; // Очищаем selectedFile при ошибке
+      avatarPreview.value = null;
+      console.log('SettingsView: Ошибка - большой файл. selectedFile:', selectedFile.value);
+      return;
+    }
+    
+    selectedFile.value = file;
+    error.value = null;
+    console.log('SettingsView: Файл успешно выбран. selectedFile:', selectedFile.value);
+    
+    // Создаем превью
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      avatarPreview.value = e.target?.result as string;
+      console.log('SettingsView: Превью аватара создано');
+    };
+    reader.readAsDataURL(file);
+  }
+};
+
+const uploadAvatar = async () => {
+  console.log('SettingsView: uploadAvatar вызвана');
+  if (!selectedFile.value) {
+    console.log('SettingsView: uploadAvatar: selectedFile отсутствует, выходим.');
+    return;
+  }
+  
+  loading.value = true;
+  error.value = null;
+   console.log('SettingsView: uploadAvatar: Устанавливаем loading = true.');
+  
+  try {
+    console.log('SettingsView: Вызываем userStore.updateAvatar...');
+    await userStore.updateAvatar(selectedFile.value);
+    console.log('SettingsView: userStore.updateAvatar успешно выполнен.');
+    
+    // Очищаем выбранный файл и превью после успешной загрузки
+    selectedFile.value = null;
+    avatarPreview.value = null;
+     console.log('SettingsView: selectedFile и avatarPreview очищены после успеха.');
+  } catch (err) {
+    error.value = 'Ошибка при загрузке аватара';
+    console.error('SettingsView: Ошибка в uploadAvatar:', err);
+  } finally {
+    loading.value = false;
+     console.log('SettingsView: uploadAvatar завершен, устанавливаем loading = false.');
+  }
+};
+
+const logout = async () => {
+  try {
+    await userStore.logout();
+    router.push('/auth/login');
+  } catch (error) {
+    console.error('Ошибка при выходе из аккаунта:', error);
+  }
+};
+
+const deleteAccount = async () => {
+  if (confirm('Вы уверены, что хотите удалить аккаунт? Это действие нельзя отменить.')) {
+    try {
+      await userStore.deleteAccount();
+      router.push('/auth/login');
+    } catch (error) {
+      console.error('Ошибка при удалении аккаунта:', error);
+    }
+  }
+};
+
+onMounted(() => {
+  console.log('SettingsView: Mounted');
+  if (isLoggedIn.value) {
+    console.log('SettingsView: User is logged in, fetching data...');
+    fetchUserData();
+  }
+  console.log('SettingsView: Initial userData in store:', userData.value);
+});
+
+watch(userData, (newValue, oldValue) => {
+  console.log('SettingsView: userData changed:', { oldValue, newValue });
+  console.log('SettingsView: displayedAvatarUrl after userData change:', displayedAvatarUrl.value);
+});
 </script>
 
 <style scoped>
@@ -254,5 +411,28 @@ h1 {
       padding: 1.5rem;
   }
 
+}
+
+.avatar-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #a8e6cf;
+  box-shadow: 0 0 20px rgba(168, 230, 207, 0.3);
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.text-light-50 {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.text-danger {
+  color: #e57373;
 }
 </style> 

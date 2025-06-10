@@ -102,16 +102,6 @@
         <h3>{{ editingBook ? 'Редактировать книгу' : 'Добавить книгу' }}</h3>
         <form @submit.prevent="handleSubmit">
           <div class="form-group">
-            <label>URL книги на LitRes (опционально)</label>
-            <div class="input-group">
-              <input type="url" v-model="litresUrl" placeholder="Введите URL" />
-              <button type="button" class="btn btn-secondary" @click="loadFromLitres" :disabled="!litresUrl || loadingLitres">
-                <span v-if="loadingLitres" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Загрузить из LitRes
-              </button>
-            </div>
-          </div>
-          <div class="form-group">
             <label>Название</label>
             <input type="text" v-model="form.title" required />
           </div>
@@ -158,13 +148,6 @@
             <input type="text" v-model="form.translator" />
           </div>
           <div class="form-group">
-            <label>Рейтинг на LitRes</label>
-            <div class="rating-info">
-              <input type="number" v-model="litresRatingValue" step="0.1" min="0" max="5" />
-              <span class="rating-count">({{ litresRatingCount }} оценок на LitRes)</span>
-            </div>
-          </div>
-          <div class="form-group">
             <label>Техническая информация</label>
             <div class="technical-info">
               <input type="text" v-model="technicalVolume" placeholder="Объем" />
@@ -200,8 +183,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
 import { getBooks, createBook, updateBook, deleteBook } from '@/api/books'
-import type { Book, BookCreate, BookUpdate } from '@/types/book'
-import axiosInstance from '@/plugins/axios'
+import type { Book, BookCreate } from '@/types/book'
 
 const books = ref<Book[]>([])
 const filters = reactive({
@@ -231,10 +213,6 @@ const form = reactive<BookCreate>({
   ageCategory: '',
   description: '',
   isPremium: false,
-  litresRating: {
-    value: 0,
-    count: 0
-  },
   series: '',
   translator: '',
   technical: {
@@ -244,9 +222,6 @@ const form = reactive<BookCreate>({
     copyrightHolder: ''
   }
 })
-
-const litresUrl = ref('')
-const loadingLitres = ref(false)
 
 const genres = [
   'Фэнтези',
@@ -267,26 +242,6 @@ const ageCategories = [
   '16+',
   '18+'
 ]
-
-const litresRatingValue = computed({
-  get: () => form.litresRating?.value || 0,
-  set: (value) => {
-    if (!form.litresRating) {
-      form.litresRating = { value: 0, count: 0 }
-    }
-    form.litresRating.value = value
-  }
-})
-
-const litresRatingCount = computed({
-  get: () => form.litresRating?.count || 0,
-  set: (value) => {
-    if (!form.litresRating) {
-      form.litresRating = { value: 0, count: 0 }
-    }
-    form.litresRating.count = value
-  }
-})
 
 const technicalVolume = computed({
   get: () => form.technical?.volume || '',
@@ -364,10 +319,6 @@ const openCreateModal = () => {
     ageCategory: '',
     description: '',
     isPremium: false,
-    litresRating: {
-      value: 0,
-      count: 0
-    },
     series: '',
     translator: '',
     technical: {
@@ -390,10 +341,6 @@ const openEditModal = (book: Book) => {
     ageCategory: book.ageCategory,
     description: book.description,
     isPremium: book.isPremium,
-    litresRating: book.litresRating || {
-      value: 0,
-      count: 0
-    },
     series: book.series || '',
     translator: book.translator || '',
     technical: book.technical || {
@@ -446,67 +393,6 @@ const handleDelete = async () => {
   } catch (err) {
     error.value = 'Ошибка при удалении книги'
     console.error(err)
-  }
-}
-
-const loadFromLitres = async () => {
-  loadingLitres.value = true
-  try {
-    const response = await axiosInstance.post('books/scrape-litres/', {
-      url: litresUrl.value
-    })
-    
-    const bookData = response.data
-    
-    // Заполняем основную информацию
-    form.title = bookData.title
-    form.author = bookData.author
-    form.cover = bookData.cover
-    form.description = bookData.description
-    
-    // Заполняем серию и переводчика
-    form.series = bookData.series || ''
-    form.translator = bookData.translator || ''
-    
-    // Заполняем рейтинг с LitRes
-    if (bookData.rating) {
-      form.litresRating = {
-        value: bookData.rating.value || 0,
-        count: bookData.rating.count || 0
-      }
-    }
-    
-    // Заполняем техническую информацию
-    if (bookData.technical) {
-      form.technical = {
-        volume: bookData.technical.volume || '',
-        year: bookData.technical.year || '',
-        isbn: bookData.technical.isbn || '',
-        copyrightHolder: bookData.technical.copyright_holder || ''
-      }
-    }
-    
-    // Если есть жанры, выбираем первый из списка
-    if (bookData.genres && bookData.genres.length > 0) {
-      const firstGenre = bookData.genres[0]
-      if (genres.includes(firstGenre)) {
-        form.genre = firstGenre
-      }
-    }
-    
-    // Преобразуем возрастное ограничение в формат нашей системы
-    if (bookData.age_rating) {
-      const ageRating = bookData.age_rating.replace('+', '')
-      if (ageCategories.includes(ageRating + '+')) {
-        form.ageCategory = ageRating + '+'
-      }
-    }
-    
-  } catch (err) {
-    error.value = 'Ошибка при загрузке книги из LitRes'
-    console.error(err)
-  } finally {
-    loadingLitres.value = false
   }
 }
 
@@ -750,18 +636,6 @@ th {
 
 .btn-danger:hover {
   background-color: #bb2d3b;
-}
-
-.rating-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.rating-count,
-.reviews-count {
-  color: #666;
-  font-size: 0.875rem;
 }
 
 .price-info,

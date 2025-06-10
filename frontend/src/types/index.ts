@@ -6,9 +6,11 @@ export interface User {
   is_premium: boolean;
   premium_expiration_date: string | null;
   hide_ads: boolean;
-  avatar?: string | null; // avatar can be string URL or null
-  about?: string | null; // about can be string or null
+  avatar_url: string | null;
+  about: string | null;
   stats?: BookStats; // stats is optional and should match BookStats interface
+  is_staff: boolean;
+  is_superuser: boolean;
 }
 
 // Определение типа для статистики книг

@@ -57,7 +57,7 @@
           
           <RouterLink to="/profile" class="user-profile" v-else>
             <div class="user-avatar">
-              <img v-if="userData && userData.avatar" :src="userData.avatar" alt="Аватар">
+              <img v-if="displayedAvatarUrl" :src="displayedAvatarUrl" alt="Аватар">
               <div v-else class="initials-circle">
                 {{ userInitials }}
               </div>
@@ -72,10 +72,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia';
+import axios from 'axios';
 
 const isMenuOpen = ref(false)
 const isScrolled = ref(false)
@@ -83,19 +84,84 @@ const userStore = useUserStore()
 
 // Используем storeToRefs для сохранения реактивности при деструктурировании
 const { isLoggedIn, userData, userInitials } = storeToRefs(userStore);
+const { fetchUserData } = userStore;
 
 const route = useRoute()
 
 onMounted(() => {
+  console.log('AppHeader: Mounted');
   window.addEventListener('scroll', () => {
-    isScrolled.value = window.scrollY > 50 || route.path !== '/'
+    isScrolled.value = window.scrollY > 50
   })
-  // Проверяем маршрут при монтировании
-  isScrolled.value = route.path !== '/'
-
-  // Загружаем данные пользователя при монтировании компонента
-  userStore.fetchUserData()
+  // Проверяем скролл при монтировании
+  isScrolled.value = window.scrollY > 50
+  if (isLoggedIn.value) {
+    console.log('AppHeader: User is logged in, fetching data...');
+    fetchUserData();
+  } else {
+    console.log('AppHeader: User is not logged in.');
+  }
+  console.log('AppHeader: Initial userData in store:', userData.value);
 })
+
+watch(route, () => {
+  // Сбрасываем состояние прокрутки при смене маршрута (опционально)
+  isScrolled.value = false;
+})
+
+watch(userData, (newValue, oldValue) => {
+  console.log('AppHeader: userData changed:', { oldValue, newValue });
+  console.log('AppHeader: displayedAvatarUrl after userData change:', displayedAvatarUrl.value);
+});
+
+// Watch isLoggedIn as well, as it triggers fetchUserData
+watch(isLoggedIn, (newValue, oldValue) => {
+    console.log('AppHeader: isLoggedIn changed:', { oldValue, newValue });
+    if (newValue && !oldValue) {
+        console.log('AppHeader: isLoggedIn changed to true, fetching data...');
+        fetchUserData();
+    }
+});
+
+// Вычисляемое свойство для определения URL отображаемого аватара
+const displayedAvatarUrl = computed(() => {
+  console.log('AppHeader: Computing displayedAvatarUrl. userData:', userData.value);
+  // const backendBaseUrl = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000'; // Удаляем неиспользуемую переменную
+  // Используем avatar_url из стора, который теперь формируется на бэкенде
+  if (userData.value?.avatar_url) {
+    const url = userData.value.avatar_url;
+    console.log('AppHeader: Computed avatar URL:', url);
+    return url;
+  } else {
+    console.log('AppHeader: userData.avatar_url is not set.');
+    // Возвращаем пустую строку или URL дефолтной картинки, если аватара нет
+    return '';
+  }
+});
+
+const handleAvatarUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  try {
+    const formData = new FormData()
+    formData.append('avatar', file)
+
+    const response = await axios.patch('/api/users/profile/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    if (response.data) {
+      userData.value = response.data
+    }
+  } catch (error) {
+    console.error('Ошибка при загрузке аватара:', error)
+    // Можно добавить уведомление пользователю об ошибке
+  }
+}
 
 // TODO: Добавить функцию логаута
 </script>
@@ -262,6 +328,16 @@ onMounted(() => {
   color: #a8e6cf;
 }
 
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #a8e6cf, #8cd3b0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .user-avatar img {
   width: 40px;
   height: 40px;
@@ -274,11 +350,11 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: linear-gradient(45deg, #a8e6cf, #8cd3b0); /* Градиентный фон */
+  background: linear-gradient(45deg, #a8e6cf, #8cd3b0);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #2c3e50; /* Темный текст */
+  color: #2c3e50;
   font-weight: bold;
   font-size: 1rem;
 }

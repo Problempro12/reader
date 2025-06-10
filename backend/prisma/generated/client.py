@@ -88,7 +88,7 @@ log: logging.Logger = logging.getLogger(__name__)
 SCHEMA_PATH = Path('/Users/aleksandrkocergin/Documents/kpit.pw/reader/backend/prisma/schema.prisma')
 PACKAGED_SCHEMA_PATH = Path(__file__).parent.joinpath('schema.prisma')
 ENGINE_TYPE: EngineType = EngineType.binary
-BINARY_PATHS = model_parse(BinaryPaths, {'queryEngine': {'darwin-arm64': '/Users/aleksandrkocergin/.cache/prisma-python/binaries/5.17.0/393aa359c9ad4a4bb28630fb5613f9c281cde053/node_modules/prisma/query-engine-darwin-arm64'}, 'introspectionEngine': {}, 'migrationEngine': {}, 'libqueryEngine': {}, 'prismaFmt': {}})
+BINARY_PATHS = model_parse(BinaryPaths, {'queryEngine': {'darwin-arm64': '/Users/aleksandrkocergin/.npm/_npx/55ad0b431757dc30/node_modules/prisma/query-engine-darwin-arm64'}, 'introspectionEngine': {}, 'migrationEngine': {}, 'libqueryEngine': {}, 'prismaFmt': {}})
 
 
 class Prisma(AsyncBasePrisma):
@@ -105,6 +105,24 @@ class Prisma(AsyncBasePrisma):
     notification: 'actions.NotificationActions[models.Notification]'
     advertisement: 'actions.AdvertisementActions[models.Advertisement]'
     partner: 'actions.PartnerActions[models.Partner]'
+    achievement: 'actions.AchievementActions[models.Achievement]'
+    userachievement: 'actions.UserAchievementActions[models.UserAchievement]'
+    auth_group: 'actions.auth_groupActions[models.auth_group]'
+    auth_group_permissions: 'actions.auth_group_permissionsActions[models.auth_group_permissions]'
+    auth_permission: 'actions.auth_permissionActions[models.auth_permission]'
+    authtoken_token: 'actions.authtoken_tokenActions[models.authtoken_token]'
+    books_agecategory: 'actions.books_agecategoryActions[models.books_agecategory]'
+    books_book: 'actions.books_bookActions[models.books_book]'
+    books_genre: 'actions.books_genreActions[models.books_genre]'
+    django_admin_log: 'actions.django_admin_logActions[models.django_admin_log]'
+    django_content_type: 'actions.django_content_typeActions[models.django_content_type]'
+    django_migrations: 'actions.django_migrationsActions[models.django_migrations]'
+    django_session: 'actions.django_sessionActions[models.django_session]'
+    token_blacklist_blacklistedtoken: 'actions.token_blacklist_blacklistedtokenActions[models.token_blacklist_blacklistedtoken]'
+    token_blacklist_outstandingtoken: 'actions.token_blacklist_outstandingtokenActions[models.token_blacklist_outstandingtoken]'
+    users_user: 'actions.users_userActions[models.users_user]'
+    users_user_groups: 'actions.users_user_groupsActions[models.users_user_groups]'
+    users_user_user_permissions: 'actions.users_user_user_permissionsActions[models.users_user_user_permissions]'
 
     __slots__ = (
         'user',
@@ -118,6 +136,24 @@ class Prisma(AsyncBasePrisma):
         'notification',
         'advertisement',
         'partner',
+        'achievement',
+        'userachievement',
+        'auth_group',
+        'auth_group_permissions',
+        'auth_permission',
+        'authtoken_token',
+        'books_agecategory',
+        'books_book',
+        'books_genre',
+        'django_admin_log',
+        'django_content_type',
+        'django_migrations',
+        'django_session',
+        'token_blacklist_blacklistedtoken',
+        'token_blacklist_outstandingtoken',
+        'users_user',
+        'users_user_groups',
+        'users_user_user_permissions',
     )
 
     def __init__(
@@ -159,6 +195,24 @@ class Prisma(AsyncBasePrisma):
         self.notification = actions.NotificationActions[models.Notification](self, models.Notification)
         self.advertisement = actions.AdvertisementActions[models.Advertisement](self, models.Advertisement)
         self.partner = actions.PartnerActions[models.Partner](self, models.Partner)
+        self.achievement = actions.AchievementActions[models.Achievement](self, models.Achievement)
+        self.userachievement = actions.UserAchievementActions[models.UserAchievement](self, models.UserAchievement)
+        self.auth_group = actions.auth_groupActions[models.auth_group](self, models.auth_group)
+        self.auth_group_permissions = actions.auth_group_permissionsActions[models.auth_group_permissions](self, models.auth_group_permissions)
+        self.auth_permission = actions.auth_permissionActions[models.auth_permission](self, models.auth_permission)
+        self.authtoken_token = actions.authtoken_tokenActions[models.authtoken_token](self, models.authtoken_token)
+        self.books_agecategory = actions.books_agecategoryActions[models.books_agecategory](self, models.books_agecategory)
+        self.books_book = actions.books_bookActions[models.books_book](self, models.books_book)
+        self.books_genre = actions.books_genreActions[models.books_genre](self, models.books_genre)
+        self.django_admin_log = actions.django_admin_logActions[models.django_admin_log](self, models.django_admin_log)
+        self.django_content_type = actions.django_content_typeActions[models.django_content_type](self, models.django_content_type)
+        self.django_migrations = actions.django_migrationsActions[models.django_migrations](self, models.django_migrations)
+        self.django_session = actions.django_sessionActions[models.django_session](self, models.django_session)
+        self.token_blacklist_blacklistedtoken = actions.token_blacklist_blacklistedtokenActions[models.token_blacklist_blacklistedtoken](self, models.token_blacklist_blacklistedtoken)
+        self.token_blacklist_outstandingtoken = actions.token_blacklist_outstandingtokenActions[models.token_blacklist_outstandingtoken](self, models.token_blacklist_outstandingtoken)
+        self.users_user = actions.users_userActions[models.users_user](self, models.users_user)
+        self.users_user_groups = actions.users_user_groupsActions[models.users_user_groups](self, models.users_user_groups)
+        self.users_user_user_permissions = actions.users_user_user_permissionsActions[models.users_user_user_permissions](self, models.users_user_user_permissions)
 
         if auto_register:
             register(self)
@@ -320,6 +374,24 @@ class Batch:
     notification: 'NotificationBatchActions'
     advertisement: 'AdvertisementBatchActions'
     partner: 'PartnerBatchActions'
+    achievement: 'AchievementBatchActions'
+    userachievement: 'UserAchievementBatchActions'
+    auth_group: 'auth_groupBatchActions'
+    auth_group_permissions: 'auth_group_permissionsBatchActions'
+    auth_permission: 'auth_permissionBatchActions'
+    authtoken_token: 'authtoken_tokenBatchActions'
+    books_agecategory: 'books_agecategoryBatchActions'
+    books_book: 'books_bookBatchActions'
+    books_genre: 'books_genreBatchActions'
+    django_admin_log: 'django_admin_logBatchActions'
+    django_content_type: 'django_content_typeBatchActions'
+    django_migrations: 'django_migrationsBatchActions'
+    django_session: 'django_sessionBatchActions'
+    token_blacklist_blacklistedtoken: 'token_blacklist_blacklistedtokenBatchActions'
+    token_blacklist_outstandingtoken: 'token_blacklist_outstandingtokenBatchActions'
+    users_user: 'users_userBatchActions'
+    users_user_groups: 'users_user_groupsBatchActions'
+    users_user_user_permissions: 'users_user_user_permissionsBatchActions'
 
     def __init__(self, client: Prisma) -> None:
         self.__client = client
@@ -336,6 +408,24 @@ class Batch:
         self.notification = NotificationBatchActions(self)
         self.advertisement = AdvertisementBatchActions(self)
         self.partner = PartnerBatchActions(self)
+        self.achievement = AchievementBatchActions(self)
+        self.userachievement = UserAchievementBatchActions(self)
+        self.auth_group = auth_groupBatchActions(self)
+        self.auth_group_permissions = auth_group_permissionsBatchActions(self)
+        self.auth_permission = auth_permissionBatchActions(self)
+        self.authtoken_token = authtoken_tokenBatchActions(self)
+        self.books_agecategory = books_agecategoryBatchActions(self)
+        self.books_book = books_bookBatchActions(self)
+        self.books_genre = books_genreBatchActions(self)
+        self.django_admin_log = django_admin_logBatchActions(self)
+        self.django_content_type = django_content_typeBatchActions(self)
+        self.django_migrations = django_migrationsBatchActions(self)
+        self.django_session = django_sessionBatchActions(self)
+        self.token_blacklist_blacklistedtoken = token_blacklist_blacklistedtokenBatchActions(self)
+        self.token_blacklist_outstandingtoken = token_blacklist_outstandingtokenBatchActions(self)
+        self.users_user = users_userBatchActions(self)
+        self.users_user_groups = users_user_groupsBatchActions(self)
+        self.users_user_user_permissions = users_user_user_permissionsBatchActions(self)
 
     def _add(self, **kwargs: Any) -> None:
         builder = QueryBuilder(
@@ -1603,6 +1693,2004 @@ class PartnerBatchActions:
         self._batcher._add(
             method='delete_many',
             model=models.Partner,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class AchievementBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.AchievementCreateInput,
+        include: Optional[types.AchievementInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.Achievement,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.AchievementCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.Achievement,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.AchievementWhereUniqueInput,
+        include: Optional[types.AchievementInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.Achievement,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.AchievementUpdateInput,
+        where: types.AchievementWhereUniqueInput,
+        include: Optional[types.AchievementInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.Achievement,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.AchievementWhereUniqueInput,
+        data: types.AchievementUpsertInput,
+        include: Optional[types.AchievementInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.Achievement,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.AchievementUpdateManyMutationInput,
+        where: types.AchievementWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.Achievement,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.AchievementWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.Achievement,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class UserAchievementBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.UserAchievementCreateInput,
+        include: Optional[types.UserAchievementInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.UserAchievement,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.UserAchievementCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.UserAchievement,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.UserAchievementWhereUniqueInput,
+        include: Optional[types.UserAchievementInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.UserAchievement,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.UserAchievementUpdateInput,
+        where: types.UserAchievementWhereUniqueInput,
+        include: Optional[types.UserAchievementInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.UserAchievement,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.UserAchievementWhereUniqueInput,
+        data: types.UserAchievementUpsertInput,
+        include: Optional[types.UserAchievementInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.UserAchievement,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.UserAchievementUpdateManyMutationInput,
+        where: types.UserAchievementWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.UserAchievement,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.UserAchievementWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.UserAchievement,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class auth_groupBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.auth_groupCreateInput,
+        include: Optional[types.auth_groupInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.auth_group,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.auth_groupCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.auth_group,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.auth_groupWhereUniqueInput,
+        include: Optional[types.auth_groupInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.auth_group,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.auth_groupUpdateInput,
+        where: types.auth_groupWhereUniqueInput,
+        include: Optional[types.auth_groupInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.auth_group,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.auth_groupWhereUniqueInput,
+        data: types.auth_groupUpsertInput,
+        include: Optional[types.auth_groupInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.auth_group,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.auth_groupUpdateManyMutationInput,
+        where: types.auth_groupWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.auth_group,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.auth_groupWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.auth_group,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class auth_group_permissionsBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.auth_group_permissionsCreateInput,
+        include: Optional[types.auth_group_permissionsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.auth_group_permissions,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.auth_group_permissionsCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.auth_group_permissions,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.auth_group_permissionsWhereUniqueInput,
+        include: Optional[types.auth_group_permissionsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.auth_group_permissions,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.auth_group_permissionsUpdateInput,
+        where: types.auth_group_permissionsWhereUniqueInput,
+        include: Optional[types.auth_group_permissionsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.auth_group_permissions,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.auth_group_permissionsWhereUniqueInput,
+        data: types.auth_group_permissionsUpsertInput,
+        include: Optional[types.auth_group_permissionsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.auth_group_permissions,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.auth_group_permissionsUpdateManyMutationInput,
+        where: types.auth_group_permissionsWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.auth_group_permissions,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.auth_group_permissionsWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.auth_group_permissions,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class auth_permissionBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.auth_permissionCreateInput,
+        include: Optional[types.auth_permissionInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.auth_permission,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.auth_permissionCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.auth_permission,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.auth_permissionWhereUniqueInput,
+        include: Optional[types.auth_permissionInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.auth_permission,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.auth_permissionUpdateInput,
+        where: types.auth_permissionWhereUniqueInput,
+        include: Optional[types.auth_permissionInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.auth_permission,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.auth_permissionWhereUniqueInput,
+        data: types.auth_permissionUpsertInput,
+        include: Optional[types.auth_permissionInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.auth_permission,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.auth_permissionUpdateManyMutationInput,
+        where: types.auth_permissionWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.auth_permission,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.auth_permissionWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.auth_permission,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class authtoken_tokenBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.authtoken_tokenCreateInput,
+        include: Optional[types.authtoken_tokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.authtoken_token,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.authtoken_tokenCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.authtoken_token,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.authtoken_tokenWhereUniqueInput,
+        include: Optional[types.authtoken_tokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.authtoken_token,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.authtoken_tokenUpdateInput,
+        where: types.authtoken_tokenWhereUniqueInput,
+        include: Optional[types.authtoken_tokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.authtoken_token,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.authtoken_tokenWhereUniqueInput,
+        data: types.authtoken_tokenUpsertInput,
+        include: Optional[types.authtoken_tokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.authtoken_token,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.authtoken_tokenUpdateManyMutationInput,
+        where: types.authtoken_tokenWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.authtoken_token,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.authtoken_tokenWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.authtoken_token,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class books_agecategoryBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.books_agecategoryCreateInput,
+        include: Optional[types.books_agecategoryInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.books_agecategory,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.books_agecategoryCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.books_agecategory,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.books_agecategoryWhereUniqueInput,
+        include: Optional[types.books_agecategoryInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.books_agecategory,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.books_agecategoryUpdateInput,
+        where: types.books_agecategoryWhereUniqueInput,
+        include: Optional[types.books_agecategoryInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.books_agecategory,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.books_agecategoryWhereUniqueInput,
+        data: types.books_agecategoryUpsertInput,
+        include: Optional[types.books_agecategoryInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.books_agecategory,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.books_agecategoryUpdateManyMutationInput,
+        where: types.books_agecategoryWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.books_agecategory,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.books_agecategoryWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.books_agecategory,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class books_bookBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.books_bookCreateInput,
+        include: Optional[types.books_bookInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.books_book,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.books_bookCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.books_book,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.books_bookWhereUniqueInput,
+        include: Optional[types.books_bookInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.books_book,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.books_bookUpdateInput,
+        where: types.books_bookWhereUniqueInput,
+        include: Optional[types.books_bookInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.books_book,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.books_bookWhereUniqueInput,
+        data: types.books_bookUpsertInput,
+        include: Optional[types.books_bookInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.books_book,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.books_bookUpdateManyMutationInput,
+        where: types.books_bookWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.books_book,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.books_bookWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.books_book,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class books_genreBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.books_genreCreateInput,
+        include: Optional[types.books_genreInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.books_genre,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.books_genreCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.books_genre,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.books_genreWhereUniqueInput,
+        include: Optional[types.books_genreInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.books_genre,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.books_genreUpdateInput,
+        where: types.books_genreWhereUniqueInput,
+        include: Optional[types.books_genreInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.books_genre,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.books_genreWhereUniqueInput,
+        data: types.books_genreUpsertInput,
+        include: Optional[types.books_genreInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.books_genre,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.books_genreUpdateManyMutationInput,
+        where: types.books_genreWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.books_genre,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.books_genreWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.books_genre,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class django_admin_logBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.django_admin_logCreateInput,
+        include: Optional[types.django_admin_logInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.django_admin_log,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.django_admin_logCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.django_admin_log,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.django_admin_logWhereUniqueInput,
+        include: Optional[types.django_admin_logInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.django_admin_log,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.django_admin_logUpdateInput,
+        where: types.django_admin_logWhereUniqueInput,
+        include: Optional[types.django_admin_logInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.django_admin_log,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.django_admin_logWhereUniqueInput,
+        data: types.django_admin_logUpsertInput,
+        include: Optional[types.django_admin_logInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.django_admin_log,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.django_admin_logUpdateManyMutationInput,
+        where: types.django_admin_logWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.django_admin_log,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.django_admin_logWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.django_admin_log,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class django_content_typeBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.django_content_typeCreateInput,
+        include: Optional[types.django_content_typeInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.django_content_type,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.django_content_typeCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.django_content_type,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.django_content_typeWhereUniqueInput,
+        include: Optional[types.django_content_typeInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.django_content_type,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.django_content_typeUpdateInput,
+        where: types.django_content_typeWhereUniqueInput,
+        include: Optional[types.django_content_typeInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.django_content_type,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.django_content_typeWhereUniqueInput,
+        data: types.django_content_typeUpsertInput,
+        include: Optional[types.django_content_typeInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.django_content_type,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.django_content_typeUpdateManyMutationInput,
+        where: types.django_content_typeWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.django_content_type,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.django_content_typeWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.django_content_type,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class django_migrationsBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.django_migrationsCreateInput,
+        include: Optional[types.django_migrationsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.django_migrations,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.django_migrationsCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.django_migrations,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.django_migrationsWhereUniqueInput,
+        include: Optional[types.django_migrationsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.django_migrations,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.django_migrationsUpdateInput,
+        where: types.django_migrationsWhereUniqueInput,
+        include: Optional[types.django_migrationsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.django_migrations,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.django_migrationsWhereUniqueInput,
+        data: types.django_migrationsUpsertInput,
+        include: Optional[types.django_migrationsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.django_migrations,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.django_migrationsUpdateManyMutationInput,
+        where: types.django_migrationsWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.django_migrations,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.django_migrationsWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.django_migrations,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class django_sessionBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.django_sessionCreateInput,
+        include: Optional[types.django_sessionInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.django_session,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.django_sessionCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.django_session,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.django_sessionWhereUniqueInput,
+        include: Optional[types.django_sessionInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.django_session,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.django_sessionUpdateInput,
+        where: types.django_sessionWhereUniqueInput,
+        include: Optional[types.django_sessionInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.django_session,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.django_sessionWhereUniqueInput,
+        data: types.django_sessionUpsertInput,
+        include: Optional[types.django_sessionInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.django_session,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.django_sessionUpdateManyMutationInput,
+        where: types.django_sessionWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.django_session,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.django_sessionWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.django_session,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class token_blacklist_blacklistedtokenBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.token_blacklist_blacklistedtokenCreateInput,
+        include: Optional[types.token_blacklist_blacklistedtokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.token_blacklist_blacklistedtokenCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.token_blacklist_blacklistedtokenWhereUniqueInput,
+        include: Optional[types.token_blacklist_blacklistedtokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.token_blacklist_blacklistedtokenUpdateInput,
+        where: types.token_blacklist_blacklistedtokenWhereUniqueInput,
+        include: Optional[types.token_blacklist_blacklistedtokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.token_blacklist_blacklistedtokenWhereUniqueInput,
+        data: types.token_blacklist_blacklistedtokenUpsertInput,
+        include: Optional[types.token_blacklist_blacklistedtokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.token_blacklist_blacklistedtokenUpdateManyMutationInput,
+        where: types.token_blacklist_blacklistedtokenWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.token_blacklist_blacklistedtokenWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.token_blacklist_blacklistedtoken,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class token_blacklist_outstandingtokenBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.token_blacklist_outstandingtokenCreateInput,
+        include: Optional[types.token_blacklist_outstandingtokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.token_blacklist_outstandingtokenCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.token_blacklist_outstandingtokenWhereUniqueInput,
+        include: Optional[types.token_blacklist_outstandingtokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.token_blacklist_outstandingtokenUpdateInput,
+        where: types.token_blacklist_outstandingtokenWhereUniqueInput,
+        include: Optional[types.token_blacklist_outstandingtokenInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.token_blacklist_outstandingtokenWhereUniqueInput,
+        data: types.token_blacklist_outstandingtokenUpsertInput,
+        include: Optional[types.token_blacklist_outstandingtokenInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.token_blacklist_outstandingtokenUpdateManyMutationInput,
+        where: types.token_blacklist_outstandingtokenWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.token_blacklist_outstandingtokenWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.token_blacklist_outstandingtoken,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class users_userBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.users_userCreateInput,
+        include: Optional[types.users_userInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.users_user,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.users_userCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.users_user,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.users_userWhereUniqueInput,
+        include: Optional[types.users_userInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.users_user,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.users_userUpdateInput,
+        where: types.users_userWhereUniqueInput,
+        include: Optional[types.users_userInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.users_user,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.users_userWhereUniqueInput,
+        data: types.users_userUpsertInput,
+        include: Optional[types.users_userInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.users_user,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.users_userUpdateManyMutationInput,
+        where: types.users_userWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.users_user,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.users_userWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.users_user,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class users_user_groupsBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.users_user_groupsCreateInput,
+        include: Optional[types.users_user_groupsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.users_user_groups,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.users_user_groupsCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.users_user_groups,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.users_user_groupsWhereUniqueInput,
+        include: Optional[types.users_user_groupsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.users_user_groups,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.users_user_groupsUpdateInput,
+        where: types.users_user_groupsWhereUniqueInput,
+        include: Optional[types.users_user_groupsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.users_user_groups,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.users_user_groupsWhereUniqueInput,
+        data: types.users_user_groupsUpsertInput,
+        include: Optional[types.users_user_groupsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.users_user_groups,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.users_user_groupsUpdateManyMutationInput,
+        where: types.users_user_groupsWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.users_user_groups,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.users_user_groupsWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.users_user_groups,
+            arguments={'where': where},
+            root_selection=['count'],
+        )
+
+
+
+# NOTE: some arguments are meaningless in this context but are included
+# for completeness sake
+class users_user_user_permissionsBatchActions:
+    def __init__(self, batcher: Batch) -> None:
+        self._batcher = batcher
+
+    def create(
+        self,
+        data: types.users_user_user_permissionsCreateInput,
+        include: Optional[types.users_user_user_permissionsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='create',
+            model=models.users_user_user_permissions,
+            arguments={
+                'data': data,
+                'include': include,
+            },
+        )
+
+    def create_many(
+        self,
+        data: List[types.users_user_user_permissionsCreateWithoutRelationsInput],
+        *,
+        skip_duplicates: Optional[bool] = None,
+    ) -> None:
+        if skip_duplicates and self._batcher._active_provider in CREATE_MANY_SKIP_DUPLICATES_UNSUPPORTED:
+            raise errors.UnsupportedDatabaseError(self._batcher._active_provider, 'create_many_skip_duplicates')
+
+        self._batcher._add(
+            method='create_many',
+            model=models.users_user_user_permissions,
+            arguments={
+                'data': data,
+                'skipDuplicates': skip_duplicates,
+            },
+            root_selection=['count'],
+        )
+
+    def delete(
+        self,
+        where: types.users_user_user_permissionsWhereUniqueInput,
+        include: Optional[types.users_user_user_permissionsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete',
+            model=models.users_user_user_permissions,
+            arguments={
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def update(
+        self,
+        data: types.users_user_user_permissionsUpdateInput,
+        where: types.users_user_user_permissionsWhereUniqueInput,
+        include: Optional[types.users_user_user_permissionsInclude] = None
+    ) -> None:
+        self._batcher._add(
+            method='update',
+            model=models.users_user_user_permissions,
+            arguments={
+                'data': data,
+                'where': where,
+                'include': include,
+            },
+        )
+
+    def upsert(
+        self,
+        where: types.users_user_user_permissionsWhereUniqueInput,
+        data: types.users_user_user_permissionsUpsertInput,
+        include: Optional[types.users_user_user_permissionsInclude] = None,
+    ) -> None:
+        self._batcher._add(
+            method='upsert',
+            model=models.users_user_user_permissions,
+            arguments={
+                'where': where,
+                'include': include,
+                'create': data.get('create'),
+                'update': data.get('update'),
+            },
+        )
+
+    def update_many(
+        self,
+        data: types.users_user_user_permissionsUpdateManyMutationInput,
+        where: types.users_user_user_permissionsWhereInput,
+    ) -> None:
+        self._batcher._add(
+            method='update_many',
+            model=models.users_user_user_permissions,
+            arguments={'data': data, 'where': where,},
+            root_selection=['count'],
+        )
+
+    def delete_many(
+        self,
+        where: Optional[types.users_user_user_permissionsWhereInput] = None,
+    ) -> None:
+        self._batcher._add(
+            method='delete_many',
+            model=models.users_user_user_permissions,
             arguments={'where': where},
             root_selection=['count'],
         )

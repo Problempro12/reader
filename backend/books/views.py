@@ -9,9 +9,41 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from bs4 import BeautifulSoup
+from asgiref.sync import async_to_sync
 
 def run_async(coro):
     return asyncio.run(coro)
+
+async def check_and_award_achievements(user_id: int, prisma: Prisma):
+    """Проверяет и выдает достижения, связанные с голосованием."""
+    all_voting_achievements = await prisma.achievement.find_many(
+        where={'type': 'voting'}
+    )
+
+    for achievement in all_voting_achievements:
+        criteria = achievement.criteria
+        if 'min_votes' in criteria:
+            # Проверяем количество голосов пользователя
+            user_votes_count = await prisma.vote.count(
+                where={'userId': user_id}
+            )
+            if user_votes_count >= criteria['min_votes']:
+                # Проверяем, получено ли уже это достижение пользователем
+                existing_user_achievement = await prisma.userachievement.find_first(
+                    where={
+                        'userId': user_id,
+                        'achievementId': achievement.id
+                    }
+                )
+                if not existing_user_achievement:
+                    # Выдаем достижение
+                    await prisma.userachievement.create(
+                        data={
+                            'userId': user_id,
+                            'achievementId': achievement.id
+                        }
+                    )
+                    print(f"Достижение '{achievement.name}' выдано пользователю {user_id}")
 
 # Create your views here.
 
@@ -111,9 +143,13 @@ class VoteCreateView(generics.CreateAPIView):
                     'weekNumber': current_week,
                 }
             )
+            
+            # После успешного голосования проверяем и выдаем достижения
+            await check_and_award_achievements(self.request.user.id, prisma)
+
             await prisma.disconnect()
             return vote
-        return run_async(create_vote())
+        return async_to_sync(create_vote())
 
 class ProgressCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -383,3 +419,220 @@ class ScrapeLitresView(APIView):
         except Exception as e:
             print(f"Ошибка при скрапинге или сохранении: {str(e)}")
             return Response({'error': str(e)}, status=500)
+
+class CurrentWeekBookView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        async def get_current_book():
+            prisma = Prisma()
+            await prisma.connect()
+            current_week = datetime.now().isocalendar()[1]
+            result = await prisma.weeklyresult.find_first(
+                where={'weekNumber': current_week},
+                include={
+                    'book': {
+                        'include': {
+                            'genre': True,
+                            'ageCategory': True
+                        }
+                    }
+                }
+            )
+            await prisma.disconnect()
+            return result.book if result else None
+        return run_async(get_current_book())
+
+class VotingCandidatesView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        async def get_candidates():
+            prisma = Prisma()
+            await prisma.connect()
+            
+            # Получаем 10 книг с наивысшим рейтингом
+            candidates = await prisma.book.find_many(
+                take=10,
+                order={
+                    'rating': 'desc'
+                },
+                include={
+                    'genre': True,
+                    'ageCategory': True
+                }
+            )
+            
+            # Получаем текущую неделю
+            current_week = datetime.now().isocalendar()[1]
+            
+            # Получаем книги, за которые пользователь уже голосовал
+            user_votes = await prisma.vote.find_many(
+                where={
+                    'userId': self.request.user.id,
+                    'weekNumber': current_week
+                }
+            )
+            voted_book_ids = [vote.bookId for vote in user_votes]
+            
+            # Фильтруем книги, за которые пользователь еще не голосовал
+            candidates = [book for book in candidates if book.id not in voted_book_ids]
+            
+            await prisma.disconnect()
+            return candidates
+        return run_async(get_candidates())
+
+class UserVotesView(generics.ListAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        async def get_user_votes():
+            prisma = Prisma()
+            await prisma.connect()
+            current_week = datetime.now().isocalendar()[1]
+            votes = await prisma.vote.find_many(
+                where={
+                    'userId': self.request.user.id,
+                    'weekNumber': current_week
+                }
+            )
+            await prisma.disconnect()
+            return votes
+        return run_async(get_user_votes())
+
+class ProgressDetailView(generics.RetrieveAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_object(self):
+        async def get_progress():
+            prisma = Prisma()
+            await prisma.connect()
+            
+            book_id = self.kwargs['pk']
+            current_week = datetime.now().isocalendar()[1]
+            
+            # Получаем отметки пользователя
+            user_progress = await prisma.readingprogress.find_first(
+                where={
+                    'userId': self.request.user.id,
+                    'bookId': book_id,
+                    'weekNumber': current_week
+                }
+            )
+            
+            # Получаем общее количество отметок
+            total_progress = await prisma.readingprogress.find_many(
+                where={
+                    'bookId': book_id,
+                    'weekNumber': current_week
+                }
+            )
+            
+            total_marks = sum(progress.marks for progress in total_progress)
+            user_marks = user_progress.marks if user_progress else 0
+            
+            await prisma.disconnect()
+            
+            return {
+                'userMarks': user_marks,
+                'totalMarks': total_marks
+            }
+        return run_async(get_progress())
+
+class BookRatingView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+
+    async def get_rating(self, request, pk):
+        prisma = Prisma()
+        await prisma.connect()
+
+        try:
+            # Получаем рейтинг пользователя
+            user_rating = await prisma.userbook.find_first(
+                where={
+                    'userId': request.user.id,
+                    'bookId': pk
+                },
+                select={
+                    'rating': True
+                }
+            )
+
+            # Получаем средний рейтинг книги
+            book = await prisma.book.find_unique(
+                where={'id': pk},
+                select={
+                    'rating': True,
+                    'rating_count': True
+                }
+            )
+
+            return Response({
+                'user_rating': user_rating.rating if user_rating else None,
+                'average_rating': book.rating if book else 0,
+                'rating_count': book.rating_count if book else 0
+            })
+        finally:
+            await prisma.disconnect()
+
+class BookRateView(generics.CreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    async def create_rating(self, request, pk):
+        rating = request.data.get('rating')
+        if not rating or not isinstance(rating, int) or rating < 1 or rating > 5:
+            return Response(
+                {'error': 'Необходимо указать рейтинг от 1 до 5'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        prisma = Prisma()
+        await prisma.connect()
+
+        try:
+            # Создаем или обновляем рейтинг пользователя
+            user_book = await prisma.userbook.upsert(
+                where={
+                    'userId_bookId': {
+                        'userId': request.user.id,
+                        'bookId': pk
+                    }
+                },
+                data={
+                    'create': {
+                        'userId': request.user.id,
+                        'bookId': pk,
+                        'status': 'READ',
+                        'rating': rating
+                    },
+                    'update': {
+                        'rating': rating
+                    }
+                }
+            )
+
+            # Пересчитываем средний рейтинг книги
+            ratings = await prisma.userbook.find_many(
+                where={
+                    'bookId': pk,
+                    'rating': {'not': None}
+                },
+                select={'rating': True}
+            )
+
+            if ratings:
+                total_rating = sum(r.rating for r in ratings)
+                average_rating = total_rating / len(ratings)
+                rating_count = len(ratings)
+
+                await prisma.book.update(
+                    where={'id': pk},
+                    data={
+                        'rating': average_rating,
+                        'rating_count': rating_count
+                    }
+                )
+
+            return Response({'status': 'success'})
+        finally:
+            await prisma.disconnect()

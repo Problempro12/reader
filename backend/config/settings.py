@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     # Local apps
     'books',
     'users',
+    'achievements.apps.AchievementsConfig',
 ]
 
 MIDDLEWARE = [
@@ -178,6 +179,9 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
+# Применять CORS-заголовки к медиа файлам в режиме разработки
+CORS_URLS_REGEX = r'^/media/.*$'
+
 # REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -193,7 +197,8 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
-        'rest_framework.parsers.MultiPartParser'
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.FileUploadParser'
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10,

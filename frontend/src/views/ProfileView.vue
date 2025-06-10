@@ -9,7 +9,7 @@
 
         <div class="profile-header">
           <div class="profile-avatar">
-            <img v-if="userData && userData.avatar" :src="userData.avatar" alt="Аватар">
+            <img v-if="displayedAvatarUrl" :src="displayedAvatarUrl" alt="Аватар">
             <div v-else class="initials-circle">
               {{ userInitials }}
             </div>
@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
 import type { User } from '@/types';
@@ -77,14 +77,42 @@ import { storeToRefs } from 'pinia';
 const router = useRouter();
 const userStore = useUserStore();
 const { userData, userInitials, isLoggedIn } = storeToRefs(userStore);
+const { fetchUserData } = userStore;
+
+// Вычисляемое свойство для определения URL отображаемого аватара
+const displayedAvatarUrl = computed(() => {
+  console.log('ProfileView: Computing displayedAvatarUrl. userData:', userData.value);
+  const backendBaseUrl = import.meta.env.VITE_BACKEND_URL || 'http://127.0.0.1:8000';
+  
+  // Используем avatar_url из userData
+  if (userData.value?.avatar_url) {
+    const url = userData.value.avatar_url;
+    console.log('ProfileView: Computed avatar URL:', url);
+    return url;
+  } else {
+    console.log('ProfileView: userData.avatar_url is not set.');
+    return ''; // Или URL дефолтной картинки
+  }
+});
 
 const logout = () => {
   userStore.clearAuthData();
   router.push('/auth/login');
 };
 
-// onMounted здесь не нужен для загрузки данных, т.к. это делает сам стор
-// при инициализации, если есть токен. Данные будут реактивно обновляться.
+// Добавляем явный вызов fetchUserData при монтировании
+onMounted(() => {
+  console.log('ProfileView: Mounted');
+  if (isLoggedIn.value) {
+    console.log('ProfileView: User is logged in, fetching data...');
+    fetchUserData();
+  }
+  console.log('ProfileView: Initial userData in store:', userData.value);
+});
+
+watch(userData, (newValue, oldValue) => {
+  console.log('ProfileView: userData changed:', { oldValue, newValue });
+});
 </script>
 
 <style scoped>

@@ -99,13 +99,13 @@ const login = async () => {
     const redirectPath = route.query.redirect as string || '/'
     console.log('Перенаправление на:', redirectPath)
     router.push(redirectPath)
-  } catch (error) {
-    console.error('Ошибка при входе:', error)
-    if (axios.isAxiosError(error)) {
+  } catch (catchError) {
+    console.error('Ошибка при входе:', catchError)
+    if (axios.isAxiosError(catchError)) {
       console.error('Детали ошибки:', {
-        status: error.response?.status,
-        data: error.response?.data,
-        headers: error.response?.headers
+        status: catchError.response?.status,
+        data: catchError.response?.data,
+        headers: catchError.response?.headers
       })
     }
     error.value = 'Неверный email или пароль'

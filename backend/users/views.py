@@ -1,3 +1,12 @@
+import sys
+import os
+
+# Добавляем корневую директорию проекта (содержащую backend) в sys.path
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(PROJECT_ROOT)
+
+print("SYS.PATH перед импортом Prisma:", sys.path) # Отладочный вывод
+
 from django.shortcuts import render
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -5,15 +14,17 @@ from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from .serializers import UserSerializer, UserRegisterSerializer, UserLoginSerializer
-from prisma import Prisma
+from backend.prisma.generated.client import Prisma
 from datetime import datetime, timedelta
 import asyncio
-from django.http import JsonResponse
-from asgiref.sync import sync_to_async
+from django.http import JsonResponse, FileResponse, HttpResponse, Http404
+from asgiref.sync import sync_to_async, async_to_sync
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from users.backends import EmailBackend
+from django.conf import settings
+import mimetypes
 
 User = get_user_model()
 
@@ -31,16 +42,53 @@ async def create_prisma_user(user):
                 'username': user.username,
                 'is_premium': False,
                 'is_staff': user.is_staff,
-                'is_superuser': user.is_superuser
+                'is_superuser': user.is_superuser,
+                'registrationDate': user.date_joined
             }
         )
         print(f"Пользователь создан в Prisma: {prisma_user}")
         return prisma_user
     except Exception as e:
         print(f"Ошибка при создании пользователя в Prisma: {str(e)}")
+        if "Unique constraint failed on the fields: (`email`)" in str(e):
+             print("Ошибка уникальности по email при создании в Prisma")
+        elif "Unique constraint failed on the fields: (`username`)" in str(e):
+             print("Ошибка уникальности по username при создании в Prisma")
+        else:
+            pass
         raise e
     finally:
         await prisma.disconnect()
+
+# Новая вьюха для обслуживания медиа-файлов с CORS-заголовками в режиме отладки
+def serve_media_with_cors(request, path):
+    # Формируем полный путь к файлу в директории MEDIA_ROOT
+    # Использование os.path.join безопасно и обрабатывает разделители путей
+    full_path = os.path.join(settings.MEDIA_ROOT, path)
+    print(f"Attempting to serve media file from: {full_path}") # Отладочный лог
+
+    # Убеждаемся, что файл существует и находится внутри MEDIA_ROOT для безопасности
+    if not os.path.exists(full_path) or not full_path.startswith(settings.MEDIA_ROOT):
+        print(f"File not found or outside MEDIA_ROOT: {full_path}") # Отладочный лог
+        raise Http404('File not found.')
+
+    try:
+        # Определяем mime-тип файла
+        mime_type, encoding = mimetypes.guess_type(full_path)
+        mime_type = mime_type or 'application/octet-stream' # Дефолтный mime-тип, если не определен
+        
+        # Открываем файл и создаем FileResponse
+        # Добавляем заголовки CORS вручную
+        response = FileResponse(open(full_path, 'rb'), content_type=mime_type)
+        response['Access-Control-Allow-Origin'] = '*' # Или конкретные origin-ы из settings.CORS_ALLOWED_ORIGINS
+        response['Access-Control-Allow-Methods'] = 'GET, OPTIONS'
+        response['Access-Control-Allow-Headers'] = '*'
+        
+        print(f"Successfully serving media file: {full_path} with CORS headers") # Отладочный лог
+        return response
+    except Exception as e:
+        print(f"Error serving media file {full_path}: {e}") # Логируем ошибку
+        raise Http404('Error serving file.')
 
 # Create your views here.
 
@@ -93,8 +141,6 @@ class UserRegisterView(APIView):
             print("Пользователь создан в Prisma")  # Логируем успешное создание в Prisma
         except Exception as e:
             print("Ошибка при создании пользователя в Prisma:", str(e))  # Логируем ошибку Prisma
-            # Если не удалось создать пользователя в Prisma, удаляем его из Django
-            user.delete()
             return Response(
                 {'error': 'Ошибка при создании пользователя. Пожалуйста, попробуйте позже.'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -168,7 +214,7 @@ class UserProfileView(APIView):
                     user_books = await prisma.userbook.find_many(
                         where={
                             'userId': user.id  # Передаем ID как целое число
-                                                                            }
+                        }
                     )
                     print(f"Найдено книг пользователя: {len(user_books)}")
                     print(f"Данные user_books: {user_books}") # Добавлено логирование user_books
@@ -184,39 +230,112 @@ class UserProfileView(APIView):
                 }
 
                 for book in user_books:
-                    # Убедитесь, что поле 'status' существует и имеет ожидаемые значения
-                    if hasattr(book, 'status') and book.status in stats:
-                        stats[book.status] += 1
-                    else:
-                         print(f"Предупреждение: Неожиданный статус книги или отсутствует поле 'status': {book}")
-
-
-                print(f"Рассчитанная статистика: {stats}") # Добавлено логирование stats
+                    if book['status'] == 'READING':
+                        stats['reading'] += 1
+                    elif book['status'] == 'READ':
+                        stats['completed'] += 1
+                    elif book['status'] == 'PLANNING':
+                        stats['planned'] += 1
 
                 await prisma.disconnect()
-                print("Отключение от Prisma успешно")
 
-                response_data = {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                    'stats': stats,
-                    'is_staff': user.is_staff,
-                    'is_superuser': user.is_superuser
-                }
-                print("Данные профиля:", response_data)
+                # Сериализуем данные пользователя, передавая контекст запроса
+                serializer = UserSerializer(user, context={'request': request})
+                data = serializer.data
+                data['stats'] = stats
 
-                return Response(response_data)
+                return data
             except Exception as e:
                 print(f"Ошибка при получении профиля: {str(e)}")
-                if 'prisma' in locals():
-                    await prisma.disconnect()
-                return Response(
-                    {'error': f'Ошибка при получении профиля: {str(e)}'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+                raise e
 
-        return run_async(get_profile())
+        return Response(run_async(get_profile()))
+
+    def patch(self, request):
+        try:
+            user = request.user
+            print(f"Обновление профиля для пользователя: {user.id}")
+            print(f"Полученные данные: {request.data}")
+            print(f"Полученные файлы: {request.FILES}")
+
+            # Обновляем данные в Django
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if not serializer.is_valid():
+                print(f"Ошибки валидации: {serializer.errors}")
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            # Если есть файл аватара, сохраняем его
+            if 'avatar' in request.FILES:
+                print(f"Получен файл аватара: {request.FILES['avatar']}")
+                user.avatar = request.FILES['avatar']
+
+            # Сохраняем пользователя в Django. Это обновит его поля и сохранит файл аватара.
+            serializer.save()
+            user.refresh_from_db() # Обновляем объект пользователя из базы, чтобы получить актуальный URL аватара
+
+            # Обновляем данные в Prisma с использованием async_to_sync
+            # Определяем асинхронную функцию для обновления в Prisma
+            async def update_user_in_prisma(user_id, update_data_for_prisma):
+                prisma = Prisma()
+                await prisma.connect()
+                try:
+                    # Отладочный вывод: Проверяем, что Prisma Client видит до обновления
+                    print(f"Prisma: Пытаемся найти пользователя с ID: {user_id}")
+                    # Используем users_user для поиска
+                    prisma_user_before_update = await prisma.users_user.find_unique(
+                        where={'id': user_id} # ID пользователя из Django
+                    )
+                    print(f"Prisma: Пытаемся найти пользователя по email: {request.user.email}") # Отладочный вывод
+                    prisma_user_by_email = await prisma.users_user.find_unique(
+                        where={'email': request.user.email}
+                    )
+                    print(f"Prisma: Найден пользователь по email до обновления: {prisma_user_by_email}") # Отладочный вывод
+                    print(f"Prisma: Найден пользователь до обновления: {prisma_user_before_update}")
+                    if prisma_user_before_update:
+                        print(f"Prisma: Наличие поля 'avatar' в объекте до обновления: {'avatar' in prisma_user_before_update.__dict__}")
+                        if 'avatar' in prisma_user_before_update.__dict__:
+                            print(f"Prisma: Тип поля 'avatar' до обновления: {type(prisma_user_before_update.__dict__['avatar'])}")
+                            print(f"Prisma: Значение поля 'avatar' до обновления: {prisma_user_before_update.avatar}")
+
+                    if update_data_for_prisma:
+                        print(f"Prisma: Данные для обновления: {update_data_for_prisma}")
+                        # Используем users_user для обновления
+                        await prisma.users_user.update(
+                            where={'id': user_id},
+                            data=update_data_for_prisma
+                        )
+                finally:
+                    await prisma.disconnect()
+
+            # Собираем все данные для обновления в Prisma из request.data и актуального объекта пользователя Django
+            update_data_for_prisma = {}
+            if 'username' in request.data:
+                update_data_for_prisma['username'] = request.data['username']
+            if 'about' in request.data:
+                update_data_for_prisma['about'] = request.data['about']
+
+            # Добавляем URL аватара, если он существует после сохранения в Django
+            if user.avatar and hasattr(user.avatar, 'url'):
+                print(f"URL аватара (для Prisma): {user.avatar.url}")
+                update_data_for_prisma['avatar'] = user.avatar.url
+
+            # Вызываем асинхронную функцию через async_to_sync
+            # Передаем user.id и собранный словарь данных
+            if update_data_for_prisma:
+                print(f"Prisma: Данные для обновления: {update_data_for_prisma}")
+                async_to_sync(update_user_in_prisma)(int(user.id), update_data_for_prisma)
+
+            # Получаем обновленные данные пользователя Django для ответа
+            # Повторно сериализуем пользователя, чтобы получить все актуальные поля, включая аватар
+            updated_user_serializer = UserSerializer(user)
+
+            return Response(updated_user_serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(f"Ошибка при обновлении профиля: {str(e)}")
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class NotificationListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -240,8 +359,8 @@ class PremiumSubscriptionView(generics.CreateAPIView):
             prisma = Prisma()
             await prisma.connect()
             
-            user = await prisma.user.update(
-                where={'id': self.request.user.id},
+            user = await prisma.users_user.update(
+                where={'id': int(self.request.user.id)},
                 data={
                     'is_premium': True,
                     'premium_expiration_date': serializer.validated_data.get('expiration_date')
@@ -251,7 +370,6 @@ class PremiumSubscriptionView(generics.CreateAPIView):
             await prisma.notification.create(
                 data={
                     'userId': self.request.user.id,
-                    'type': 'PREMIUM_ACTIVATED',
                     'message': 'Премиум подписка успешно активирована!'
                 }
             )

@@ -13,9 +13,10 @@ import privacyPolicyMarkdown from '@/content/privacy_policy.md?raw';
 
 const renderedMarkdown = ref('');
 
-onMounted(() => {
+onMounted(async () => {
   // Парсим Markdown и присваиваем результат реактивной переменной
-  renderedMarkdown.value = marked(privacyPolicyMarkdown);
+  // Используем await, так как marked может возвращать Promise
+  renderedMarkdown.value = await marked(privacyPolicyMarkdown);
 });
 </script>
 

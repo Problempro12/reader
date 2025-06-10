@@ -17,20 +17,39 @@ PRISMA_MODELS: set[str] = {
     'Notification',
     'Advertisement',
     'Partner',
+    'Achievement',
+    'UserAchievement',
+    'auth_group',
+    'auth_group_permissions',
+    'auth_permission',
+    'authtoken_token',
+    'books_agecategory',
+    'books_book',
+    'books_genre',
+    'django_admin_log',
+    'django_content_type',
+    'django_migrations',
+    'django_session',
+    'token_blacklist_blacklistedtoken',
+    'token_blacklist_outstandingtoken',
+    'users_user',
+    'users_user_groups',
+    'users_user_user_permissions',
 }
 
 RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
     'User': {
-        'votes': 'Vote',
-        'readingProgress': 'ReadingProgress',
         'notifications': 'Notification',
-        'leaderResults': 'WeeklyResult',
+        'readingProgress': 'ReadingProgress',
         'userBooks': 'UserBook',
+        'votes': 'Vote',
+        'leaderResults': 'WeeklyResult',
+        'userAchievements': 'UserAchievement',
     },
     'Genre': {
+        'books': 'Book',
         'parent': 'Genre',
         'subgenres': 'Genre',
-        'books': 'Book',
         'weeklyResults': 'WeeklyResult',
     },
     'AgeCategory': {
@@ -38,29 +57,29 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'weeklyResults': 'WeeklyResult',
     },
     'Book': {
-        'genre': 'Genre',
         'ageCategory': 'AgeCategory',
-        'votes': 'Vote',
+        'genre': 'Genre',
         'readingProgress': 'ReadingProgress',
-        'weeklyResults': 'WeeklyResult',
         'userBooks': 'UserBook',
+        'votes': 'Vote',
+        'weeklyResults': 'WeeklyResult',
     },
     'UserBook': {
-        'user': 'User',
         'book': 'Book',
+        'user': 'User',
     },
     'Vote': {
-        'user': 'User',
         'book': 'Book',
+        'user': 'User',
     },
     'ReadingProgress': {
-        'user': 'User',
         'book': 'Book',
+        'user': 'User',
     },
     'WeeklyResult': {
-        'genre': 'Genre',
         'ageCategory': 'AgeCategory',
         'book': 'Book',
+        'genre': 'Genre',
         'leader': 'User',
     },
     'Notification': {
@@ -71,6 +90,73 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
     },
     'Partner': {
         'advertisements': 'Advertisement',
+    },
+    'Achievement': {
+        'userAchievements': 'UserAchievement',
+    },
+    'UserAchievement': {
+        'user': 'User',
+        'achievement': 'Achievement',
+    },
+    'auth_group': {
+        'auth_group_permissions': 'auth_group_permissions',
+        'users_user_groups': 'users_user_groups',
+    },
+    'auth_group_permissions': {
+        'auth_permission': 'auth_permission',
+        'auth_group': 'auth_group',
+    },
+    'auth_permission': {
+        'auth_group_permissions': 'auth_group_permissions',
+        'django_content_type': 'django_content_type',
+        'users_user_user_permissions': 'users_user_user_permissions',
+    },
+    'authtoken_token': {
+        'users_user': 'users_user',
+    },
+    'books_agecategory': {
+        'books_book': 'books_book',
+    },
+    'books_book': {
+        'books_agecategory': 'books_agecategory',
+        'books_genre': 'books_genre',
+    },
+    'books_genre': {
+        'books_book': 'books_book',
+    },
+    'django_admin_log': {
+        'django_content_type': 'django_content_type',
+        'users_user': 'users_user',
+    },
+    'django_content_type': {
+        'auth_permission': 'auth_permission',
+        'django_admin_log': 'django_admin_log',
+    },
+    'django_migrations': {
+    },
+    'django_session': {
+    },
+    'token_blacklist_blacklistedtoken': {
+        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
+    },
+    'token_blacklist_outstandingtoken': {
+        'token_blacklist_blacklistedtoken': 'token_blacklist_blacklistedtoken',
+        'users_user': 'users_user',
+    },
+    'users_user': {
+        'authtoken_token': 'authtoken_token',
+        'django_admin_log': 'django_admin_log',
+        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
+        'users_user_groups': 'users_user_groups',
+        'users_user_user_permissions': 'users_user_user_permissions',
+    },
+    'users_user_groups': {
+        'auth_group': 'auth_group',
+        'users_user': 'users_user',
+    },
+    'users_user_user_permissions': {
+        'auth_permission': 'auth_permission',
+        'users_user': 'users_user',
     },
 }
 
