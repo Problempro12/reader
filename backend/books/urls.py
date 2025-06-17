@@ -9,6 +9,7 @@ urlpatterns = [
     path('<int:pk>/rating/', views.BookRatingView.as_view(), name='book-rating'),
     path('<int:pk>/rate/', views.BookRateView.as_view(), name='book-rate'),
     path('scrape-litres/', views.ScrapeLitresView.as_view(), name='scrape-litres'),
+    path('run-import-script/', views.RunImportBooksView.as_view(), name='run-import-script'),
     path('genres/', views.GenreListView.as_view(), name='genre-list'),
     path('age-categories/', views.AgeCategoryListView.as_view(), name='age-category-list'),
     path('votes/', views.VoteCreateView.as_view(), name='vote-create'),

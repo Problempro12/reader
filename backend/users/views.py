@@ -35,7 +35,7 @@ async def create_prisma_user(user):
     prisma = Prisma()
     await prisma.connect()
     try:
-        prisma_user = await prisma.user.create(
+        prisma_user = await prisma.users_user.create(
             data={
                 'id': str(user.id),
                 'email': user.email,
@@ -204,6 +204,7 @@ class UserProfileView(APIView):
                 user = request.user
                 print(f"Получение профиля для пользователя: {user.id}")
                 print(f"Данные пользователя: {user.__dict__}")
+                print(f"Флаги администратора: is_staff={user.is_staff}, is_superuser={user.is_superuser}")
 
                 prisma = Prisma()
                 await prisma.connect()
@@ -243,6 +244,7 @@ class UserProfileView(APIView):
                 serializer = UserSerializer(user, context={'request': request})
                 data = serializer.data
                 data['stats'] = stats
+                print(f"Отправляемые данные пользователя: {data}")
 
                 return data
             except Exception as e:
@@ -318,6 +320,10 @@ class UserProfileView(APIView):
             if user.avatar and hasattr(user.avatar, 'url'):
                 print(f"URL аватара (для Prisma): {user.avatar.url}")
                 update_data_for_prisma['avatar'] = user.avatar.url
+
+            # Добавляем флаги администратора
+            update_data_for_prisma['is_staff'] = user.is_staff
+            update_data_for_prisma['is_superuser'] = user.is_superuser
 
             # Вызываем асинхронную функцию через async_to_sync
             # Передаем user.id и собранный словарь данных

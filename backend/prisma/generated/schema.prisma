@@ -9,24 +9,104 @@ datasource db {
 }
 
 model User {
-  id                    Int               @id @default(autoincrement())
-  email                 String            @unique
-  username              String
+  id                    Int       @id @default(autoincrement())
+  email                 String    @unique
+  username              String    @unique
   passwordHash          String
-  isPremium             Boolean           @default(false)
+  isPremium             Boolean   @default(false)
   premiumExpirationDate DateTime?
-  hideAds               Boolean           @default(false)
-  createdAt             DateTime          @default(now())
-  updatedAt             DateTime          @updatedAt
-  registrationDate      DateTime          @default(now())
+  hideAds               Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  registrationDate      DateTime  @default(now())
   about                 String?
   avatar                String?
-  notifications         Notification[]
-  readingProgress       ReadingProgress[]
-  userBooks             UserBook[]
-  votes                 Vote[]
-  leaderResults         WeeklyResult[]    @relation("Leader")
-  userAchievements      UserAchievement[]
+  isActive              Boolean   @default(true)
+  isStaff               Boolean   @default(false)
+  isSuperuser           Boolean   @default(false)
+  lastLogin             DateTime?
+
+  // Relations
+  groups           UserGroup[]
+  permissions      UserPermission[]
+  tokens           Token[]
+  sessions         Session[]
+  notifications    Notification[]
+  readingProgress  ReadingProgress[]
+  userBooks        UserBook[]
+  votes            Vote[]
+  leaderResults    WeeklyResult[]    @relation("Leader")
+  userAchievements UserAchievement[]
+}
+
+model Group {
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  users       UserGroup[]
+  permissions GroupPermission[]
+}
+
+model Permission {
+  id        Int               @id @default(autoincrement())
+  name      String            @unique
+  codename  String            @unique
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  users     UserPermission[]
+  groups    GroupPermission[]
+}
+
+model UserGroup {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  groupId   Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  group     Group    @relation(fields: [groupId], references: [id])
+
+  @@unique([userId, groupId])
+}
+
+model UserPermission {
+  id           Int        @id @default(autoincrement())
+  userId       Int
+  permissionId Int
+  createdAt    DateTime   @default(now())
+  user         User       @relation(fields: [userId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([userId, permissionId])
+}
+
+model GroupPermission {
+  id           Int        @id @default(autoincrement())
+  groupId      Int
+  permissionId Int
+  createdAt    DateTime   @default(now())
+  group        Group      @relation(fields: [groupId], references: [id])
+  permission   Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([groupId, permissionId])
+}
+
+model Token {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  sessionKey String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model Genre {
@@ -48,10 +128,19 @@ model AgeCategory {
   weeklyResults WeeklyResult[]
 }
 
+model Author {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  books     Book[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Book {
   id                Int               @id @default(autoincrement())
   title             String
-  author            String
+  authorId          Int
+  author            Author            @relation(fields: [authorId], references: [id])
   description       String?
   coverUrl          String?
   externalId        String?           @unique
@@ -158,237 +247,28 @@ model Partner {
 }
 
 model Achievement {
-  id               Int               @id @default(autoincrement())
-  name             String            @unique
-  description      String
-  type             String // e.g., 'voting', 'reading', 'weekly_result'
-  criteria         Json // JSON field for flexible criteria, e.g., {"min_votes": 5}
-  reward           Int               @default(0) // e.g., points, badges
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  userAchievements UserAchievement[]
+  id          Int               @id @default(autoincrement())
+  name        String            @unique
+  description String
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  users       UserAchievement[]
 }
 
 model UserAchievement {
   id            Int         @id @default(autoincrement())
   userId        Int
   achievementId Int
-  achievedAt    DateTime    @default(now())
+  earnedAt      DateTime    @default(now())
   user          User        @relation(fields: [userId], references: [id])
   achievement   Achievement @relation(fields: [achievementId], references: [id])
 
   @@unique([userId, achievementId])
 }
 
-model auth_group {
-  id                     Int                      @id @default(autoincrement())
-  name                   String                   @unique @db.VarChar(150)
-  auth_group_permissions auth_group_permissions[]
-  users_user_groups      users_user_groups[]
-
-  @@index([name], map: "auth_group_name_a6ea08ec_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_group_permissions {
-  id              BigInt          @id @default(autoincrement())
-  group_id        Int
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissio_permission_id_84c5c92e_fk_auth_perm")
-  auth_group      auth_group      @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_group_permissions_group_id_b120cbf9_fk_auth_group_id")
-
-  @@unique([group_id, permission_id], map: "auth_group_permissions_group_id_permission_id_0cd325b0_uniq")
-  @@index([group_id], map: "auth_group_permissions_group_id_b120cbf9")
-  @@index([permission_id], map: "auth_group_permissions_permission_id_84c5c92e")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model auth_permission {
-  id                          Int                           @id @default(autoincrement())
-  name                        String                        @db.VarChar(255)
-  content_type_id             Int
-  codename                    String                        @db.VarChar(100)
-  auth_group_permissions      auth_group_permissions[]
-  django_content_type         django_content_type           @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "auth_permission_content_type_id_2f476e4b_fk_django_co")
-  users_user_user_permissions users_user_user_permissions[]
-
-  @@unique([content_type_id, codename], map: "auth_permission_content_type_id_codename_01ab375a_uniq")
-  @@index([content_type_id], map: "auth_permission_content_type_id_2f476e4b")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model authtoken_token {
-  key        String     @id @db.VarChar(40)
-  created    DateTime   @db.Timestamptz(6)
-  user_id    BigInt     @unique
-  users_user users_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "authtoken_token_user_id_35299eff_fk_users_user_id")
-
-  @@index([key], map: "authtoken_token_key_10f0b77e_like")
-}
-
-model books_agecategory {
-  id         BigInt       @id @default(autoincrement())
-  name       String       @unique @db.VarChar(10)
-  books_book books_book[]
-
-  @@index([name], map: "books_agecategory_name_c85a5104_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model books_book {
-  id                BigInt             @id @default(autoincrement())
-  title             String             @db.VarChar(200)
-  author            String             @db.VarChar(200)
-  cover             String             @db.VarChar(200)
-  description       String
-  is_premium        Boolean
-  rating            Float
-  litres_rating     Json?
-  series            String             @db.VarChar(200)
-  translator        String             @db.VarChar(200)
-  technical         Json?
-  created_at        DateTime           @db.Timestamptz(6)
-  updated_at        DateTime           @db.Timestamptz(6)
-  age_category_id   BigInt?
-  genre_id          BigInt?
-  books_agecategory books_agecategory? @relation(fields: [age_category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_book_age_category_id_31222d13_fk_books_agecategory_id")
-  books_genre       books_genre?       @relation(fields: [genre_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "books_book_genre_id_f94e1a9b_fk_books_genre_id")
-
-  @@index([age_category_id], map: "books_book_age_category_id_31222d13")
-  @@index([genre_id], map: "books_book_genre_id_f94e1a9b")
-}
-
-model books_genre {
-  id         BigInt       @id @default(autoincrement())
-  name       String       @unique @db.VarChar(100)
-  books_book books_book[]
-
-  @@index([name], map: "books_genre_name_b6ee53e9_like")
-}
-
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model django_admin_log {
-  id                  Int                  @id @default(autoincrement())
-  action_time         DateTime             @db.Timestamptz(6)
-  object_id           String?
-  object_repr         String               @db.VarChar(200)
-  action_flag         Int                  @db.SmallInt
-  change_message      String
-  content_type_id     Int?
-  user_id             BigInt
-  django_content_type django_content_type? @relation(fields: [content_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_content_type_id_c4bce8eb_fk_django_co")
-  users_user          users_user           @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "django_admin_log_user_id_c564eba6_fk_users_user_id")
-
-  @@index([content_type_id], map: "django_admin_log_content_type_id_c4bce8eb")
-  @@index([user_id], map: "django_admin_log_user_id_c564eba6")
-}
-
-model django_content_type {
-  id               Int                @id @default(autoincrement())
-  app_label        String             @db.VarChar(100)
-  model            String             @db.VarChar(100)
-  auth_permission  auth_permission[]
-  django_admin_log django_admin_log[]
-
-  @@unique([app_label, model], map: "django_content_type_app_label_model_76bd3d3b_uniq")
-}
-
-model django_migrations {
-  id      BigInt   @id @default(autoincrement())
-  app     String   @db.VarChar(255)
-  name    String   @db.VarChar(255)
-  applied DateTime @db.Timestamptz(6)
-}
-
-model django_session {
-  session_key  String   @id @db.VarChar(40)
-  session_data String
-  expire_date  DateTime @db.Timestamptz(6)
-
-  @@index([expire_date], map: "django_session_expire_date_a5c62663")
-  @@index([session_key], map: "django_session_session_key_c0390e0f_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model token_blacklist_blacklistedtoken {
-  id                               BigInt                           @id @default(autoincrement())
-  blacklisted_at                   DateTime                         @db.Timestamptz(6)
-  token_id                         BigInt                           @unique
-  token_blacklist_outstandingtoken token_blacklist_outstandingtoken @relation(fields: [token_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "token_blacklist_blacklistedtoken_token_id_3cc7fe56_fk")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model token_blacklist_outstandingtoken {
-  id                               BigInt                            @id @default(autoincrement())
-  token                            String
-  created_at                       DateTime?                         @db.Timestamptz(6)
-  expires_at                       DateTime                          @db.Timestamptz(6)
-  user_id                          BigInt?
-  jti                              String                            @unique(map: "token_blacklist_outstandingtoken_jti_hex_d9bdf6f7_uniq") @db.VarChar(255)
-  token_blacklist_blacklistedtoken token_blacklist_blacklistedtoken?
-  users_user                       users_user?                       @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "token_blacklist_outs_user_id_83bc629a_fk_users_use")
-
-  @@index([jti], map: "token_blacklist_outstandingtoken_jti_hex_d9bdf6f7_like")
-  @@index([user_id], map: "token_blacklist_outstandingtoken_user_id_83bc629a")
-}
-
-model users_user {
-  id                               BigInt                             @id @default(autoincrement())
-  password                         String                             @db.VarChar(128)
-  last_login                       DateTime?                          @db.Timestamptz(6)
-  is_superuser                     Boolean
-  username                         String                             @unique @db.VarChar(150)
-  first_name                       String                             @db.VarChar(150)
-  last_name                        String                             @db.VarChar(150)
-  is_staff                         Boolean
-  is_active                        Boolean
-  date_joined                      DateTime                           @db.Timestamptz(6)
-  email                            String                             @unique @db.VarChar(254)
-  is_premium                       Boolean
-  premium_expiration_date          DateTime?                          @db.Timestamptz(6)
-  hide_ads                         Boolean
-  avatar                           String?                            @db.VarChar(100)
-  about                            String?
-  authtoken_token                  authtoken_token?
-  django_admin_log                 django_admin_log[]
-  token_blacklist_outstandingtoken token_blacklist_outstandingtoken[]
-  users_user_groups                users_user_groups[]
-  users_user_user_permissions      users_user_user_permissions[]
-
-  @@index([email], map: "users_user_email_243f6e77_like")
-  @@index([username], map: "users_user_username_06e46fe6_like")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model users_user_groups {
-  id         BigInt     @id @default(autoincrement())
-  user_id    BigInt
-  group_id   Int
-  auth_group auth_group @relation(fields: [group_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_groups_group_id_9afc8d0e_fk_auth_group_id")
-  users_user users_user @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_groups_user_id_5f6f5a90_fk_users_user_id")
-
-  @@unique([user_id, group_id], map: "users_user_groups_user_id_group_id_b88eab82_uniq")
-  @@index([group_id], map: "users_user_groups_group_id_9afc8d0e")
-  @@index([user_id], map: "users_user_groups_user_id_5f6f5a90")
-}
-
-/// This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-model users_user_user_permissions {
-  id              BigInt          @id @default(autoincrement())
-  user_id         BigInt
-  permission_id   Int
-  auth_permission auth_permission @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_user_perm_permission_id_0b93982e_fk_auth_perm")
-  users_user      users_user      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_user_user_permissions_user_id_20aca447_fk_users_user_id")
-
-  @@unique([user_id, permission_id], map: "users_user_user_permissions_user_id_permission_id_43338c45_uniq")
-  @@index([permission_id], map: "users_user_user_permissions_permission_id_0b93982e")
-  @@index([user_id], map: "users_user_user_permissions_user_id_20aca447")
-}
-
 enum BookStatus {
+  PLANNING
   READING
   READ
-  PLANNING
   DROPPED
 }

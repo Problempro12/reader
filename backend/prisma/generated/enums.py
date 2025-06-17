@@ -42,8 +42,8 @@ from ._compat import StrEnum
 
 
 class BookStatus(StrEnum):
+    PLANNING = 'PLANNING'
     READING = 'READING'
     READ = 'READ'
-    PLANNING = 'PLANNING'
     DROPPED = 'DROPPED'
 

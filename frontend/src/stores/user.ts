@@ -30,10 +30,8 @@ export const useUserStore = defineStore('user', () => {
   // Инициализируем состояние из localStorage или дефолтными значениями
   const authToken = ref<string | null>(localStorage.getItem('authToken'));
   const refreshToken = ref<string | null>(localStorage.getItem('refreshToken'));
-  // Удаляем старые данные пользователя из localStorage, чтобы избежать проблем с устаревшим форматом
-  localStorage.removeItem('user');
   // Используем новый тип UserData
-  const userData = ref<UserData | null>(null);
+  const userData = ref<UserData | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   const isLoggedIn = computed(() => authToken.value !== null);
   const isAdmin = computed(() => userData.value?.is_staff === true || userData.value?.is_superuser === true);
   const userInitials = computed(() => {

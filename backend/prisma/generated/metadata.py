@@ -7,8 +7,16 @@ from __future__ import annotations
 
 PRISMA_MODELS: set[str] = {
     'User',
+    'Group',
+    'Permission',
+    'UserGroup',
+    'UserPermission',
+    'GroupPermission',
+    'Token',
+    'Session',
     'Genre',
     'AgeCategory',
+    'Author',
     'Book',
     'UserBook',
     'Vote',
@@ -19,32 +27,46 @@ PRISMA_MODELS: set[str] = {
     'Partner',
     'Achievement',
     'UserAchievement',
-    'auth_group',
-    'auth_group_permissions',
-    'auth_permission',
-    'authtoken_token',
-    'books_agecategory',
-    'books_book',
-    'books_genre',
-    'django_admin_log',
-    'django_content_type',
-    'django_migrations',
-    'django_session',
-    'token_blacklist_blacklistedtoken',
-    'token_blacklist_outstandingtoken',
-    'users_user',
-    'users_user_groups',
-    'users_user_user_permissions',
 }
 
 RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
     'User': {
+        'groups': 'UserGroup',
+        'permissions': 'UserPermission',
+        'tokens': 'Token',
+        'sessions': 'Session',
         'notifications': 'Notification',
         'readingProgress': 'ReadingProgress',
         'userBooks': 'UserBook',
         'votes': 'Vote',
         'leaderResults': 'WeeklyResult',
         'userAchievements': 'UserAchievement',
+    },
+    'Group': {
+        'users': 'UserGroup',
+        'permissions': 'GroupPermission',
+    },
+    'Permission': {
+        'users': 'UserPermission',
+        'groups': 'GroupPermission',
+    },
+    'UserGroup': {
+        'user': 'User',
+        'group': 'Group',
+    },
+    'UserPermission': {
+        'user': 'User',
+        'permission': 'Permission',
+    },
+    'GroupPermission': {
+        'group': 'Group',
+        'permission': 'Permission',
+    },
+    'Token': {
+        'user': 'User',
+    },
+    'Session': {
+        'user': 'User',
     },
     'Genre': {
         'books': 'Book',
@@ -56,7 +78,11 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'books': 'Book',
         'weeklyResults': 'WeeklyResult',
     },
+    'Author': {
+        'books': 'Book',
+    },
     'Book': {
+        'author': 'Author',
         'ageCategory': 'AgeCategory',
         'genre': 'Genre',
         'readingProgress': 'ReadingProgress',
@@ -92,71 +118,11 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'advertisements': 'Advertisement',
     },
     'Achievement': {
-        'userAchievements': 'UserAchievement',
+        'users': 'UserAchievement',
     },
     'UserAchievement': {
         'user': 'User',
         'achievement': 'Achievement',
-    },
-    'auth_group': {
-        'auth_group_permissions': 'auth_group_permissions',
-        'users_user_groups': 'users_user_groups',
-    },
-    'auth_group_permissions': {
-        'auth_permission': 'auth_permission',
-        'auth_group': 'auth_group',
-    },
-    'auth_permission': {
-        'auth_group_permissions': 'auth_group_permissions',
-        'django_content_type': 'django_content_type',
-        'users_user_user_permissions': 'users_user_user_permissions',
-    },
-    'authtoken_token': {
-        'users_user': 'users_user',
-    },
-    'books_agecategory': {
-        'books_book': 'books_book',
-    },
-    'books_book': {
-        'books_agecategory': 'books_agecategory',
-        'books_genre': 'books_genre',
-    },
-    'books_genre': {
-        'books_book': 'books_book',
-    },
-    'django_admin_log': {
-        'django_content_type': 'django_content_type',
-        'users_user': 'users_user',
-    },
-    'django_content_type': {
-        'auth_permission': 'auth_permission',
-        'django_admin_log': 'django_admin_log',
-    },
-    'django_migrations': {
-    },
-    'django_session': {
-    },
-    'token_blacklist_blacklistedtoken': {
-        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
-    },
-    'token_blacklist_outstandingtoken': {
-        'token_blacklist_blacklistedtoken': 'token_blacklist_blacklistedtoken',
-        'users_user': 'users_user',
-    },
-    'users_user': {
-        'authtoken_token': 'authtoken_token',
-        'django_admin_log': 'django_admin_log',
-        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
-        'users_user_groups': 'users_user_groups',
-        'users_user_user_permissions': 'users_user_user_permissions',
-    },
-    'users_user_groups': {
-        'auth_group': 'auth_group',
-        'users_user': 'users_user',
-    },
-    'users_user_user_permissions': {
-        'auth_permission': 'auth_permission',
-        'users_user': 'users_user',
     },
 }
 
