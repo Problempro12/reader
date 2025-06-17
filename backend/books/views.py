@@ -1,15 +1,19 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from prisma import Prisma
 from .serializers import BookSerializer, GenreSerializer, AgeCategorySerializer
 from datetime import datetime
 import asyncio
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from bs4 import BeautifulSoup
 from asgiref.sync import async_to_sync
+from django.db.models import Q
+from .models import Book
+from django.conf import settings
+import json
 
 def run_async(coro):
     return asyncio.run(coro)
@@ -636,3 +640,116 @@ class BookRateView(generics.CreateAPIView):
             return Response({'status': 'success'})
         finally:
             await prisma.disconnect()
+
+class BookViewSet(viewsets.ViewSet):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.prisma = Prisma()
+        self.prisma.connect()
+
+    def __del__(self):
+        self.prisma.disconnect()
+
+    def list(self, request):
+        page = int(request.query_params.get('page', 1))
+        per_page = int(request.query_params.get('perPage', 12))
+        search = request.query_params.get('search')
+        genre = request.query_params.get('genre')
+        age_category = request.query_params.get('ageCategory')
+        rating = request.query_params.get('rating')
+        sort_by = request.query_params.get('sortBy')
+
+        # Базовый запрос
+        query = {
+            "skip": (page - 1) * per_page,
+            "take": per_page,
+            "include": {
+                "author": True,
+                "genre": True,
+                "ageCategory": True
+            }
+        }
+
+        # Добавляем фильтры
+        where = {}
+        if search:
+            where["OR"] = [
+                {"title": {"contains": search}},
+                {"author": {"name": {"contains": search}}}
+            ]
+        if genre:
+            where["genre"] = {"name": genre}
+        if age_category:
+            where["ageCategory"] = {"name": age_category}
+        if rating:
+            where["rating"] = {"gte": float(rating)}
+
+        if where:
+            query["where"] = where
+
+        # Добавляем сортировку
+        if sort_by:
+            if sort_by == "rating":
+                query["order"] = {"rating": "desc"}
+            elif sort_by == "newest":
+                query["order"] = {"createdAt": "desc"}
+            elif sort_by == "alphabet":
+                query["order"] = {"title": "asc"}
+
+        # Получаем книги
+        books = self.prisma.book.find_many(**query)
+        total = self.prisma.book.count(where=where if where else None)
+
+        return Response({
+            'books': books,
+            'total': total,
+            'page': page,
+            'perPage': per_page
+        })
+
+    @action(detail=False, methods=['get'], url_path='top')
+    def top(self, request):
+        books = self.prisma.book.find_many(
+            take=5,
+            order={"rating": "desc"},
+            include={
+                "author": True,
+                "genre": True,
+                "ageCategory": True
+            }
+        )
+        return Response(books)
+
+    @action(detail=False, methods=['get'], url_path='recommended')
+    def recommended(self, request):
+        # Здесь можно добавить более сложную логику рекомендаций
+        books = self.prisma.book.find_many(
+            take=5,
+            order={"rating": "desc"},
+            include={
+                "author": True,
+                "genre": True,
+                "ageCategory": True
+            }
+        )
+        return Response(books)
+
+    @action(detail=True, methods=['post'], url_path='rate')
+    def rate(self, request, pk=None):
+        rating = request.data.get('rating')
+        
+        if not rating or not isinstance(rating, (int, float)) or not 1 <= rating <= 5:
+            return Response(
+                {'error': 'Rating must be a number between 1 and 5'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        book = self.prisma.book.update(
+            where={"id": int(pk)},
+            data={
+                "rating": rating,
+                "rating_count": {"increment": 1}
+            }
+        )
+        
+        return Response(book)

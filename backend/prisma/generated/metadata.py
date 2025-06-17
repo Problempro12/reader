@@ -7,8 +7,16 @@ from __future__ import annotations
 
 PRISMA_MODELS: set[str] = {
     'User',
+    'Group',
+    'Permission',
+    'UserGroup',
+    'UserPermission',
+    'GroupPermission',
+    'Token',
+    'Session',
     'Genre',
     'AgeCategory',
+    'Author',
     'Book',
     'UserBook',
     'Vote',
@@ -23,9 +31,6 @@ PRISMA_MODELS: set[str] = {
     'auth_group_permissions',
     'auth_permission',
     'authtoken_token',
-    'books_agecategory',
-    'books_book',
-    'books_genre',
     'django_admin_log',
     'django_content_type',
     'django_migrations',
@@ -39,12 +44,42 @@ PRISMA_MODELS: set[str] = {
 
 RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
     'User': {
+        'groups': 'UserGroup',
+        'permissions': 'UserPermission',
+        'tokens': 'Token',
+        'sessions': 'Session',
         'notifications': 'Notification',
         'readingProgress': 'ReadingProgress',
         'userBooks': 'UserBook',
         'votes': 'Vote',
         'leaderResults': 'WeeklyResult',
         'userAchievements': 'UserAchievement',
+    },
+    'Group': {
+        'users': 'UserGroup',
+        'permissions': 'GroupPermission',
+    },
+    'Permission': {
+        'users': 'UserPermission',
+        'groups': 'GroupPermission',
+    },
+    'UserGroup': {
+        'user': 'User',
+        'group': 'Group',
+    },
+    'UserPermission': {
+        'user': 'User',
+        'permission': 'Permission',
+    },
+    'GroupPermission': {
+        'group': 'Group',
+        'permission': 'Permission',
+    },
+    'Token': {
+        'user': 'User',
+    },
+    'Session': {
+        'user': 'User',
     },
     'Genre': {
         'books': 'Book',
@@ -56,7 +91,11 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'books': 'Book',
         'weeklyResults': 'WeeklyResult',
     },
+    'Author': {
+        'books': 'Book',
+    },
     'Book': {
+        'author': 'Author',
         'ageCategory': 'AgeCategory',
         'genre': 'Genre',
         'readingProgress': 'ReadingProgress',
@@ -113,16 +152,6 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
     },
     'authtoken_token': {
         'users_user': 'users_user',
-    },
-    'books_agecategory': {
-        'books_book': 'books_book',
-    },
-    'books_book': {
-        'books_agecategory': 'books_agecategory',
-        'books_genre': 'books_genre',
-    },
-    'books_genre': {
-        'books_book': 'books_book',
     },
     'django_admin_log': {
         'django_content_type': 'django_content_type',

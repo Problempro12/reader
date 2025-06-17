@@ -1,17 +1,6 @@
 from rest_framework import serializers
 from .models import Book, Genre, AgeCategory
 
-class BookSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Book
-        fields = [
-            'id', 'title', 'author', 'description', 'coverUrl',
-            'genreId', 'ageCategoryId', 'rating',
-            'isPremium', 'litresRating', 'litresRatingCount',
-            'series', 'translator', 'volume', 'year', 'isbn',
-            'copyrightHolder', 'createdAt', 'updatedAt'
-        ]
-
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
@@ -20,4 +9,17 @@ class GenreSerializer(serializers.ModelSerializer):
 class AgeCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = AgeCategory
-        fields = ['id', 'name'] 
+        fields = ['id', 'name']
+
+class BookSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer()
+    ageCategory = AgeCategorySerializer()
+
+    class Meta:
+        model = Book
+        fields = [
+            'id', 'title', 'description', 'coverUrl', 'externalId',
+            'rating', 'rating_count', 'author', 'genre', 'ageCategory',
+            'isPremium', 'isbn', 'year', 'series', 'translator',
+            'volume', 'copyrightHolder'
+        ] 

@@ -196,19 +196,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-
-// Типы данных
-interface Book {
-  id: number;
-  title: string;
-  author: string;
-  cover: string;
-  rating: number;
-  genre: string;
-  ageCategory: string;
-  isPremium?: boolean;
-}
+import { ref, computed, onMounted, watch } from 'vue';
+import { booksApi, type Book } from '@/api/books';
 
 // Состояние фильтров
 const searchQuery = ref('');
@@ -222,6 +211,16 @@ const filters = ref({
 // Состояние пагинации
 const currentPage = ref(1);
 const booksPerPage = 12;
+const totalBooks = ref(0);
+
+// Состояние загрузки и ошибок
+const isLoading = ref(false);
+const error = ref<string | null>(null);
+
+// Состояние книг
+const books = ref<Book[]>([]);
+const topBooks = ref<Book[]>([]);
+const recommendedBooks = ref<Book[]>([]);
 
 // Состояние модального окна оценки
 const showRatingModal = ref(false);
@@ -230,8 +229,8 @@ const selectedRating = ref(0);
 const hoverRating = ref(0);
 
 // Данные для фильтров
-const genres = ['Фантастика', 'Детектив', 'Классика', 'Роман', 'Ужасы', 'Приключения'];
-const ageCategories = ['12+', '16+', '18+'];
+const genres = ref<string[]>([]);
+const ageCategories = ref<string[]>([]);
 const ratingOptions = [
   { value: '4', label: 'От 4.0 и выше' },
   { value: '3', label: 'От 3.0 и выше' },
@@ -243,82 +242,53 @@ const sortOptions = [
   { value: 'alphabet', label: 'По алфавиту' }
 ];
 
-// Пример данных книг
-const books = ref<Book[]>([
-  {
-    id: 1,
-    title: '1984',
-    author: 'Джордж Оруэлл',
-    cover: '/covers/1984.jpg',
-    rating: 4.8,
-    genre: 'Антиутопия',
-    ageCategory: '16+'
-  },
-  // Добавьте больше книг здесь
-]);
-
-// Топ книг недели
-const topBooks = computed(() => {
-  return books.value
-    .sort((a, b) => b.rating - a.rating)
-    .slice(0, 5);
-});
-
-// Рекомендуемые книги
-const recommendedBooks = computed(() => {
-  return books.value
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 5);
-});
-
-// Фильтрация книг
-const filteredBooks = computed(() => {
-  let result = [...books.value];
-
-  // Поиск
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
-    result = result.filter(book => 
-      book.title.toLowerCase().includes(query) || 
-      book.author.toLowerCase().includes(query)
-    );
+// Загрузка данных
+const loadBooks = async () => {
+  isLoading.value = true;
+  error.value = null;
+  try {
+    const response = await booksApi.getBooks({
+      page: currentPage.value,
+      perPage: booksPerPage,
+      search: searchQuery.value,
+      genre: filters.value.genre,
+      ageCategory: filters.value.ageCategory,
+      rating: filters.value.rating ? Number(filters.value.rating) : undefined,
+      sortBy: filters.value.sortBy
+    });
+    books.value = response.books;
+    totalBooks.value = response.total;
+  } catch (e) {
+    error.value = 'Ошибка при загрузке книг';
+    console.error(e);
+  } finally {
+    isLoading.value = false;
   }
+};
 
-  // Фильтры
-  if (filters.value.genre) {
-    result = result.filter(book => book.genre === filters.value.genre);
+const loadTopBooks = async () => {
+  try {
+    topBooks.value = await booksApi.getTopBooks();
+  } catch (e) {
+    console.error('Ошибка при загрузке топ книг:', e);
   }
-  if (filters.value.ageCategory) {
-    result = result.filter(book => book.ageCategory === filters.value.ageCategory);
+};
+
+const loadRecommendedBooks = async () => {
+  try {
+    recommendedBooks.value = await booksApi.getRecommendedBooks();
+  } catch (e) {
+    console.error('Ошибка при загрузке рекомендуемых книг:', e);
   }
-  if (filters.value.rating) {
-    result = result.filter(book => book.rating >= Number(filters.value.rating));
-  }
+};
 
-  // Сортировка
-  switch (filters.value.sortBy) {
-    case 'rating':
-      result.sort((a, b) => b.rating - a.rating);
-      break;
-    case 'newest':
-      // Здесь можно добавить сортировку по дате
-      break;
-    case 'alphabet':
-      result.sort((a, b) => a.title.localeCompare(b.title));
-      break;
-  }
+// Вычисляемые свойства
+const totalPages = computed(() => Math.ceil(totalBooks.value / booksPerPage));
 
-  return result;
-});
-
-// Пагинация
-const totalPages = computed(() =>
-  Math.ceil(filteredBooks.value.length / booksPerPage)
-);
-
-// Функции для работы с оценками
+// Методы
 const rateBook = (book: Book) => {
   selectedBook.value = book;
+  selectedRating.value = 0;
   showRatingModal.value = true;
 };
 
@@ -326,11 +296,19 @@ const selectRating = (rating: number) => {
   selectedRating.value = rating;
 };
 
-const submitRating = () => {
-  if (selectedBook.value && selectedRating.value > 0) {
-    // Здесь будет отправка оценки на сервер
-    console.log(`Оценка ${selectedRating.value} для книги ${selectedBook.value.title}`);
+const submitRating = async () => {
+  if (!selectedBook.value || !selectedRating.value) return;
+  
+  try {
+    await booksApi.rateBook(selectedBook.value.id, selectedRating.value);
+    // Обновляем рейтинг книги в списке
+    const book = books.value.find(b => b.id === selectedBook.value?.id);
+    if (book) {
+      book.rating = selectedRating.value;
+    }
     closeRatingModal();
+  } catch (e) {
+    console.error('Ошибка при оценке книги:', e);
   }
 };
 
@@ -338,8 +316,21 @@ const closeRatingModal = () => {
   showRatingModal.value = false;
   selectedBook.value = null;
   selectedRating.value = 0;
-  hoverRating.value = 0;
 };
+
+// Загрузка данных при монтировании компонента
+onMounted(async () => {
+  await Promise.all([
+    loadBooks(),
+    loadTopBooks(),
+    loadRecommendedBooks()
+  ]);
+});
+
+// Следим за изменениями фильтров и поиска
+watch([searchQuery, filters, currentPage], () => {
+  loadBooks();
+}, { deep: true });
 </script>
 
 <style scoped>

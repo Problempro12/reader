@@ -199,57 +199,58 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        print("Получение профиля для пользователя:", request.user.id)
+        print("Данные пользователя:", request.user.__dict__)
+        
         async def get_profile():
+            prisma = Prisma()
+            await prisma.connect()
             try:
-                user = request.user
-                print(f"Получение профиля для пользователя: {user.id}")
-                print(f"Данные пользователя: {user.__dict__}")
-
-                prisma = Prisma()
-                await prisma.connect()
-                print("Подключение к Prisma успешно")
-
-                # Получаем статистику по книгам
-                try:
-                    user_books = await prisma.userbook.find_many(
-                        where={
-                            'userId': user.id  # Передаем ID как целое число
-                        }
-                    )
-                    print(f"Найдено книг пользователя: {len(user_books)}")
-                    print(f"Данные user_books: {user_books}") # Добавлено логирование user_books
-                except Exception as e:
-                    print(f"Ошибка при получении книг пользователя: {str(e)}")
-                    user_books = []
-
-                # Группируем книги по статусу
-                stats = {
-                    'reading': 0,
-                    'completed': 0,
-                    'planned': 0
+                # Получаем данные пользователя из Prisma
+                prisma_user = await prisma.users_user.find_unique(
+                    where={'id': int(request.user.id)}
+                )
+                
+                if not prisma_user:
+                    print("Пользователь не найден в Prisma")
+                    return None
+                
+                # Получаем книги пользователя
+                user_books = await prisma.userbook.find_many(
+                    where={'userId': int(request.user.id)},
+                    include={'book': True}
+                )
+                print("Найдено книг пользователя:", len(user_books))
+                print("Данные user_books:", user_books)
+                
+                # Формируем ответ
+                return {
+                    'id': request.user.id,
+                    'email': request.user.email,
+                    'username': request.user.username,
+                    'is_premium': prisma_user.isPremium,
+                    'premium_expiration_date': prisma_user.premiumExpirationDate,
+                    'hide_ads': prisma_user.hideAds,
+                    'avatar_url': prisma_user.avatar,
+                    'about': prisma_user.about,
+                    'books': [book.book for book in user_books]
                 }
-
-                for book in user_books:
-                    if book['status'] == 'READING':
-                        stats['reading'] += 1
-                    elif book['status'] == 'READ':
-                        stats['completed'] += 1
-                    elif book['status'] == 'PLANNING':
-                        stats['planned'] += 1
-
+            except Exception as e:
+                print("Ошибка при получении профиля:", str(e))
+                return None
+            finally:
                 await prisma.disconnect()
 
-                # Сериализуем данные пользователя, передавая контекст запроса
-                serializer = UserSerializer(user, context={'request': request})
-                data = serializer.data
-                data['stats'] = stats
-
-                return data
-            except Exception as e:
-                print(f"Ошибка при получении профиля: {str(e)}")
-                raise e
-
-        return Response(run_async(get_profile()))
+        # Запускаем асинхронную функцию
+        profile_data = asyncio.run(get_profile())
+        
+        if profile_data is None:
+            return Response(
+                {'error': 'Ошибка при получении профиля'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+            
+        return Response(profile_data)
 
     def patch(self, request):
         try:
@@ -269,37 +270,23 @@ class UserProfileView(APIView):
                 print(f"Получен файл аватара: {request.FILES['avatar']}")
                 user.avatar = request.FILES['avatar']
 
-            # Сохраняем пользователя в Django. Это обновит его поля и сохранит файл аватара.
+            # Сохраняем пользователя в Django
             serializer.save()
-            user.refresh_from_db() # Обновляем объект пользователя из базы, чтобы получить актуальный URL аватара
+            user.refresh_from_db()
 
-            # Обновляем данные в Prisma с использованием async_to_sync
-            # Определяем асинхронную функцию для обновления в Prisma
+            # Обновляем данные в Prisma
             async def update_user_in_prisma(user_id, update_data_for_prisma):
                 prisma = Prisma()
                 await prisma.connect()
                 try:
-                    # Отладочный вывод: Проверяем, что Prisma Client видит до обновления
                     print(f"Prisma: Пытаемся найти пользователя с ID: {user_id}")
-                    # Используем users_user для поиска
-                    prisma_user_before_update = await prisma.users_user.find_unique(
-                        where={'id': user_id} # ID пользователя из Django
+                    prisma_user = await prisma.users_user.find_unique(
+                        where={'id': user_id}
                     )
-                    print(f"Prisma: Пытаемся найти пользователя по email: {request.user.email}") # Отладочный вывод
-                    prisma_user_by_email = await prisma.users_user.find_unique(
-                        where={'email': request.user.email}
-                    )
-                    print(f"Prisma: Найден пользователь по email до обновления: {prisma_user_by_email}") # Отладочный вывод
-                    print(f"Prisma: Найден пользователь до обновления: {prisma_user_before_update}")
-                    if prisma_user_before_update:
-                        print(f"Prisma: Наличие поля 'avatar' в объекте до обновления: {'avatar' in prisma_user_before_update.__dict__}")
-                        if 'avatar' in prisma_user_before_update.__dict__:
-                            print(f"Prisma: Тип поля 'avatar' до обновления: {type(prisma_user_before_update.__dict__['avatar'])}")
-                            print(f"Prisma: Значение поля 'avatar' до обновления: {prisma_user_before_update.avatar}")
+                    print(f"Prisma: Найден пользователь до обновления: {prisma_user}")
 
                     if update_data_for_prisma:
                         print(f"Prisma: Данные для обновления: {update_data_for_prisma}")
-                        # Используем users_user для обновления
                         await prisma.users_user.update(
                             where={'id': user_id},
                             data=update_data_for_prisma
@@ -307,29 +294,29 @@ class UserProfileView(APIView):
                 finally:
                     await prisma.disconnect()
 
-            # Собираем все данные для обновления в Prisma из request.data и актуального объекта пользователя Django
+            # Собираем данные для обновления в Prisma
             update_data_for_prisma = {}
             if 'username' in request.data:
                 update_data_for_prisma['username'] = request.data['username']
             if 'about' in request.data:
                 update_data_for_prisma['about'] = request.data['about']
 
-            # Добавляем URL аватара, если он существует после сохранения в Django
+            # Добавляем URL аватара
             if user.avatar and hasattr(user.avatar, 'url'):
                 print(f"URL аватара (для Prisma): {user.avatar.url}")
                 update_data_for_prisma['avatar'] = user.avatar.url
 
-            # Вызываем асинхронную функцию через async_to_sync
-            # Передаем user.id и собранный словарь данных
+            # Обновляем данные в Prisma
             if update_data_for_prisma:
                 print(f"Prisma: Данные для обновления: {update_data_for_prisma}")
                 async_to_sync(update_user_in_prisma)(int(user.id), update_data_for_prisma)
 
-            # Получаем обновленные данные пользователя Django для ответа
-            # Повторно сериализуем пользователя, чтобы получить все актуальные поля, включая аватар
+            # Получаем обновленные данные пользователя
             updated_user_serializer = UserSerializer(user)
+            response_data = updated_user_serializer.data
+            response_data['avatar_url'] = response_data.pop('avatar', None)
 
-            return Response(updated_user_serializer.data, status=status.HTTP_200_OK)
+            return Response(response_data, status=status.HTTP_200_OK)
         except Exception as e:
             print(f"Ошибка при обновлении профиля: {str(e)}")
             return Response(

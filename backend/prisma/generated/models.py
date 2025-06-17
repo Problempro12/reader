@@ -71,6 +71,14 @@ class User(bases.BaseUser):
     registrationDate: datetime.datetime
     about: Optional[_str] = None
     avatar: Optional[_str] = None
+    isActive: _bool
+    isStaff: _bool
+    isSuperuser: _bool
+    lastLogin: Optional[datetime.datetime] = None
+    groups: Optional[List['models.UserGroup']] = None
+    permissions: Optional[List['models.UserPermission']] = None
+    tokens: Optional[List['models.Token']] = None
+    sessions: Optional[List['models.Session']] = None
     notifications: Optional[List['models.Notification']] = None
     readingProgress: Optional[List['models.ReadingProgress']] = None
     userBooks: Optional[List['models.UserBook']] = None
@@ -196,6 +204,938 @@ class User(bases.BaseUser):
                 'name': name,
                 'fields': cast(Mapping[str, PartialModelField], fields),
                 'from_model': 'User',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class Group(bases.BaseGroup):
+    """Represents a Group record"""
+
+    id: _int
+    name: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
+    users: Optional[List['models.UserGroup']] = None
+    permissions: Optional[List['models.GroupPermission']] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.GroupKeys']] = None,
+        exclude: Optional[Iterable['types.GroupKeys']] = None,
+        required: Optional[Iterable['types.GroupKeys']] = None,
+        optional: Optional[Iterable['types.GroupKeys']] = None,
+        relations: Optional[Mapping['types.GroupRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.GroupKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _Group_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _Group_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _Group_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _Group_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _Group_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _Group_relational_fields:
+                        raise errors.UnknownRelationalFieldError('Group', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid Group / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'Group',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class Permission(bases.BasePermission):
+    """Represents a Permission record"""
+
+    id: _int
+    name: _str
+    codename: _str
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
+    users: Optional[List['models.UserPermission']] = None
+    groups: Optional[List['models.GroupPermission']] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.PermissionKeys']] = None,
+        exclude: Optional[Iterable['types.PermissionKeys']] = None,
+        required: Optional[Iterable['types.PermissionKeys']] = None,
+        optional: Optional[Iterable['types.PermissionKeys']] = None,
+        relations: Optional[Mapping['types.PermissionRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.PermissionKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _Permission_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _Permission_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _Permission_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _Permission_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _Permission_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _Permission_relational_fields:
+                        raise errors.UnknownRelationalFieldError('Permission', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid Permission / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'Permission',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class UserGroup(bases.BaseUserGroup):
+    """Represents a UserGroup record"""
+
+    id: _int
+    userId: _int
+    groupId: _int
+    createdAt: datetime.datetime
+    user: Optional['models.User'] = None
+    group: Optional['models.Group'] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.UserGroupKeys']] = None,
+        exclude: Optional[Iterable['types.UserGroupKeys']] = None,
+        required: Optional[Iterable['types.UserGroupKeys']] = None,
+        optional: Optional[Iterable['types.UserGroupKeys']] = None,
+        relations: Optional[Mapping['types.UserGroupRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.UserGroupKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _UserGroup_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _UserGroup_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _UserGroup_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _UserGroup_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _UserGroup_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _UserGroup_relational_fields:
+                        raise errors.UnknownRelationalFieldError('UserGroup', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid UserGroup / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'UserGroup',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class UserPermission(bases.BaseUserPermission):
+    """Represents a UserPermission record"""
+
+    id: _int
+    userId: _int
+    permissionId: _int
+    createdAt: datetime.datetime
+    user: Optional['models.User'] = None
+    permission: Optional['models.Permission'] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.UserPermissionKeys']] = None,
+        exclude: Optional[Iterable['types.UserPermissionKeys']] = None,
+        required: Optional[Iterable['types.UserPermissionKeys']] = None,
+        optional: Optional[Iterable['types.UserPermissionKeys']] = None,
+        relations: Optional[Mapping['types.UserPermissionRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.UserPermissionKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _UserPermission_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _UserPermission_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _UserPermission_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _UserPermission_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _UserPermission_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _UserPermission_relational_fields:
+                        raise errors.UnknownRelationalFieldError('UserPermission', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid UserPermission / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'UserPermission',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class GroupPermission(bases.BaseGroupPermission):
+    """Represents a GroupPermission record"""
+
+    id: _int
+    groupId: _int
+    permissionId: _int
+    createdAt: datetime.datetime
+    group: Optional['models.Group'] = None
+    permission: Optional['models.Permission'] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.GroupPermissionKeys']] = None,
+        exclude: Optional[Iterable['types.GroupPermissionKeys']] = None,
+        required: Optional[Iterable['types.GroupPermissionKeys']] = None,
+        optional: Optional[Iterable['types.GroupPermissionKeys']] = None,
+        relations: Optional[Mapping['types.GroupPermissionRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.GroupPermissionKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _GroupPermission_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _GroupPermission_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _GroupPermission_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _GroupPermission_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _GroupPermission_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _GroupPermission_relational_fields:
+                        raise errors.UnknownRelationalFieldError('GroupPermission', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid GroupPermission / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'GroupPermission',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class Token(bases.BaseToken):
+    """Represents a Token record"""
+
+    id: _int
+    userId: _int
+    token: _str
+    createdAt: datetime.datetime
+    expiresAt: datetime.datetime
+    user: Optional['models.User'] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.TokenKeys']] = None,
+        exclude: Optional[Iterable['types.TokenKeys']] = None,
+        required: Optional[Iterable['types.TokenKeys']] = None,
+        optional: Optional[Iterable['types.TokenKeys']] = None,
+        relations: Optional[Mapping['types.TokenRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.TokenKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _Token_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _Token_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _Token_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _Token_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _Token_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _Token_relational_fields:
+                        raise errors.UnknownRelationalFieldError('Token', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid Token / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'Token',
+            }
+        )
+        _created_partial_types.add(name)
+
+
+class Session(bases.BaseSession):
+    """Represents a Session record"""
+
+    id: _int
+    userId: _int
+    sessionKey: _str
+    createdAt: datetime.datetime
+    expiresAt: datetime.datetime
+    user: Optional['models.User'] = None
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.SessionKeys']] = None,
+        exclude: Optional[Iterable['types.SessionKeys']] = None,
+        required: Optional[Iterable['types.SessionKeys']] = None,
+        optional: Optional[Iterable['types.SessionKeys']] = None,
+        relations: Optional[Mapping['types.SessionRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.SessionKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _Session_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _Session_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _Session_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _Session_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _Session_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _Session_relational_fields:
+                        raise errors.UnknownRelationalFieldError('Session', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid Session / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'Session',
             }
         )
         _created_partial_types.add(name)
@@ -468,12 +1408,145 @@ class AgeCategory(bases.BaseAgeCategory):
         _created_partial_types.add(name)
 
 
+class Author(bases.BaseAuthor):
+    """Represents a Author record"""
+
+    id: _int
+    name: _str
+    books: Optional[List['models.Book']] = None
+    createdAt: datetime.datetime
+    updatedAt: datetime.datetime
+
+    # take *args and **kwargs so that other metaclasses can define arguments
+    def __init_subclass__(
+        cls,
+        *args: Any,
+        warn_subclass: Optional[bool] = None,
+        **kwargs: Any,
+    ) -> None:
+        super().__init_subclass__()
+        if warn_subclass is not None:
+            warnings.warn(
+                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
+                DeprecationWarning,
+                stacklevel=3,
+            )
+
+
+    @staticmethod
+    def create_partial(
+        name: str,
+        include: Optional[Iterable['types.AuthorKeys']] = None,
+        exclude: Optional[Iterable['types.AuthorKeys']] = None,
+        required: Optional[Iterable['types.AuthorKeys']] = None,
+        optional: Optional[Iterable['types.AuthorKeys']] = None,
+        relations: Optional[Mapping['types.AuthorRelationalFieldKeys', str]] = None,
+        exclude_relational_fields: bool = False,
+    ) -> None:
+        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
+            raise RuntimeError(
+                'Attempted to create a partial type outside of client generation.'
+            )
+
+        if name in _created_partial_types:
+            raise ValueError(f'Partial type "{name}" has already been created.')
+
+        if include is not None:
+            if exclude is not None:
+                raise TypeError('Exclude and include are mutually exclusive.')
+            if exclude_relational_fields is True:
+                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
+
+        if required and optional:
+            shared = set(required) & set(optional)
+            if shared:
+                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
+
+        if exclude_relational_fields and relations:
+            raise ValueError(
+                'exclude_relational_fields and relations are mutually exclusive'
+            )
+
+        fields: Dict['types.AuthorKeys', PartialModelField] = OrderedDict()
+
+        try:
+            if include:
+                for field in include:
+                    fields[field] = _Author_fields[field].copy()
+            elif exclude:
+                for field in exclude:
+                    if field not in _Author_fields:
+                        raise KeyError(field)
+
+                fields = {
+                    key: data.copy()
+                    for key, data in _Author_fields.items()
+                    if key not in exclude
+                }
+            else:
+                fields = {
+                    key: data.copy()
+                    for key, data in _Author_fields.items()
+                }
+
+            if required:
+                for field in required:
+                    fields[field]['optional'] = False
+
+            if optional:
+                for field in optional:
+                    fields[field]['optional'] = True
+
+            if exclude_relational_fields:
+                fields = {
+                    key: data
+                    for key, data in fields.items()
+                    if key not in _Author_relational_fields
+                }
+
+            if relations:
+                for field, type_ in relations.items():
+                    if field not in _Author_relational_fields:
+                        raise errors.UnknownRelationalFieldError('Author', field)
+
+                    # TODO: this method of validating types is not ideal
+                    # as it means we cannot two create partial types that
+                    # reference each other
+                    if type_ not in _created_partial_types:
+                        raise ValueError(
+                            f'Unknown partial type: "{type_}". '
+                            f'Did you remember to generate the {type_} type before this one?'
+                        )
+
+                    # TODO: support non prisma.partials models
+                    info = fields[field]
+                    if info['is_list']:
+                        info['type'] = f'List[\'partials.{type_}\']'
+                    else:
+                        info['type'] = f'\'partials.{type_}\''
+        except KeyError as exc:
+            raise ValueError(
+                f'{exc.args[0]} is not a valid Author / {name} field.'
+            ) from None
+
+        models = partial_models_ctx.get()
+        models.append(
+            {
+                'name': name,
+                'fields': cast(Mapping[str, PartialModelField], fields),
+                'from_model': 'Author',
+            }
+        )
+        _created_partial_types.add(name)
+
+
 class Book(bases.BaseBook):
     """Represents a Book record"""
 
     id: _int
     title: _str
-    author: _str
+    authorId: _int
+    author: Optional['models.Author'] = None
     description: Optional[_str] = None
     coverUrl: Optional[_str] = None
     externalId: Optional[_str] = None
@@ -2361,411 +3434,6 @@ class authtoken_token(bases.Baseauthtoken_token):
         _created_partial_types.add(name)
 
 
-class books_agecategory(bases.Basebooks_agecategory):
-    """Represents a books_agecategory record"""
-
-    id: _int
-    name: _str
-    books_book: Optional[List['models.books_book']] = None
-
-    # take *args and **kwargs so that other metaclasses can define arguments
-    def __init_subclass__(
-        cls,
-        *args: Any,
-        warn_subclass: Optional[bool] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init_subclass__()
-        if warn_subclass is not None:
-            warnings.warn(
-                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
-                DeprecationWarning,
-                stacklevel=3,
-            )
-
-
-    @staticmethod
-    def create_partial(
-        name: str,
-        include: Optional[Iterable['types.books_agecategoryKeys']] = None,
-        exclude: Optional[Iterable['types.books_agecategoryKeys']] = None,
-        required: Optional[Iterable['types.books_agecategoryKeys']] = None,
-        optional: Optional[Iterable['types.books_agecategoryKeys']] = None,
-        relations: Optional[Mapping['types.books_agecategoryRelationalFieldKeys', str]] = None,
-        exclude_relational_fields: bool = False,
-    ) -> None:
-        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
-            raise RuntimeError(
-                'Attempted to create a partial type outside of client generation.'
-            )
-
-        if name in _created_partial_types:
-            raise ValueError(f'Partial type "{name}" has already been created.')
-
-        if include is not None:
-            if exclude is not None:
-                raise TypeError('Exclude and include are mutually exclusive.')
-            if exclude_relational_fields is True:
-                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
-
-        if required and optional:
-            shared = set(required) & set(optional)
-            if shared:
-                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
-
-        if exclude_relational_fields and relations:
-            raise ValueError(
-                'exclude_relational_fields and relations are mutually exclusive'
-            )
-
-        fields: Dict['types.books_agecategoryKeys', PartialModelField] = OrderedDict()
-
-        try:
-            if include:
-                for field in include:
-                    fields[field] = _books_agecategory_fields[field].copy()
-            elif exclude:
-                for field in exclude:
-                    if field not in _books_agecategory_fields:
-                        raise KeyError(field)
-
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_agecategory_fields.items()
-                    if key not in exclude
-                }
-            else:
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_agecategory_fields.items()
-                }
-
-            if required:
-                for field in required:
-                    fields[field]['optional'] = False
-
-            if optional:
-                for field in optional:
-                    fields[field]['optional'] = True
-
-            if exclude_relational_fields:
-                fields = {
-                    key: data
-                    for key, data in fields.items()
-                    if key not in _books_agecategory_relational_fields
-                }
-
-            if relations:
-                for field, type_ in relations.items():
-                    if field not in _books_agecategory_relational_fields:
-                        raise errors.UnknownRelationalFieldError('books_agecategory', field)
-
-                    # TODO: this method of validating types is not ideal
-                    # as it means we cannot two create partial types that
-                    # reference each other
-                    if type_ not in _created_partial_types:
-                        raise ValueError(
-                            f'Unknown partial type: "{type_}". '
-                            f'Did you remember to generate the {type_} type before this one?'
-                        )
-
-                    # TODO: support non prisma.partials models
-                    info = fields[field]
-                    if info['is_list']:
-                        info['type'] = f'List[\'partials.{type_}\']'
-                    else:
-                        info['type'] = f'\'partials.{type_}\''
-        except KeyError as exc:
-            raise ValueError(
-                f'{exc.args[0]} is not a valid books_agecategory / {name} field.'
-            ) from None
-
-        models = partial_models_ctx.get()
-        models.append(
-            {
-                'name': name,
-                'fields': cast(Mapping[str, PartialModelField], fields),
-                'from_model': 'books_agecategory',
-            }
-        )
-        _created_partial_types.add(name)
-
-
-class books_book(bases.Basebooks_book):
-    """This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
-    """
-
-    id: _int
-    title: _str
-    author: _str
-    cover: _str
-    description: _str
-    is_premium: _bool
-    rating: _float
-    litres_rating: Optional['fields.Json'] = None
-    series: _str
-    translator: _str
-    technical: Optional['fields.Json'] = None
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
-    age_category_id: Optional[_int] = None
-    genre_id: Optional[_int] = None
-    books_agecategory: Optional['models.books_agecategory'] = None
-    books_genre: Optional['models.books_genre'] = None
-
-    # take *args and **kwargs so that other metaclasses can define arguments
-    def __init_subclass__(
-        cls,
-        *args: Any,
-        warn_subclass: Optional[bool] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init_subclass__()
-        if warn_subclass is not None:
-            warnings.warn(
-                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
-                DeprecationWarning,
-                stacklevel=3,
-            )
-
-
-    @staticmethod
-    def create_partial(
-        name: str,
-        include: Optional[Iterable['types.books_bookKeys']] = None,
-        exclude: Optional[Iterable['types.books_bookKeys']] = None,
-        required: Optional[Iterable['types.books_bookKeys']] = None,
-        optional: Optional[Iterable['types.books_bookKeys']] = None,
-        relations: Optional[Mapping['types.books_bookRelationalFieldKeys', str]] = None,
-        exclude_relational_fields: bool = False,
-    ) -> None:
-        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
-            raise RuntimeError(
-                'Attempted to create a partial type outside of client generation.'
-            )
-
-        if name in _created_partial_types:
-            raise ValueError(f'Partial type "{name}" has already been created.')
-
-        if include is not None:
-            if exclude is not None:
-                raise TypeError('Exclude and include are mutually exclusive.')
-            if exclude_relational_fields is True:
-                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
-
-        if required and optional:
-            shared = set(required) & set(optional)
-            if shared:
-                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
-
-        if exclude_relational_fields and relations:
-            raise ValueError(
-                'exclude_relational_fields and relations are mutually exclusive'
-            )
-
-        fields: Dict['types.books_bookKeys', PartialModelField] = OrderedDict()
-
-        try:
-            if include:
-                for field in include:
-                    fields[field] = _books_book_fields[field].copy()
-            elif exclude:
-                for field in exclude:
-                    if field not in _books_book_fields:
-                        raise KeyError(field)
-
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_book_fields.items()
-                    if key not in exclude
-                }
-            else:
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_book_fields.items()
-                }
-
-            if required:
-                for field in required:
-                    fields[field]['optional'] = False
-
-            if optional:
-                for field in optional:
-                    fields[field]['optional'] = True
-
-            if exclude_relational_fields:
-                fields = {
-                    key: data
-                    for key, data in fields.items()
-                    if key not in _books_book_relational_fields
-                }
-
-            if relations:
-                for field, type_ in relations.items():
-                    if field not in _books_book_relational_fields:
-                        raise errors.UnknownRelationalFieldError('books_book', field)
-
-                    # TODO: this method of validating types is not ideal
-                    # as it means we cannot two create partial types that
-                    # reference each other
-                    if type_ not in _created_partial_types:
-                        raise ValueError(
-                            f'Unknown partial type: "{type_}". '
-                            f'Did you remember to generate the {type_} type before this one?'
-                        )
-
-                    # TODO: support non prisma.partials models
-                    info = fields[field]
-                    if info['is_list']:
-                        info['type'] = f'List[\'partials.{type_}\']'
-                    else:
-                        info['type'] = f'\'partials.{type_}\''
-        except KeyError as exc:
-            raise ValueError(
-                f'{exc.args[0]} is not a valid books_book / {name} field.'
-            ) from None
-
-        models = partial_models_ctx.get()
-        models.append(
-            {
-                'name': name,
-                'fields': cast(Mapping[str, PartialModelField], fields),
-                'from_model': 'books_book',
-            }
-        )
-        _created_partial_types.add(name)
-
-
-class books_genre(bases.Basebooks_genre):
-    """Represents a books_genre record"""
-
-    id: _int
-    name: _str
-    books_book: Optional[List['models.books_book']] = None
-
-    # take *args and **kwargs so that other metaclasses can define arguments
-    def __init_subclass__(
-        cls,
-        *args: Any,
-        warn_subclass: Optional[bool] = None,
-        **kwargs: Any,
-    ) -> None:
-        super().__init_subclass__()
-        if warn_subclass is not None:
-            warnings.warn(
-                'The `warn_subclass` argument is deprecated as it is no longer necessary and will be removed in the next release',
-                DeprecationWarning,
-                stacklevel=3,
-            )
-
-
-    @staticmethod
-    def create_partial(
-        name: str,
-        include: Optional[Iterable['types.books_genreKeys']] = None,
-        exclude: Optional[Iterable['types.books_genreKeys']] = None,
-        required: Optional[Iterable['types.books_genreKeys']] = None,
-        optional: Optional[Iterable['types.books_genreKeys']] = None,
-        relations: Optional[Mapping['types.books_genreRelationalFieldKeys', str]] = None,
-        exclude_relational_fields: bool = False,
-    ) -> None:
-        if not os.environ.get('PRISMA_GENERATOR_INVOCATION'):
-            raise RuntimeError(
-                'Attempted to create a partial type outside of client generation.'
-            )
-
-        if name in _created_partial_types:
-            raise ValueError(f'Partial type "{name}" has already been created.')
-
-        if include is not None:
-            if exclude is not None:
-                raise TypeError('Exclude and include are mutually exclusive.')
-            if exclude_relational_fields is True:
-                raise TypeError('Include and exclude_relational_fields=True are mutually exclusive.')
-
-        if required and optional:
-            shared = set(required) & set(optional)
-            if shared:
-                raise ValueError(f'Cannot make the same field(s) required and optional {shared}')
-
-        if exclude_relational_fields and relations:
-            raise ValueError(
-                'exclude_relational_fields and relations are mutually exclusive'
-            )
-
-        fields: Dict['types.books_genreKeys', PartialModelField] = OrderedDict()
-
-        try:
-            if include:
-                for field in include:
-                    fields[field] = _books_genre_fields[field].copy()
-            elif exclude:
-                for field in exclude:
-                    if field not in _books_genre_fields:
-                        raise KeyError(field)
-
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_genre_fields.items()
-                    if key not in exclude
-                }
-            else:
-                fields = {
-                    key: data.copy()
-                    for key, data in _books_genre_fields.items()
-                }
-
-            if required:
-                for field in required:
-                    fields[field]['optional'] = False
-
-            if optional:
-                for field in optional:
-                    fields[field]['optional'] = True
-
-            if exclude_relational_fields:
-                fields = {
-                    key: data
-                    for key, data in fields.items()
-                    if key not in _books_genre_relational_fields
-                }
-
-            if relations:
-                for field, type_ in relations.items():
-                    if field not in _books_genre_relational_fields:
-                        raise errors.UnknownRelationalFieldError('books_genre', field)
-
-                    # TODO: this method of validating types is not ideal
-                    # as it means we cannot two create partial types that
-                    # reference each other
-                    if type_ not in _created_partial_types:
-                        raise ValueError(
-                            f'Unknown partial type: "{type_}". '
-                            f'Did you remember to generate the {type_} type before this one?'
-                        )
-
-                    # TODO: support non prisma.partials models
-                    info = fields[field]
-                    if info['is_list']:
-                        info['type'] = f'List[\'partials.{type_}\']'
-                    else:
-                        info['type'] = f'\'partials.{type_}\''
-        except KeyError as exc:
-            raise ValueError(
-                f'{exc.args[0]} is not a valid books_genre / {name} field.'
-            ) from None
-
-        models = partial_models_ctx.get()
-        models.append(
-            {
-                'name': name,
-                'fields': cast(Mapping[str, PartialModelField], fields),
-                'from_model': 'books_genre',
-            }
-        )
-        _created_partial_types.add(name)
-
-
 class django_admin_log(bases.Basedjango_admin_log):
     """This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
     This model has constraints using non-default deferring rules and requires additional setup for migrations. Visit https://pris.ly/d/constraint-deferring for more info.
@@ -3934,6 +4602,10 @@ class users_user_user_permissions(bases.Baseusers_user_user_permissions):
 
 
 _User_relational_fields: Set[str] = {
+        'groups',
+        'permissions',
+        'tokens',
+        'sessions',
         'notifications',
         'readingProgress',
         'userBooks',
@@ -4039,6 +4711,70 @@ _User_fields: Dict['types.UserKeys', PartialModelField] = OrderedDict(
             'is_relational': False,
             'documentation': None,
         }),
+        ('isActive', {
+            'name': 'isActive',
+            'is_list': False,
+            'optional': False,
+            'type': '_bool',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('isStaff', {
+            'name': 'isStaff',
+            'is_list': False,
+            'optional': False,
+            'type': '_bool',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('isSuperuser', {
+            'name': 'isSuperuser',
+            'is_list': False,
+            'optional': False,
+            'type': '_bool',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('lastLogin', {
+            'name': 'lastLogin',
+            'is_list': False,
+            'optional': True,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('groups', {
+            'name': 'groups',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.UserGroup\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('permissions', {
+            'name': 'permissions',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.UserPermission\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('tokens', {
+            'name': 'tokens',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.Token\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('sessions', {
+            'name': 'sessions',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.Session\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
         ('notifications', {
             'name': 'notifications',
             'is_list': True,
@@ -4084,6 +4820,411 @@ _User_fields: Dict['types.UserKeys', PartialModelField] = OrderedDict(
             'is_list': True,
             'optional': True,
             'type': 'List[\'models.UserAchievement\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_Group_relational_fields: Set[str] = {
+        'users',
+        'permissions',
+    }
+_Group_fields: Dict['types.GroupKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('name', {
+            'name': 'name',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('users', {
+            'name': 'users',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.UserGroup\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('permissions', {
+            'name': 'permissions',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.GroupPermission\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_Permission_relational_fields: Set[str] = {
+        'users',
+        'groups',
+    }
+_Permission_fields: Dict['types.PermissionKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('name', {
+            'name': 'name',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('codename', {
+            'name': 'codename',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('users', {
+            'name': 'users',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.UserPermission\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('groups', {
+            'name': 'groups',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.GroupPermission\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_UserGroup_relational_fields: Set[str] = {
+        'user',
+        'group',
+    }
+_UserGroup_fields: Dict['types.UserGroupKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('userId', {
+            'name': 'userId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('groupId', {
+            'name': 'groupId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('user', {
+            'name': 'user',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.User',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('group', {
+            'name': 'group',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.Group',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_UserPermission_relational_fields: Set[str] = {
+        'user',
+        'permission',
+    }
+_UserPermission_fields: Dict['types.UserPermissionKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('userId', {
+            'name': 'userId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('permissionId', {
+            'name': 'permissionId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('user', {
+            'name': 'user',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.User',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('permission', {
+            'name': 'permission',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.Permission',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_GroupPermission_relational_fields: Set[str] = {
+        'group',
+        'permission',
+    }
+_GroupPermission_fields: Dict['types.GroupPermissionKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('groupId', {
+            'name': 'groupId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('permissionId', {
+            'name': 'permissionId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('group', {
+            'name': 'group',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.Group',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('permission', {
+            'name': 'permission',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.Permission',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_Token_relational_fields: Set[str] = {
+        'user',
+    }
+_Token_fields: Dict['types.TokenKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('userId', {
+            'name': 'userId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('token', {
+            'name': 'token',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('expiresAt', {
+            'name': 'expiresAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('user', {
+            'name': 'user',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.User',
+            'is_relational': True,
+            'documentation': None,
+        }),
+    ],
+)
+
+_Session_relational_fields: Set[str] = {
+        'user',
+    }
+_Session_fields: Dict['types.SessionKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('userId', {
+            'name': 'userId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('sessionKey', {
+            'name': 'sessionKey',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('expiresAt', {
+            'name': 'expiresAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('user', {
+            'name': 'user',
+            'is_list': False,
+            'optional': True,
+            'type': 'models.User',
             'is_relational': True,
             'documentation': None,
         }),
@@ -4214,7 +5355,56 @@ _AgeCategory_fields: Dict['types.AgeCategoryKeys', PartialModelField] = OrderedD
     ],
 )
 
+_Author_relational_fields: Set[str] = {
+        'books',
+    }
+_Author_fields: Dict['types.AuthorKeys', PartialModelField] = OrderedDict(
+    [
+        ('id', {
+            'name': 'id',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('name', {
+            'name': 'name',
+            'is_list': False,
+            'optional': False,
+            'type': '_str',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('books', {
+            'name': 'books',
+            'is_list': True,
+            'optional': True,
+            'type': 'List[\'models.Book\']',
+            'is_relational': True,
+            'documentation': None,
+        }),
+        ('createdAt', {
+            'name': 'createdAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+        ('updatedAt', {
+            'name': 'updatedAt',
+            'is_list': False,
+            'optional': False,
+            'type': 'datetime.datetime',
+            'is_relational': False,
+            'documentation': None,
+        }),
+    ],
+)
+
 _Book_relational_fields: Set[str] = {
+        'author',
         'ageCategory',
         'genre',
         'readingProgress',
@@ -4240,12 +5430,20 @@ _Book_fields: Dict['types.BookKeys', PartialModelField] = OrderedDict(
             'is_relational': False,
             'documentation': None,
         }),
+        ('authorId', {
+            'name': 'authorId',
+            'is_list': False,
+            'optional': False,
+            'type': '_int',
+            'is_relational': False,
+            'documentation': None,
+        }),
         ('author', {
             'name': 'author',
             'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
+            'optional': True,
+            'type': 'models.Author',
+            'is_relational': True,
             'documentation': None,
         }),
         ('description', {
@@ -5238,215 +6436,6 @@ _authtoken_token_fields: Dict['types.authtoken_tokenKeys', PartialModelField] = 
     ],
 )
 
-_books_agecategory_relational_fields: Set[str] = {
-        'books_book',
-    }
-_books_agecategory_fields: Dict['types.books_agecategoryKeys', PartialModelField] = OrderedDict(
-    [
-        ('id', {
-            'name': 'id',
-            'is_list': False,
-            'optional': False,
-            'type': '_int',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('name', {
-            'name': 'name',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('books_book', {
-            'name': 'books_book',
-            'is_list': True,
-            'optional': True,
-            'type': 'List[\'models.books_book\']',
-            'is_relational': True,
-            'documentation': None,
-        }),
-    ],
-)
-
-_books_book_relational_fields: Set[str] = {
-        'books_agecategory',
-        'books_genre',
-    }
-_books_book_fields: Dict['types.books_bookKeys', PartialModelField] = OrderedDict(
-    [
-        ('id', {
-            'name': 'id',
-            'is_list': False,
-            'optional': False,
-            'type': '_int',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('title', {
-            'name': 'title',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('author', {
-            'name': 'author',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('cover', {
-            'name': 'cover',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('description', {
-            'name': 'description',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('is_premium', {
-            'name': 'is_premium',
-            'is_list': False,
-            'optional': False,
-            'type': '_bool',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('rating', {
-            'name': 'rating',
-            'is_list': False,
-            'optional': False,
-            'type': '_float',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('litres_rating', {
-            'name': 'litres_rating',
-            'is_list': False,
-            'optional': True,
-            'type': 'fields.Json',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('series', {
-            'name': 'series',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('translator', {
-            'name': 'translator',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('technical', {
-            'name': 'technical',
-            'is_list': False,
-            'optional': True,
-            'type': 'fields.Json',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('created_at', {
-            'name': 'created_at',
-            'is_list': False,
-            'optional': False,
-            'type': 'datetime.datetime',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('updated_at', {
-            'name': 'updated_at',
-            'is_list': False,
-            'optional': False,
-            'type': 'datetime.datetime',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('age_category_id', {
-            'name': 'age_category_id',
-            'is_list': False,
-            'optional': True,
-            'type': '_int',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('genre_id', {
-            'name': 'genre_id',
-            'is_list': False,
-            'optional': True,
-            'type': '_int',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('books_agecategory', {
-            'name': 'books_agecategory',
-            'is_list': False,
-            'optional': True,
-            'type': 'models.books_agecategory',
-            'is_relational': True,
-            'documentation': None,
-        }),
-        ('books_genre', {
-            'name': 'books_genre',
-            'is_list': False,
-            'optional': True,
-            'type': 'models.books_genre',
-            'is_relational': True,
-            'documentation': None,
-        }),
-    ],
-)
-
-_books_genre_relational_fields: Set[str] = {
-        'books_book',
-    }
-_books_genre_fields: Dict['types.books_genreKeys', PartialModelField] = OrderedDict(
-    [
-        ('id', {
-            'name': 'id',
-            'is_list': False,
-            'optional': False,
-            'type': '_int',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('name', {
-            'name': 'name',
-            'is_list': False,
-            'optional': False,
-            'type': '_str',
-            'is_relational': False,
-            'documentation': None,
-        }),
-        ('books_book', {
-            'name': 'books_book',
-            'is_list': True,
-            'optional': True,
-            'type': 'List[\'models.books_book\']',
-            'is_relational': True,
-            'documentation': None,
-        }),
-    ],
-)
-
 _django_admin_log_relational_fields: Set[str] = {
         'django_content_type',
         'users_user',
@@ -6052,8 +7041,16 @@ from . import models, actions
 
 # required to support relationships between models
 model_rebuild(User)
+model_rebuild(Group)
+model_rebuild(Permission)
+model_rebuild(UserGroup)
+model_rebuild(UserPermission)
+model_rebuild(GroupPermission)
+model_rebuild(Token)
+model_rebuild(Session)
 model_rebuild(Genre)
 model_rebuild(AgeCategory)
+model_rebuild(Author)
 model_rebuild(Book)
 model_rebuild(UserBook)
 model_rebuild(Vote)
@@ -6068,9 +7065,6 @@ model_rebuild(auth_group)
 model_rebuild(auth_group_permissions)
 model_rebuild(auth_permission)
 model_rebuild(authtoken_token)
-model_rebuild(books_agecategory)
-model_rebuild(books_book)
-model_rebuild(books_genre)
 model_rebuild(django_admin_log)
 model_rebuild(django_content_type)
 model_rebuild(django_migrations)
