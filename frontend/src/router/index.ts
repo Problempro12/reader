@@ -101,7 +101,7 @@ const router = createRouter({
     {
       path: '/admin',
       component: AdminLayout,
-      meta: { requiresAuth: true, requiresAdmin: true },
+      meta: { requiresAuth: true },
       children: [
         {
           path: '',
@@ -132,7 +132,6 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
   const userStore = useUserStore();
   const isAuthenticated = !!localStorage.getItem('authToken')
   const userData = JSON.parse(localStorage.getItem('user') || '{}')
-  const isAdmin = userData.is_staff || userData.is_superuser
 
   console.log('=== Начало проверки прав доступа ===')
   console.log('Текущий маршрут:', to.path)
@@ -141,25 +140,22 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
   console.log('Данные пользователя:', {
     isAuthenticated,
     userData,
-    isAdmin,
     token: localStorage.getItem('authToken') ? 'Присутствует' : 'Отсутствует',
     refreshToken: localStorage.getItem('refreshToken') ? 'Присутствует' : 'Отсутствует'
   })
   console.log('Требования маршрута:', {
-    requiresAuth: to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth),
-    requiresAdmin: to.matched.some((record: { meta: { requiresAdmin?: boolean } }) => record.meta.requiresAdmin)
+    requiresAuth: to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth)
   })
 
   const requiresAuth = to.matched.some((record: { meta: { requiresAuth?: boolean } }) => record.meta.requiresAuth)
-  const requiresAdmin = to.matched.some((record: { meta: { requiresAdmin?: boolean } }) => record.meta.requiresAdmin)
 
   if (requiresAuth) {
     if (!isAuthenticated) {
-    console.log('Требуется аутентификация, перенаправление на страницу входа')
-    next({ 
-      name: 'login',
-      query: { redirect: to.fullPath }
-    })
+      console.log('Требуется аутентификация, перенаправление на страницу входа')
+      next({ 
+        name: 'login',
+        query: { redirect: to.fullPath }
+      })
       return
     }
 
@@ -177,11 +173,7 @@ router.beforeEach(async (to: RouteLocationNormalized, from: RouteLocationNormali
     }
   }
 
-  if (requiresAdmin && !isAdmin) {
-    console.log('Доступ запрещен: требуется права администратора')
-    console.log('Текущие права:', { is_staff: userData.is_staff, is_superuser: userData.is_superuser })
-    next({ name: 'home' })
-  } else if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
+  if ((to.name === 'login' || to.name === 'register') && isAuthenticated) {
     console.log('Пользователь уже авторизован, перенаправление на главную')
     next({ name: 'home' })
   } else {

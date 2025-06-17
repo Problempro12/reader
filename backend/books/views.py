@@ -1,19 +1,17 @@
-from rest_framework import generics, permissions, status, viewsets
+from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from prisma import Prisma
 from .serializers import BookSerializer, GenreSerializer, AgeCategorySerializer
 from datetime import datetime
 import asyncio
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
 from bs4 import BeautifulSoup
-from asgiref.sync import async_to_sync
-from django.db.models import Q
-from .models import Book
-from django.conf import settings
-import json
+from asgiref.sync import async_to_sync, sync_to_async
+from scripts.import_books import import_books
+from django.utils.decorators import classonlymethod
 
 def run_async(coro):
     return asyncio.run(coro)
@@ -59,7 +57,14 @@ class BookListView(generics.ListCreateAPIView):
         async def get_books():
             prisma = Prisma()
             await prisma.connect()
-            books = await prisma.book.find_many()
+            # Проверяем включение связанных моделей
+            books = await prisma.book.find_many(
+                include={
+                    'author': True,
+                    'genre': True,
+                    'ageCategory': True
+                }
+            )
             await prisma.disconnect()
             return books
         return run_async(get_books())
@@ -199,14 +204,45 @@ class WeeklyResultListView(generics.ListAPIView):
 class ScrapeLitresView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @classonlymethod
+    def as_view(cls, **initkwargs):
+        view = super().as_view(**initkwargs)
+        view.view_is_async = True
+        return view
+
+    async def dispatch(self, request, *args, **kwargs):
+        self.args = args
+        self.kwargs = kwargs
+        request = await sync_to_async(self.initialize_request)(request)
+        self.request = request
+        self.headers = self.default_response_headers
+
+        try:
+            await sync_to_async(self.perform_authentication)(request)
+            await sync_to_async(self.check_permissions)(request)
+            await sync_to_async(self.check_throttles)(request)
+
+            if request.method.lower() in self.http_method_names:
+                handler = getattr(self, request.method.lower(), self.http_method_not_allowed)
+            else:
+                handler = self.http_method_not_allowed
+            
+            response = await handler(request, *args, **kwargs)
+
+        except Exception as exc:
+            response = await sync_to_async(self.handle_exception)(exc)
+
+        self.response = response
+        return response
+
     async def post(self, request):
-        """Получение информации о книге с LitRes по URL"""
+        """Получение информации о книге с Litres по URL"""
         url = request.data.get('url')
         if not url:
             return Response({'error': 'URL не указан'}, status=400)
 
         try:
-            print(f"Начинаем запрос к LitRes: {url}")
+            print(f"Начинаем запрос к Litres: {url}")
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -252,177 +288,68 @@ class ScrapeLitresView(APIView):
             author = author.text.strip()
             print(f"Найден автор: {author}")
 
-            # Ищем обложку в новой структуре
-            cover = soup.select_one('img[itemprop="image"]')
-            if not cover:
-                print("Не найдена обложка")
-                print("Доступные изображения:", [img.get('src') for img in soup.find_all('img')])
-                return Response({'error': 'Не удалось найти обложку книги'}, status=400)
-            cover = cover['src']
-            print(f"Найдена обложка: {cover}")
-
-            # Ищем описание в новой структуре
-            description = soup.select_one('div.BookCard-module__30TmjW__truncate p')
-            if not description:
-                print("Не найдено описание")
-                print("Доступные div с описанием:", [div.text[:100] for div in soup.find_all('div', class_='BookCard-module__30TmjW__truncate')])
-                return Response({'error': 'Не удалось найти описание книги'}, status=400)
-            description = description.text.strip()
+            # Ищем описание
+            description = soup.select_one('div[itemprop="description"] div.text-html')
+            if description:
+                description = description.text.strip()
+            else:
+                description = ''
             print(f"Найдено описание: {description[:100]}...")
 
-            # Ищем жанры в новой структуре
-            genres = []
-            genre_elements = soup.select('div.BookGenresAndTags-module___lt2qq__genresList a.StyledLink-module__9cE5yW__link')
-            for genre in genre_elements:
-                genre_text = genre.text.strip()
-                if genre_text and not genre_text.endswith(','):  # Убираем запятые
-                    genres.append(genre_text)
-            print(f"Найдены жанры: {genres}")
+            # Ищем URL обложки
+            cover_img = soup.select_one('img[itemprop="image"]')
+            cover_url = cover_img['src'] if cover_img else ''
+            print(f"Найден URL обложки: {cover_url}")
 
-            # Находим или создаем жанры в базе данных
-            genre_ids = []
-            prisma = Prisma() # Создаем новый экземпляр Prisma для этой операции
-            await prisma.connect() # Подключаемся к базе данных
+            # Ищем жанры (категории)
+            categories = [a.text.strip() for a in soup.select('a[data-qa="genre-item-link"]')]
+            if not categories:
+                categories = [a.text.strip() for a in soup.select('a.biblio_book_info_genre')]
+            print(f"Найдены категории: {categories}")
+            
+            # Ищем ISBN
+            isbn_element = soup.find(lambda tag: tag.name == "div" and "ISBN:" in tag.text)
+            isbn = isbn_element.text.replace("ISBN:", "").strip() if isbn_element else ""
+            print(f"Найден ISBN: {isbn}")
 
-            for genre_name in genres:
-                print(f"Ищем жанр в базе данных: '{genre_name}'")
-                # Ищем жанр в базе
-                genre = await prisma.genre.find_first(
-                    where={
-                        'OR': [
-                            {'name': genre_name},
-                            {'subgenres': {'some': {'name': genre_name}}}
-                        ]
-                    }
-                )
-
-                if genre:
-                    print(f"Жанр найдет в базе: '{genre.name}' (ID: {genre.id})")
-                    genre_ids.append(genre.id)
-                else:
-                    # Если жанр не найден, создаем его
-                    print(f"Жанр '{genre_name}' не найден. Создаем новый.")
-                    try:
-                        new_genre = await prisma.genre.create(
-                            data={'name': genre_name}
-                        )
-                        print(f"Новый жанр создан: '{new_genre.name}' (ID: {new_genre.id})")
-                        genre_ids.append(new_genre.id)
-                    except Exception as create_error:
-                        print(f"Ошибка при создании жанра '{genre_name}': {str(create_error)}")
-                        # Можно добавить логику для пропуска этого жанра или возврата ошибки
-
-            await prisma.disconnect() # Отключаемся от базы данных
-            print(f"Все найденные/созданные ID жанров: {genre_ids}")
-
-            # Ищем возрастной рейтинг в новой структуре
-            age_rating_div = soup.select_one('div.CharacteristicsBlock-module__6QUqXW__characteristic:has(div.CharacteristicsBlock-module__6QUqXW__characteristic__title:contains("Возрастное ограничение"))')
-            age_rating = None
-            if age_rating_div:
-                # Берем последний span, который содержит значение
-                spans = age_rating_div.find_all('span')
-                if len(spans) > 1:
-                    age_rating = spans[-1].text.strip()
-            print(f"Найден возрастной рейтинг: {age_rating}")
-
-            # Ищем серию в новой структуре
-            series = soup.select_one('div.BookDetailsHeader-module__CvBt5W__series a')
-            series = series.text.strip() if series else None
-            print(f"Найдена серия: {series}")
-
-            # Ищем переводчика в новой структуре
-            translator = soup.select_one('div.BookDetailsHeader-module__CvBt5W__persons:has(span:contains("переводчик")) a')
-            translator = translator.text.strip() if translator else None
-            print(f"Найден переводчик: {translator}")
-
-            # Ищем техническую информацию в новой структуре
-            volume_div = soup.select_one('div.CharacteristicsBlock-module__6QUqXW__characteristic:has(div.CharacteristicsBlock-module__6QUqXW__characteristic__title:contains("Объем"))')
-            volume = None
-            if volume_div:
-                spans = volume_div.find_all('span')
-                if len(spans) > 1:
-                    volume = spans[-1].text.strip()
-            print(f"Найден объем: {volume}")
-
-            year_div = soup.select_one('div.CharacteristicsBlock-module__6QUqXW__characteristic:has(div.CharacteristicsBlock-module__6QUqXW__characteristic__title:contains("Дата написания"))')
-            year = None
-            if year_div:
-                spans = year_div.find_all('span')
-                if len(spans) > 1:
-                    year = spans[-1].text.strip()
-            print(f"Найдена дата написания: {year}")
-
-            copyright_div = soup.select_one('div[data-testid="book__characteristicsCopyrightHolder"]')
-            copyright_holder = None
-            if copyright_div:
-                spans = copyright_div.find_all('span')
-                if len(spans) > 1:
-                    copyright_holder = spans[-1].text.strip()
-            print(f"Найден правообладатель: {copyright_holder}")
-
-            # Ищем рейтинг в новой структуре
-            rating = soup.select_one('div[itemprop="aggregateRating"]')
-            rating_value = float(rating.select_one('meta[itemprop="ratingValue"]')['content']) if rating else None
-            rating_count = int(rating.select_one('meta[itemprop="ratingCount"]')['content']) if rating else None
-            print(f"Найден рейтинг: {rating_value} ({rating_count} оценок)")
-
-            # Добавляем отладочную информацию
-            print("\nОтладочная информация:")
-            for div in soup.select('div.CharacteristicsBlock-module__6QUqXW__characteristic'):
-                print(f"Характеристика: {div.text.strip()}")
-                print("Все span элементы:", [span.text.strip() for span in div.find_all('span')])
-                print("---")
-
-            # Создаем книгу с жанрами
-            book = await prisma.book.create(
-                data={
-                    'title': title,
-                    'author': author,
-                    'coverUrl': cover, # Исправил на coverUrl
-                    'description': description,
-                    # 'ageRating': age_rating, # Удалил, так как ageRating - связь
-                    'series': series,
-                    'translator': translator,
-                    'litresRating': rating_value, # Исправил на litresRating
-                    'litresRatingCount': rating_count, # Исправил на litresRatingCount
-                    'volume': volume,
-                    'year': year,
-                    'copyrightHolder': copyright_holder,
-                    'genres': {
-                         'connect': [{'id': genre_id} for genre_id in genre_ids]
-                     } if genre_ids else {}, # Добавил проверку genre_ids
-                    'ageCategory': { # Добавляем связь с ageCategory
-                        'connect': {'id': 1} # Временно используем ID 1, нужно будет найти правильный ID
-                    }
-                }
-            )
-
-            return Response({
-                'id': book.id,
+            book_data = {
                 'title': title,
-                'author': author,
-                'cover': cover,
+                'authorId': author,
                 'description': description,
-                'genres': genres,
-                'age_rating': age_rating,
-                'series': series,
-                'translator': translator,
-                'rating': {
-                    'value': rating_value,
-                    'count': rating_count
-                },
-                'technical': {
-                    'volume': volume,
-                    'year': year,
-                    'copyright_holder': copyright_holder
-                }
-            })
+                'coverUrl': cover_url,
+                'genreId': categories[0] if categories else None,
+                'ageCategoryId': categories[1] if len(categories) > 1 else None,
+                'isPremium': False,
+                'litresRating': 0,
+                'litresRatingCount': 0,
+                'series': '',
+                'translator': '',
+                'volume': '',
+                'year': '',
+                'isbn': isbn,
+                'copyrightHolder': '',
+                'createdAt': datetime.now(),
+                'updatedAt': datetime.now()
+            }
+
+            return Response(book_data, status=200)
+
         except requests.exceptions.RequestException as e:
-            print(f"Ошибка запроса к LitRes: {str(e)}")
-            return Response({'error': f'Ошибка запроса к LitRes: {e}'}, status=500)
+            print(f"Ошибка при запросе к Litres: {e}")
+            return Response({'error': f'Ошибка при подключении к Litres: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            print(f"Ошибка при скрапинге или сохранении: {str(e)}")
-            return Response({'error': str(e)}, status=500)
+            print(f"Неожиданная ошибка: {e}")
+            return Response({'error': f'Неожиданная ошибка при парсинге Litres: {e}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class RunImportBooksView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            async_to_sync(import_books)()
+            return Response({'message': 'Импорт книг успешно запущен.'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': f'Ошибка при запуске импорта: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CurrentWeekBookView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -640,116 +567,3 @@ class BookRateView(generics.CreateAPIView):
             return Response({'status': 'success'})
         finally:
             await prisma.disconnect()
-
-class BookViewSet(viewsets.ViewSet):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.prisma = Prisma()
-        self.prisma.connect()
-
-    def __del__(self):
-        self.prisma.disconnect()
-
-    def list(self, request):
-        page = int(request.query_params.get('page', 1))
-        per_page = int(request.query_params.get('perPage', 12))
-        search = request.query_params.get('search')
-        genre = request.query_params.get('genre')
-        age_category = request.query_params.get('ageCategory')
-        rating = request.query_params.get('rating')
-        sort_by = request.query_params.get('sortBy')
-
-        # Базовый запрос
-        query = {
-            "skip": (page - 1) * per_page,
-            "take": per_page,
-            "include": {
-                "author": True,
-                "genre": True,
-                "ageCategory": True
-            }
-        }
-
-        # Добавляем фильтры
-        where = {}
-        if search:
-            where["OR"] = [
-                {"title": {"contains": search}},
-                {"author": {"name": {"contains": search}}}
-            ]
-        if genre:
-            where["genre"] = {"name": genre}
-        if age_category:
-            where["ageCategory"] = {"name": age_category}
-        if rating:
-            where["rating"] = {"gte": float(rating)}
-
-        if where:
-            query["where"] = where
-
-        # Добавляем сортировку
-        if sort_by:
-            if sort_by == "rating":
-                query["order"] = {"rating": "desc"}
-            elif sort_by == "newest":
-                query["order"] = {"createdAt": "desc"}
-            elif sort_by == "alphabet":
-                query["order"] = {"title": "asc"}
-
-        # Получаем книги
-        books = self.prisma.book.find_many(**query)
-        total = self.prisma.book.count(where=where if where else None)
-
-        return Response({
-            'books': books,
-            'total': total,
-            'page': page,
-            'perPage': per_page
-        })
-
-    @action(detail=False, methods=['get'], url_path='top')
-    def top(self, request):
-        books = self.prisma.book.find_many(
-            take=5,
-            order={"rating": "desc"},
-            include={
-                "author": True,
-                "genre": True,
-                "ageCategory": True
-            }
-        )
-        return Response(books)
-
-    @action(detail=False, methods=['get'], url_path='recommended')
-    def recommended(self, request):
-        # Здесь можно добавить более сложную логику рекомендаций
-        books = self.prisma.book.find_many(
-            take=5,
-            order={"rating": "desc"},
-            include={
-                "author": True,
-                "genre": True,
-                "ageCategory": True
-            }
-        )
-        return Response(books)
-
-    @action(detail=True, methods=['post'], url_path='rate')
-    def rate(self, request, pk=None):
-        rating = request.data.get('rating')
-        
-        if not rating or not isinstance(rating, (int, float)) or not 1 <= rating <= 5:
-            return Response(
-                {'error': 'Rating must be a number between 1 and 5'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        book = self.prisma.book.update(
-            where={"id": int(pk)},
-            data={
-                "rating": rating,
-                "rating_count": {"increment": 1}
-            }
-        )
-        
-        return Response(book)

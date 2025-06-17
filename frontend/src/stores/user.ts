@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia';
 import { ref, computed, watch } from 'vue';
 import type { User } from '@/types';
-import api from '@/api/axios';
+import axiosInstance from '@/plugins/axios';
+import axios from 'axios';
 
 // Обновляем тип данных пользователя, ожидаемых от бэкенда
 interface UserData {
@@ -11,9 +12,10 @@ interface UserData {
   is_premium: boolean;
   premium_expiration_date: string | null;
   hide_ads: boolean;
+  // Заменяем 'avatar' на 'avatar_url'
   avatar_url: string | null;
   about: string | null;
-  stats?: {
+  stats?: { // Предполагаем, что stats может быть необязательным
     read_count: number;
     planning_count: number;
     reading_count: number;
@@ -25,10 +27,11 @@ interface UserData {
 }
 
 export const useUserStore = defineStore('user', () => {
+  // Инициализируем состояние из localStorage или дефолтными значениями
   const authToken = ref<string | null>(localStorage.getItem('authToken'));
   const refreshToken = ref<string | null>(localStorage.getItem('refreshToken'));
-  localStorage.removeItem('user');
-  const userData = ref<UserData | null>(null);
+  // Используем новый тип UserData
+  const userData = ref<UserData | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   const isLoggedIn = computed(() => authToken.value !== null);
   const isAdmin = computed(() => userData.value?.is_staff === true || userData.value?.is_superuser === true);
   const userInitials = computed(() => {
@@ -50,12 +53,14 @@ export const useUserStore = defineStore('user', () => {
     localStorage.setItem('authToken', token);
     localStorage.setItem('user', JSON.stringify(user));
     
+    // Обновляем токен в axios
     if (token) {
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
-      delete api.defaults.headers.common['Authorization'];
+      delete axiosInstance.defaults.headers.common['Authorization'];
     }
     
+    // Проверяем данные после сохранения
     console.log('Store: данные после сохранения:', {
       authToken: authToken.value ? 'Присутствует' : 'Отсутствует',
       userData: userData.value,
@@ -69,27 +74,34 @@ export const useUserStore = defineStore('user', () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
     localStorage.removeItem('refreshToken');
-    delete api.defaults.headers.common['Authorization'];
+    delete axiosInstance.defaults.headers.common['Authorization'];
   };
 
+  // Функция для загрузки данных пользователя с бэкенда
   const fetchUserData = async () => {
     console.log('Store: запрос данных пользователя...');
     if (!authToken.value) {
       console.log('Store: Нет токена авторизации, пропускаем фетч данных пользователя.');
       userData.value = null;
-      return;
+      return; // Не фетчим, если нет токена
     }
     try {
-      const response = await api.get('/users/me/');
+      const response = await axiosInstance.get('/users/me/', {
+        headers: {
+          'Authorization': `Bearer ${authToken.value}`
+        }
+      });
       console.log('Store: получены данные пользователя:', response.data);
-      userData.value = response.data;
+      userData.value = response.data; // Обновляем данные пользователя в сторе
 
       console.log('Store: проверка прав администратора:', { is_staff: userData.value?.is_staff, is_superuser: userData.value?.is_superuser });
-      console.log('Store: данные пользователя обновлены. URL аватара:', userData.value?.avatar_url);
+      // Здесь можно добавить дополнительную логику или проверку данных
+      console.log('Store: данные пользователя обновлены. URL аватара:', userData.value?.avatar_url); // Актуальный лог
     } catch (error) {
       console.error('Store: Ошибка при получении данных пользователя:', error);
-      if (error.response?.status === 401) {
-        clearAuthData();
+      // Если токен невалидный, возможно, стоит выйти из системы
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+         clearAuthData(); // Выход при невалидном токене - вызываем clearAuthData
       }
       userData.value = null;
     }
@@ -102,23 +114,30 @@ export const useUserStore = defineStore('user', () => {
 
     try {
       console.log('Store: Отправка PATCH запроса на users/me/ с файлом:', file);
-      const response = await api.patch('/users/me/', formData, {
+      const response = await axiosInstance.patch('/users/me/', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${authToken.value}`
+        },
       });
       console.log('Store: PATCH запрос успешен, получен ответ:', response.data);
       
+      // Обновляем данные пользователя в сторе из ответа
       userData.value = response.data;
       console.log('Store: userData в сторе обновлено:', userData.value);
-      console.log('Store: Аватар успешно обновлен. URL аватара после обновления:', userData.value?.avatar_url);
+      console.log('Store: Аватар успешно обновлен. URL аватара после обновления:', userData.value?.avatar_url); // Актуальный лог
+
+      // После успешного обновления, возможно, стоит снова получить полные данные пользователя
+      // для синхронизации всех полей, хотя PATCH должен вернуть актуальные данные.
+      // fetchUserData(); // Этот вызов теперь избыточен, так как PATCH возвращает актуальные данные
 
     } catch (error) {
       console.error('Store: Ошибка при загрузке аватара:', error);
-      throw error;
+      throw error; // Перебрасываем ошибку для обработки в компоненте
     }
   };
 
+  // Следим за изменением токена и загружаем данные пользователя при необходимости
   watch(authToken, (newToken) => {
     if (newToken && !userData.value) {
       fetchUserData();
@@ -127,6 +146,7 @@ export const useUserStore = defineStore('user', () => {
 
   const logout = async () => {
     try {
+      // Можно добавить запрос на бэкенд для инвалидации токена
       authToken.value = null;
       userData.value = null;
       refreshToken.value = null;
@@ -141,7 +161,7 @@ export const useUserStore = defineStore('user', () => {
 
   const deleteAccount = async () => {
     try {
-      await api.delete('/users/me/');
+      await axios.delete('/api/users/profile/');
       authToken.value = null;
       userData.value = null;
       refreshToken.value = null;

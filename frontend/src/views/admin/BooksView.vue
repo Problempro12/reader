@@ -2,10 +2,16 @@
   <div class="admin-books">
     <div class="admin-header">
       <h2>Управление книгами</h2>
-      <button class="btn btn-primary" @click="openCreateModal">
-        <i class="bi bi-plus-lg"></i>
-        Добавить книгу
-      </button>
+      <div class="header-buttons">
+        <button class="btn btn-primary" @click="openCreateModal">
+          <i class="bi bi-plus-lg"></i>
+          Добавить книгу
+        </button>
+        <button class="btn btn-secondary" @click="handleRunImport">
+          <i class="bi bi-download"></i>
+          Запустить импорт
+        </button>
+      </div>
     </div>
 
     <div class="admin-filters">
@@ -182,7 +188,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { getBooks, createBook, updateBook, deleteBook } from '@/api/books'
+import { getBooks, createBook, updateBook, deleteBook, runImportScript } from '@/api/books'
 import type { Book, BookCreate } from '@/types/book'
 
 const books = ref<Book[]>([])
@@ -290,8 +296,9 @@ const loadBooks = async () => {
     const response = await getBooks(filters)
     books.value = response.books
     totalPages.value = Math.ceil(response.total / filters.limit)
+    currentPage.value = filters.page
   } catch (err) {
-    error.value = 'Ошибка при загрузке книг'
+    error.value = 'Failed to load books.'
     console.error(err)
   } finally {
     loading.value = false
@@ -304,7 +311,6 @@ const handleSearch = () => {
 }
 
 const changePage = (page: number) => {
-  currentPage.value = page
   filters.page = page
   loadBooks()
 }
@@ -343,12 +349,7 @@ const openEditModal = (book: Book) => {
     isPremium: book.isPremium,
     series: book.series || '',
     translator: book.translator || '',
-    technical: book.technical || {
-      volume: '',
-      year: '',
-      isbn: '',
-      copyrightHolder: ''
-    }
+    technical: book.technical || { volume: '', year: '', isbn: '', copyrightHolder: '' }
   })
   showModal.value = true
 }
@@ -361,15 +362,17 @@ const closeModal = () => {
 const handleSubmit = async () => {
   try {
     if (editingBook.value) {
+      // Обновление существующей книги
       await updateBook({ id: editingBook.value.id, ...form })
     } else {
+      // Создание новой книги
       await createBook(form)
     }
     closeModal()
-    loadBooks()
+    await loadBooks() // Перезагружаем книги после сохранения
   } catch (err) {
-    error.value = 'Ошибка при сохранении книги'
-    console.error(err)
+    console.error('Ошибка сохранения книги:', err)
+    alert('Ошибка сохранения книги.')
   }
 }
 
@@ -384,17 +387,31 @@ const closeDeleteModal = () => {
 }
 
 const handleDelete = async () => {
-  if (!bookToDelete.value) return
-
-  try {
-    await deleteBook(bookToDelete.value.id)
-    closeDeleteModal()
-    loadBooks()
-  } catch (err) {
-    error.value = 'Ошибка при удалении книги'
-    console.error(err)
+  if (bookToDelete.value) {
+    try {
+      await deleteBook(bookToDelete.value.id)
+      closeDeleteModal()
+      await loadBooks() // Перезагружаем книги после удаления
+    } catch (err) {
+      console.error('Ошибка удаления книги:', err)
+      alert('Ошибка удаления книги.')
+    }
   }
 }
+
+const handleRunImport = async () => {
+  try {
+    loading.value = true;
+    await runImportScript();
+    alert('Скрипт импорта книг успешно запущен. Проверьте консоль бэкенда для деталей.');
+    await loadBooks(); // Обновляем список книг после импорта
+  } catch (err) {
+    console.error('Ошибка при запуске скрипта импорта:', err);
+    alert('Ошибка при запуске скрипта импорта. Проверьте консоль бэкенда.');
+  } finally {
+    loading.value = false;
+  }
+};
 
 onMounted(() => {
   loadBooks()
@@ -523,6 +540,14 @@ th {
 
 .btn-primary:hover {
   background-color: #0b5ed7;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
 }
 
 .btn-edit {

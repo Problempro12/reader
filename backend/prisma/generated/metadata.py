@@ -27,19 +27,6 @@ PRISMA_MODELS: set[str] = {
     'Partner',
     'Achievement',
     'UserAchievement',
-    'auth_group',
-    'auth_group_permissions',
-    'auth_permission',
-    'authtoken_token',
-    'django_admin_log',
-    'django_content_type',
-    'django_migrations',
-    'django_session',
-    'token_blacklist_blacklistedtoken',
-    'token_blacklist_outstandingtoken',
-    'users_user',
-    'users_user_groups',
-    'users_user_user_permissions',
 }
 
 RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
@@ -131,61 +118,11 @@ RELATIONAL_FIELD_MAPPINGS: dict[str, dict[str, str]] = {
         'advertisements': 'Advertisement',
     },
     'Achievement': {
-        'userAchievements': 'UserAchievement',
+        'users': 'UserAchievement',
     },
     'UserAchievement': {
         'user': 'User',
         'achievement': 'Achievement',
-    },
-    'auth_group': {
-        'auth_group_permissions': 'auth_group_permissions',
-        'users_user_groups': 'users_user_groups',
-    },
-    'auth_group_permissions': {
-        'auth_permission': 'auth_permission',
-        'auth_group': 'auth_group',
-    },
-    'auth_permission': {
-        'auth_group_permissions': 'auth_group_permissions',
-        'django_content_type': 'django_content_type',
-        'users_user_user_permissions': 'users_user_user_permissions',
-    },
-    'authtoken_token': {
-        'users_user': 'users_user',
-    },
-    'django_admin_log': {
-        'django_content_type': 'django_content_type',
-        'users_user': 'users_user',
-    },
-    'django_content_type': {
-        'auth_permission': 'auth_permission',
-        'django_admin_log': 'django_admin_log',
-    },
-    'django_migrations': {
-    },
-    'django_session': {
-    },
-    'token_blacklist_blacklistedtoken': {
-        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
-    },
-    'token_blacklist_outstandingtoken': {
-        'token_blacklist_blacklistedtoken': 'token_blacklist_blacklistedtoken',
-        'users_user': 'users_user',
-    },
-    'users_user': {
-        'authtoken_token': 'authtoken_token',
-        'django_admin_log': 'django_admin_log',
-        'token_blacklist_outstandingtoken': 'token_blacklist_outstandingtoken',
-        'users_user_groups': 'users_user_groups',
-        'users_user_user_permissions': 'users_user_user_permissions',
-    },
-    'users_user_groups': {
-        'auth_group': 'auth_group',
-        'users_user': 'users_user',
-    },
-    'users_user_user_permissions': {
-        'auth_permission': 'auth_permission',
-        'users_user': 'users_user',
     },
 }
 
