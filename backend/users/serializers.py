@@ -17,6 +17,10 @@ class UserSerializer(serializers.ModelSerializer):
     stats = serializers.JSONField(read_only=True)
     # Заменяем ImageField на SerializerMethodField для правильного формирования URL
     avatar_url = serializers.SerializerMethodField() 
+    createdAt = serializers.DateTimeField(source='created_at', read_only=True)
+    updatedAt = serializers.DateTimeField(source='updated_at', read_only=True)
+    registrationDate = serializers.DateTimeField(source='registration_date', read_only=True)
+    lastLogin = serializers.DateTimeField(source='last_login', read_only=True, allow_null=True)
 
     class Meta:
         model = User
@@ -33,8 +37,12 @@ class UserSerializer(serializers.ModelSerializer):
             'stats',
             'is_staff',
             'is_superuser',
+            'createdAt',
+            'updatedAt',
+            'registrationDate',
+            'lastLogin',
         )
-        read_only_fields = ('email', 'is_premium', 'premium_expiration_date', 'hide_ads', 'is_staff', 'is_superuser')
+        read_only_fields = ('email', 'is_premium', 'premium_expiration_date', 'hide_ads', 'is_staff', 'is_superuser', 'createdAt', 'updatedAt', 'registrationDate', 'lastLogin')
 
     def get_avatar_url(self, obj):
         # obj - это экземпляр модели User

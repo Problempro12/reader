@@ -35,14 +35,14 @@ async def create_prisma_user(user):
     prisma = Prisma()
     await prisma.connect()
     try:
-        prisma_user = await prisma.users_user.create(
+        prisma_user = await prisma.user.create(
             data={
-                'id': str(user.id),
                 'email': user.email,
                 'username': user.username,
-                'is_premium': False,
-                'is_staff': user.is_staff,
-                'is_superuser': user.is_superuser,
+                'passwordHash': user.password,
+                'isPremium': user.is_premium,
+                'isStaff': user.is_staff,
+                'isSuperuser': user.is_superuser,
                 'registrationDate': user.date_joined
             }
         )

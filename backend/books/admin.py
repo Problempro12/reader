@@ -7,6 +7,7 @@ class BookAdmin(admin.ModelAdmin):
     list_filter = ('genre', 'age_category', 'is_premium')
     search_fields = ('title', 'author__name', 'description')
     readonly_fields = ('created_at', 'updated_at')
+    list_per_page = 1000
     fieldsets = (
         ('Основная информация', {
             'fields': ('title', 'author', 'description', 'cover')

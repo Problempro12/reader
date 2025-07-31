@@ -59,6 +59,10 @@ const register = async () => {
       email: email.value,
       password: password.value,
       password2: password2.value,
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
 
     console.log('Регистрация успешна:', response.data)

@@ -6,7 +6,6 @@ import masterImg from '@/assets/books/мастер-и-маргарита.webp';
 import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
 import warImg from '@/assets/books/война-и-мир-2.jpg';
 import BookOfTheWeekVoting from '@/components/BookOfTheWeekVoting.vue';
-import ReadingProgress from '@/components/ReadingProgress.vue';
 
 defineComponent({
   name: 'HomeView'
@@ -62,65 +61,58 @@ onMounted(() => {
 
 <template>
   <div class="home-page">
-    <div class="container">
-      <!-- Голосование за книгу недели -->
-      <BookOfTheWeekVoting />
-      
-      <!-- Отметка прогресса чтения -->
-      <ReadingProgress />
-      
-      <!-- Приветственный баннер -->
-      <div class="hero-section">
-        <div class="container">
-          <div class="row align-items-center min-vh-75">
-            <div class="col-lg-6" :class="{ 'fade-in': isVisible }">
-              <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
-              <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
-              <div class="d-flex gap-3">
-                <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
-                  Начать читать
-                  <i class="bi bi-arrow-right ms-2"></i>
-                </RouterLink>
-                <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
-                  Присоединиться
-                </RouterLink>
-              </div>
-            </div>
-            <div class="col-lg-6 d-none d-lg-block">
-              <div class="floating-books">
-                <img :src="masterImg" alt="Книга" class="book-1">
-                <img :src="crimeImg" alt="Книга" class="book-2">
-                <img :src="warImg" alt="Книга" class="book-3">
-              </div>
-            </div>
+    <!-- Приветственный баннер (вынесен за .container) -->
+    <div class="hero-section w-100">
+      <div class="row align-items-center min-vh-75 m-0">
+        <div class="col-lg-6 px-5 d-flex flex-column justify-content-center" :class="{ 'fade-in': isVisible }">
+          <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
+          <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
+          <div class="d-flex gap-3">
+            <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
+              Начать читать
+              <i class="bi bi-arrow-right ms-2"></i>
+            </RouterLink>
+            <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
+              Присоединиться
+            </RouterLink>
+          </div>
+        </div>
+        <div class="col-lg-6 d-none d-lg-block position-relative">
+          <div class="floating-books">
+            <img :src="masterImg" alt="Книга" class="book-1">
+            <img :src="crimeImg" alt="Книга" class="book-2">
+            <img :src="warImg" alt="Книга" class="book-3">
+          </div>
+          <div style="position: absolute; bottom: -20px; right: 24px; z-index: 10; min-width: 320px;">
+            <BookOfTheWeekVoting />
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="container">
       <!-- Статистика чтения -->
       <div class="stats-section py-5">
-        <div class="container">
-          <div class="row g-4">
-            <div class="col-md-3" v-for="(stat, index) in Object.entries(readingStats)" :key="index">
-              <div class="stat-card" :class="{ 'fade-in': isVisible }" :style="{ '--delay': index * 0.2 + 's' }">
-                <div class="stat-icon">
-                  <i :class="[
-                    'bi',
-                    index === 0 ? 'bi-book' : 
-                    index === 1 ? 'bi-file-text' :
-                    index === 2 ? 'bi-calendar-check' :
-                    'bi-clock'
-                  ]"></i>
-                </div>
-                <div class="stat-content">
-                  <h3 class="stat-value">{{ stat[1] }}</h3>
-                  <p class="stat-label">{{ 
-                    index === 0 ? 'Прочитано книг' :
-                    index === 1 ? 'Прочитано страниц' :
-                    index === 2 ? 'Дней подряд' :
-                    'Часов чтения'
-                  }}</p>
-                </div>
+        <div class="row g-4">
+          <div class="col-md-3" v-for="(stat, index) in Object.entries(readingStats)" :key="index">
+            <div class="stat-card" :class="{ 'fade-in': isVisible }" :style="{ '--delay': index * 0.2 + 's' }">
+              <div class="stat-icon">
+                <i :class="[
+                  'bi',
+                  index === 0 ? 'bi-book' : 
+                  index === 1 ? 'bi-file-text' :
+                  index === 2 ? 'bi-calendar-check' :
+                  'bi-clock'
+                ]"></i>
+              </div>
+              <div class="stat-content">
+                <h3 class="stat-value">{{ stat[1] }}</h3>
+                <p class="stat-label">{{ 
+                  index === 0 ? 'Прочитано книг' :
+                  index === 1 ? 'Прочитано страниц' :
+                  index === 2 ? 'Дней подряд' :
+                  'Часов чтения'
+                }}</p>
               </div>
             </div>
           </div>
