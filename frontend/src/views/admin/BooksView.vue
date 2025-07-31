@@ -3,10 +3,17 @@
     <div class="admin-header">
       <h2>Управление книгами</h2>
       <div class="header-buttons">
+<<<<<<< HEAD
       <button class="btn btn-primary" @click="openCreateModal">
         <i class="bi bi-plus-lg"></i>
         Добавить книгу
       </button>
+=======
+        <button class="btn btn-primary" @click="openCreateModal">
+          <i class="bi bi-plus-lg"></i>
+          Добавить книгу
+        </button>
+>>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
         <button class="btn btn-secondary" @click="handleRunImport">
           <i class="bi bi-download"></i>
           Запустить импорт
@@ -388,11 +395,19 @@ const closeDeleteModal = () => {
 
 const handleDelete = async () => {
   if (bookToDelete.value) {
+<<<<<<< HEAD
   try {
     await deleteBook(bookToDelete.value.id)
     closeDeleteModal()
       await loadBooks() // Перезагружаем книги после удаления
   } catch (err) {
+=======
+    try {
+      await deleteBook(bookToDelete.value.id)
+      closeDeleteModal()
+      await loadBooks() // Перезагружаем книги после удаления
+    } catch (err) {
+>>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
       console.error('Ошибка удаления книги:', err)
       alert('Ошибка удаления книги.')
     }

@@ -47,7 +47,11 @@ export const deleteBook = async (id: number): Promise<void> => {
 export const rateBook = async (bookId: number, rating: number): Promise<Book> => {
   const { data } = await axiosInstance.post(`books/${bookId}/rate`, { rating });
   return data;
+<<<<<<< HEAD
 }; 
+=======
+};
+>>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
 
 // Запуск скрипта импорта книг
 export const runImportScript = async (): Promise<any> => {

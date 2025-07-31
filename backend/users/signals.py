@@ -42,7 +42,7 @@ async def sync_user_async(user, is_created=False):
 def sync_user_to_prisma(sender, instance, created, **kwargs):
     """Синхронизирует пользователя Django с Prisma"""
     logger.info(f"Начинаем синхронизацию пользователя {instance.username}")
-    # asyncio.run(sync_user_async(instance, created)) # Temporarily disabled
+    asyncio.run(sync_user_async(instance, created))
 
 async def sync_all_users_async():
     """Асинхронная синхронизация всех пользователей"""

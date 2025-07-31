@@ -35,7 +35,7 @@ async def create_prisma_user(user):
     prisma = Prisma()
     await prisma.connect()
     try:
-        prisma_user = await prisma.user.create(
+        prisma_user = await prisma.users_user.create(
             data={
                 'email': user.email,
                 'username': user.username,
