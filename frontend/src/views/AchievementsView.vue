@@ -1,9 +1,27 @@
 <template>
   <div class="achievements-page">
     <div class="container mt-4 pb-5">
+      
+      <!-- Индикатор загрузки -->
+      <div v-if="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Загрузка...</span>
+        </div>
+        <p class="mt-3 text-muted">Загрузка достижений...</p>
+      </div>
+      
+      <!-- Сообщение об ошибке -->
+      <div v-else-if="error" class="alert alert-danger text-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+        <button @click="loadAchievements" class="btn btn-outline-danger btn-sm ms-3">
+          <i class="bi bi-arrow-clockwise me-1"></i>
+          Повторить
+        </button>
+      </div>
 
       <!-- Фильтры достижений -->
-      <section class="achievement-filters mb-4">
+      <section v-else class="achievement-filters mb-4">
          <div class="d-flex flex-wrap justify-content-center gap-3 mb-3">
              <button 
                 class="btn" 
@@ -49,20 +67,14 @@
              >
                  Голосование
              </button>
-               <button 
-                class="btn" 
-                :class="{ 'btn-primary': activeFilter.type === 'commenting', 'btn-outline-secondary': activeFilter.type !== 'commenting' }"
-                @click="setFilter({ type: 'commenting' })"
-             >
-                 Комментарии
-             </button>
+
          </div>
       </section>
 
       <!-- Секция статистики активности -->
       <section class="stats-section mb-5">
          <h2 class="section-title text-center">Твоя статистика</h2>
-         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
             <div class="col">
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-hourglass"></i></div>
@@ -81,6 +93,7 @@
                     </div>
                  </div>
             </div>
+
              <div class="col">
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
@@ -90,15 +103,7 @@
                     </div>
                  </div>
             </div>
-             <div class="col">
-                 <div class="stat-card">
-                    <div class="stat-icon"><i class="bi bi-chat-dots"></i></div>
-                    <div class="stat-content">
-                       <h3 class="stat-value">0</h3>
-                       <p class="stat-label">комментариев</p>
-                    </div>
-                 </div>
-            </div>
+
             <div class="col">
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-trophy"></i></div>
@@ -113,7 +118,17 @@
 
       <!-- Секция достижений -->
       <section class="achievements-section mb-5">
-        <h1 class="section-title text-center">Мои достижения</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h1 class="section-title mb-0">Мои достижения</h1>
+          <button 
+            @click="refreshAchievements" 
+            :disabled="loading"
+            class="btn btn-outline-primary"
+            title="Обновить достижения"
+          >
+            <i class="bi bi-arrow-clockwise" :class="{ 'spin': loading }"></i>
+          </button>
+        </div>
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
           <!-- Используем v-for для отображения отфильтрованных достижений -->
           <div class="col" v-for="achievement in displayedAchievements" :key="achievement.id">
@@ -165,7 +180,7 @@
                       </div>
                       <span class="progress-text">10% до уровня 2</span>
                   </div>
-                  <p class="level-hint">Сделай Х отметок и Y комментариев для следующего уровня.</p>
+                  <p class="level-hint">Сделай больше отметок для следующего уровня.</p>
              </div>
           </div>
       </section>
@@ -174,34 +189,17 @@
       <section class="recommendations-section">
          <h2 class="section-title text-center">Бери и делай</h2>
          <div class="row row-cols-1 row-cols-md-3 g-4">
-             <div class="col">
+             <div class="col" v-for="recommendation in recommendations" :key="recommendation.id">
                  <div class="recommendation-card">
-                     <div class="recommendation-icon"><i class="bi bi-bookmark-star"></i></div>
+                     <div class="recommendation-icon"><i :class="recommendation.iconClass"></i></div>
                      <div class="recommendation-info">
-                         <h3 class="recommendation-title">Час чтения</h3>
-                         <p class="recommendation-description">Сделай еще 3 отметки</p>
+                         <h3 class="recommendation-title">{{ recommendation.title }}</h3>
+                         <p class="recommendation-description">{{ recommendation.description }}</p>
+                         <div v-if="recommendation.progress" class="progress mt-2" style="height: 6px;">
+                           <div class="progress-bar" :style="{ width: recommendation.progress + '%' }"></div>
+                         </div>
                      </div>
-                      <button class="btn btn-primary">К книге</button>
-                 </div>
-             </div>
-              <div class="col">
-                 <div class="recommendation-card">
-                     <div class="recommendation-icon"><i class="bi bi-star-half"></i></div>
-                     <div class="recommendation-info">
-                         <h3 class="recommendation-title">Книжный судья</h3>
-                         <p class="recommendation-description">Оцени 10 книг</p>
-                     </div>
-                      <button class="btn btn-primary">Оценить</button>
-                 </div>
-             </div>
-               <div class="col">
-                 <div class="recommendation-card">
-                     <div class="recommendation-icon"><i class="bi bi-chat"></i></div>
-                     <div class="recommendation-info">
-                         <h3 class="recommendation-title">Болтун</h3>
-                         <p class="recommendation-description">Напиши 10 комментариев</p>
-                     </div>
-                      <button class="btn btn-primary">Комментировать</button>
+                      <button class="btn btn-primary">{{ recommendation.buttonText }}</button>
                  </div>
              </div>
          </div>
@@ -234,7 +232,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue'
+import { fetchUserAchievements, fetchAllAchievements, checkAchievements } from '@/api/achievements'
+import type { Achievement as ApiAchievement, UserAchievement } from '@/api/achievements'
 
 interface Achievement {
   id: number;
@@ -245,157 +245,19 @@ interface Achievement {
   progress?: number; // 0-100 for not completed
   progressText?: string; // e.g. "3/4 отметок"
   completionDate?: string; // e.g. "Получено 01.06.2025"
-  type?: 'reading' | 'voting' | 'commenting'; // Добавляем тип достижения
+  type?: 'reading' | 'voting'; // Добавляем тип достижения
 }
 
-// Пример данных достижений
-const achievements = ref<Achievement[]>([
-  {
-    id: 1,
-    title: 'Первый шаг',
-    description: 'Зарегистрируйся в приложении',
-    iconClass: 'bi bi-award',
-    completed: true,
-    completionDate: 'Получено 01.06.2025',
-     type: 'reading'
-  },
-   {
-    id: 2,
-    title: 'Книжный новичок',
-    description: 'Сделай 4 отметки (1 час)',
-    iconClass: 'bi bi-book',
-    completed: false,
-    progress: 25,
-    progressText: '1/4 отметки',
-    type: 'reading'
-  },
-  {
-    id: 3,
-    title: 'Книжный судья',
-    description: 'Оцени 10 книг',
-    iconClass: 'bi bi-star',
-    completed: false,
-    progress: 60,
-    progressText: '6/10 книг',
-    type: 'voting' // Пример типа
-  },
-   {
-    id: 4,
-    title: 'Голос недели',
-    description: 'Проголосуй 5 раз за книги недели',
-    iconClass: 'bi bi-check-circle',
-    completed: true,
-    completionDate: 'Получено 05.06.2025',
-     type: 'voting'
-  },
-   {
-    id: 5,
-    title: 'Болтун',
-    description: 'Напиши 10 комментариев',
-    iconClass: 'bi bi-chat-dots',
-    completed: false,
-    progress: 30,
-    progressText: '3/10 комментариев',
-    type: 'commenting' // Пример типа
-  },
-   {
-    id: 6,
-    title: 'Король недели',
-    description: 'Стань лидером в жанре или категории',
-    iconClass: 'bi bi-crown',
-    completed: false,
-    progress: 0,
-    progressText: 'Пока нет прогресса',
-     type: 'reading'
-  },
-   {
-    id: 7,
-    title: 'Марафон',
-    description: 'Сделай 20 отметок за неделю',
-    iconClass: 'bi bi-stopwatch',
-    completed: false,
-    progress: 10,
-    progressText: '2/20 отметок',
-     type: 'reading'
-  },
-   {
-    id: 8,
-    title: 'Фанат жанра',
-    description: 'Прочитай 5 книг одного жанра',
-    iconClass: 'bi bi-eyeglasses',
-    completed: false,
-    progress: 40,
-    progressText: '2/5 книг',
-     type: 'reading'
-  },
-    {
-    id: 9,
-    title: 'Первая рецензия',
-    description: 'Напиши первую рецензию на книгу',
-    iconClass: 'bi bi-pencil-square',
-    completed: true,
-    completionDate: 'Получено 10.06.2025',
-     type: 'commenting'
-  },
-     {
-    id: 10,
-    title: 'Книжный червь',
-    description: 'Прочитай 10 книг',
-    iconClass: 'bi bi-book-fill',
-    completed: false,
-    progress: 70,
-    progressText: '7/10 книг',
-     type: 'reading'
-  },
-      {
-    id: 11,
-    title: 'Ночной читатель',
-    description: 'Сделай отметку о чтении после полуночи',
-    iconClass: 'bi bi-moon-stars',
-    completed: false,
-    progress: 0,
-    progressText: 'Не выполнено',
-     type: 'reading'
-  },
-       {
-    id: 12,
-    title: 'Ранняя пташка',
-    description: 'Сделай отметку о чтении до 6 утра',
-    iconClass: 'bi bi-sunrise',
-    completed: false,
-    progress: 0,
-    progressText: 'Не выполнено',
-     type: 'reading'
-  },
-        {
-    id: 13,
-    title: 'Постоянство',
-    description: 'Читай каждый день в течение недели',
-    iconClass: 'bi bi-calendar-check',
-    completed: true,
-    completionDate: 'Получено 15.06.2025',
-     type: 'reading'
-  },
-         {
-    id: 14,
-    title: 'Спринтер',
-    description: 'Сделай 5 отметок за один день',
-    iconClass: 'bi bi-lightning',
-    completed: true,
-    completionDate: 'Получено 18.06.2025',
-     type: 'reading'
-  },
-          {
-    id: 15,
-    title: 'Мастер жанров',
-    description: 'Прочитай книги из 5 разных жанров',
-    iconClass: 'bi bi-collection',
-    completed: false,
-    progress: 80,
-    progressText: '4/5 жанров',
-     type: 'reading'
-  },
-]);
+// Состояние компонента
+const loading = ref(false)
+const error = ref<string | null>(null)
+
+// Данные достижений
+const allAchievements = ref<ApiAchievement[]>([])
+const userAchievements = ref<UserAchievement[]>([])
+
+// Преобразованные данные для отображения
+const achievements = ref<Achievement[]>([])
 
 const showModal = ref(false);
 const selectedAchievement = ref<Achievement | null>(null);
@@ -414,7 +276,7 @@ const hideAchievementDetails = () => {
 // Логика фильтрации
 const activeFilter = ref({
   status: 'all', // 'all', 'completed', 'in-progress'
-  type: 'all' // 'all', 'reading', 'voting', 'commenting'
+  type: 'all' // 'all', 'reading', 'voting'
 });
 
 const setFilter = (filter: { status?: string; type?: string }) => {
@@ -443,9 +305,153 @@ const completedAchievementsCount = computed(() => {
   return achievements.value.filter(achievement => achievement.completed).length;
 });
 
+// Рекомендации для достижений
+const recommendations = computed(() => {
+  const incompleteAchievements = achievements.value.filter(a => !a.completed)
+  return incompleteAchievements.slice(0, 3).map(achievement => ({
+    id: achievement.id,
+    title: achievement.title,
+    description: achievement.description,
+    iconClass: achievement.iconClass,
+    progress: 0,
+    buttonText: getButtonTextForType(achievement.type)
+  }))
+})
+
+// Функция получения текста кнопки по типу достижения
+const getButtonTextForType = (type?: string): string => {
+  const buttonMap: Record<string, string> = {
+    'reading': 'К книге',
+    'voting': 'Оценить'
+  }
+  return buttonMap[type || 'reading'] || 'Перейти'
+}
+
+// Вычисляемые свойства для статистики
+const completedCount = computed(() => {
+  return achievements.value.filter(a => a.completed).length
+})
+
+const totalCount = computed(() => {
+  return achievements.value.length
+})
+
+const completionPercentage = computed(() => {
+  if (totalCount.value === 0) return 0
+  return Math.round((completedCount.value / totalCount.value) * 100)
+})
+
+const currentLevel = computed(() => {
+  return Math.floor(completedCount.value / 5) + 1
+})
+
+const nextLevelProgress = computed(() => {
+  const achievementsForNextLevel = (currentLevel.value * 5) - completedCount.value
+  return Math.max(0, 5 - achievementsForNextLevel)
+})
+
+
+
 const toggleShowAll = () => {
   showAll.value = !showAll.value;
 };
+
+// Загрузка данных при монтировании компонента
+onMounted(async () => {
+  await loadAchievements()
+})
+
+// Функция загрузки достижений
+const loadAchievements = async () => {
+  try {
+    loading.value = true
+    error.value = null
+    
+    // Загружаем все данные параллельно
+     const [allAchievementsData, userAchievementsData] = await Promise.all([
+       fetchAllAchievements(),
+       fetchUserAchievements()
+     ])
+     
+     
+     
+     allAchievements.value = allAchievementsData
+     userAchievements.value = userAchievementsData
+    
+    // Преобразуем данные для отображения
+    transformAchievementsData()
+    
+    // Проверяем новые достижения
+    await checkAchievements()
+    
+  } catch (err) {
+    console.error('Ошибка загрузки достижений:', err)
+    error.value = 'Не удалось загрузить достижения'
+  } finally {
+    loading.value = false
+  }
+}
+
+// Функция преобразования данных достижений
+ const transformAchievementsData = () => {
+    
+    
+    if (!Array.isArray(allAchievements.value)) {
+      console.error('allAchievements.value не является массивом:', allAchievements.value)
+      achievements.value = []
+      return
+    }
+    
+    if (!Array.isArray(userAchievements.value)) {
+      console.error('userAchievements.value не является массивом:', userAchievements.value)
+      userAchievements.value = []
+    }
+    
+    achievements.value = allAchievements.value.map(achievement => {
+      const userAchievement = userAchievements.value.find(ua => ua.achievement.id === achievement.id)
+      
+      return {
+        id: achievement.id,
+        title: achievement.title,
+        description: achievement.description,
+        iconClass: getCategoryIcon(achievement.category),
+        completed: !!userAchievement,
+        progress: userAchievement ? 100 : 0,
+        progressText: userAchievement ? 'Выполнено' : 'Не выполнено',
+        completionDate: userAchievement ? 
+          new Date(userAchievement.earned_at).toLocaleDateString('ru-RU') : 
+          undefined,
+        type: mapCategoryToType(achievement.category)
+      }
+    })
+  }
+
+// Функция получения иконки по категории
+const getCategoryIcon = (category: string): string => {
+  const iconMap: Record<string, string> = {
+    'READING': 'bi bi-book',
+    'BOOKS': 'bi bi-collection',
+    'SOCIAL': 'bi bi-people',
+    'OTHER': 'bi bi-award'
+  }
+  return iconMap[category] || 'bi bi-award'
+}
+
+// Функция преобразования категории в тип
+const mapCategoryToType = (category: string): 'reading' | 'voting' => {
+  const typeMap: Record<string, 'reading' | 'voting'> = {
+    'READING': 'reading',
+    'BOOKS': 'reading',
+    'SOCIAL': 'reading',
+    'OTHER': 'voting'
+  }
+  return typeMap[category] || 'reading'
+}
+
+// Функция обновления достижений
+const refreshAchievements = async () => {
+  await loadAchievements()
+}
 
 </script>
 
@@ -943,4 +949,14 @@ const toggleShowAll = () => {
   color: #2c3e50;
   border-color: #a8e6cf;
 }
-</style> 
+
+/* Анимация вращения для кнопки обновления */
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+</style>

@@ -3,7 +3,7 @@ import router from '@/router';
 
 // Создаем экземпляр axios с базовым URL
 const axiosInstance = axios.create({
-  baseURL: '/api/',
+  baseURL: 'http://127.0.0.1:8000/api/',
 });
 
 // Добавляем интерсептор для автоматического добавления токена
@@ -82,4 +82,4 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export default axiosInstance; 
+export default axiosInstance;

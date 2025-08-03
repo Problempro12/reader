@@ -49,31 +49,49 @@ const login = async () => {
   
   try {
     console.log('Отправка запроса на сервер...')
-    const response = await axiosInstance.post('users/login/', {
+    const response = await axiosInstance.post('users/token/', {
       email: email.value,
       password: password.value
     })
     
     console.log('Ответ от сервера:', response.data)
-    console.log('Проверка полей пользователя:', {
-      hasUser: !!response.data.user,
-      is_staff: response.data.user?.is_staff,
-      is_superuser: response.data.user?.is_superuser
-    })
+
     
-    // Проверяем наличие полей is_staff и is_superuser
-    if (!response.data.user || typeof response.data.user.is_staff === 'undefined' || typeof response.data.user.is_superuser === 'undefined') {
+    // Проверяем наличие токенов и данных пользователя
+    if (!response.data.access || !response.data.refresh) {
+      console.error('Отсутствуют токены в ответе сервера')
+      error.value = 'Ошибка авторизации: отсутствуют токены'
+      return
+    }
+    
+
+    
+    console.log('Сохранение данных в localStorage...')
+    // Обновляем токен в axios для последующих запросов
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`
+
+    // Получаем данные пользователя отдельным запросом
+    const userResponse = await axiosInstance.get('users/me/')
+    const userData = userResponse.data
+
+    console.log('Проверка полей пользователя:', {
+      hasUser: !!userData,
+      is_staff: userData?.is_staff,
+      is_superuser: userData?.is_superuser
+    })
+
+    // Проверяем наличие полей is_staff или is_superuser
+    if (!userData || typeof userData.is_staff === 'undefined' || typeof userData.is_superuser === 'undefined') {
       console.error('Отсутствуют поля is_staff или is_superuser в ответе сервера')
       error.value = 'Ошибка авторизации: отсутствуют необходимые данные'
       return
     }
-    
-    console.log('Сохранение данных в localStorage...')
-    // Сохраняем токены в localStorage
+
+    // Сохраняем токены и данные пользователя в localStorage
     localStorage.setItem('authToken', response.data.access)
     localStorage.setItem('refreshToken', response.data.refresh)
-    localStorage.setItem('user', JSON.stringify(response.data.user))
-    
+    localStorage.setItem('user', JSON.stringify(userData))
+
     // Проверяем, что данные сохранились правильно
     const savedUser = JSON.parse(localStorage.getItem('user') || '{}')
     console.log('Сохраненные данные пользователя:', savedUser)
@@ -81,20 +99,17 @@ const login = async () => {
       is_staff: savedUser.is_staff,
       is_superuser: savedUser.is_superuser
     })
-    
+
     console.log('Обновление состояния store...')
     // Обновляем состояние store
-    userStore.setAuthData(response.data.access, response.data.user)
-    
+    userStore.setAuthData(response.data.access, userData)
+
     // Проверяем данные в store
     console.log('Данные в store после обновления:', {
       userData: userStore.userData,
       isAdmin: userStore.userData?.is_staff || userStore.userData?.is_superuser
     })
-    
-    // Обновляем токен в axios
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${response.data.access}`
-    
+
     // Перенаправляем на предыдущий маршрут или на главную
     const redirectPath = route.query.redirect as string || '/'
     console.log('Перенаправление на:', redirectPath)
@@ -215,4 +230,4 @@ const login = async () => {
     transform: scale(1);
   }
 }
-</style> 
+</style>

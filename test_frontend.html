@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест фронтенда</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; }
+        .result { background: #f5f5f5; padding: 10px; margin: 10px 0; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Тест сортировки на фронтенде</h1>
+    
+    <div class="test-section">
+        <h2>Тест API напрямую</h2>
+        <button onclick="testAPI()">Тестировать API</button>
+        <div id="api-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Тест через axios (как на фронтенде)</h2>
+        <button onclick="testAxios()">Тестировать Axios</button>
+        <div id="axios-result" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Инструкции для ручного тестирования</h2>
+        <ol>
+            <li>Откройте <a href="http://localhost:5175/books" target="_blank">страницу книг</a></li>
+            <li>Откройте консоль разработчика (F12)</li>
+            <li>Выберите сортировку "По рейтингу" в выпадающем списке</li>
+            <li>Проверьте в консоли, какие запросы отправляются</li>
+            <li>Проверьте, изменился ли порядок книг</li>
+        </ol>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        async function testAPI() {
+            const resultDiv = document.getElementById('api-result');
+            resultDiv.innerHTML = 'Тестирование...';
+            
+            try {
+                // Тест без сортировки
+                const response1 = await fetch('http://127.0.0.1:8000/api/books/?limit=5');
+                const data1 = await response1.json();
+                
+                // Тест с сортировкой
+                const response2 = await fetch('http://127.0.0.1:8000/api/books/?sortBy=rating&limit=5');
+                const data2 = await response2.json();
+                
+                const order1 = data1.books.map(b => `${b.id}(${b.rating})`);
+                const order2 = data2.books.map(b => `${b.id}(${b.rating})`);
+                
+                let html = '<h3>Результаты API:</h3>';
+                html += `<p><strong>Без сортировки:</strong> ${order1.join(', ')}</p>`;
+                html += `<p><strong>С сортировкой:</strong> ${order2.join(', ')}</p>`;
+                
+                if (JSON.stringify(order1) === JSON.stringify(order2)) {
+                    html += '<p class="error">❌ Порядок одинаковый - сортировка не работает!</p>';
+                } else {
+                    html += '<p class="success">✅ Порядок разный - сортировка работает!</p>';
+                }
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Ошибка: ${error.message}</p>`;
+            }
+        }
+        
+        async function testAxios() {
+            const resultDiv = document.getElementById('axios-result');
+            resultDiv.innerHTML = 'Тестирование...';
+            
+            try {
+                // Создаем экземпляр axios как на фронтенде
+                const axiosInstance = axios.create({
+                    baseURL: 'http://127.0.0.1:8000/api/',
+                    timeout: 10000,
+                });
+                
+                // Тест без сортировки
+                const response1 = await axiosInstance.get('books/', { params: { limit: 5 } });
+                const data1 = response1.data;
+                
+                // Тест с сортировкой
+                const response2 = await axiosInstance.get('books/', { params: { sortBy: 'rating', limit: 5 } });
+                const data2 = response2.data;
+                
+                const order1 = data1.books.map(b => `${b.id}(${b.rating})`);
+                const order2 = data2.books.map(b => `${b.id}(${b.rating})`);
+                
+                let html = '<h3>Результаты Axios:</h3>';
+                html += `<p><strong>Без сортировки:</strong> ${order1.join(', ')}</p>`;
+                html += `<p><strong>С сортировкой:</strong> ${order2.join(', ')}</p>`;
+                
+                if (JSON.stringify(order1) === JSON.stringify(order2)) {
+                    html += '<p class="error">❌ Порядок одинаковый - сортировка не работает!</p>';
+                } else {
+                    html += '<p class="success">✅ Порядок разный - сортировка работает!</p>';
+                }
+                
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">Ошибка: ${error.message}</p>`;
+            }
+        }
+        
+        // Автоматический тест при загрузке
+        window.onload = function() {
+            testAPI();
+            setTimeout(testAxios, 1000);
+        };
+    </script>
+</body>
+</html>

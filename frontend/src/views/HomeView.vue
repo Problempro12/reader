@@ -5,10 +5,15 @@ import { RouterLink } from 'vue-router'
 import masterImg from '@/assets/books/мастер-и-маргарита.webp';
 import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
 import warImg from '@/assets/books/война-и-мир-2.jpg';
-import BookOfTheWeekVoting from '@/components/BookOfTheWeekVoting.vue';
+import TopBooksVoting from '@/components/TopBooksVoting.vue';
+import BookOfWeek from '@/components/BookOfWeek.vue';
 
 defineComponent({
-  name: 'HomeView'
+  name: 'HomeView',
+  components: {
+    TopBooksVoting,
+    BookOfWeek,
+  },
 })
 
 // Временные данные для демонстрации
@@ -54,6 +59,17 @@ const readingStats = ref({
 
 const isVisible = ref(false)
 
+// Обработка ошибок загрузки изображений
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Предотвращаем бесконечный цикл ошибок
+  if (img.src.includes('placeholder-book.svg')) {
+    return;
+  }
+  img.src = '/placeholder-book.svg';
+  img.onerror = null; // Убираем обработчик ошибок для заглушки
+};
+
 onMounted(() => {
   isVisible.value = true
 })
@@ -62,8 +78,8 @@ onMounted(() => {
 <template>
   <div class="home-page">
     <!-- Приветственный баннер (вынесен за .container) -->
-    <div class="hero-section w-100">
-      <div class="row align-items-center min-vh-75 m-0">
+    <div class="hero-section w-100 position-relative">
+      <div class="row align-items-center min-vh-100 m-0">
         <div class="col-lg-6 px-5 d-flex flex-column justify-content-center" :class="{ 'fade-in': isVisible }">
           <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
           <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
@@ -83,14 +99,27 @@ onMounted(() => {
             <img :src="crimeImg" alt="Книга" class="book-2">
             <img :src="warImg" alt="Книга" class="book-3">
           </div>
-          <div style="position: absolute; bottom: -20px; right: 24px; z-index: 10; min-width: 320px;">
-            <BookOfTheWeekVoting />
+        </div>
+      </div>
+      <!-- Книга недели и блок голосования в самом низу hero-секции -->
+      <div style="position: absolute; bottom: 40px; left: 0; right: 0; z-index: 10;">
+        <div class="container">
+          <div class="row">
+            <div class="col-lg-6">
+              <BookOfWeek />
+            </div>
+            <div class="col-lg-6 d-flex justify-content-end">
+              <div style="min-width: 320px;">
+                <TopBooksVoting />
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <div class="container">
+      
       <!-- Статистика чтения -->
       <div class="stats-section py-5">
         <div class="row g-4">
@@ -127,7 +156,7 @@ onMounted(() => {
             <div v-for="book in featuredBooks" :key="book.id" class="col-md-4">
               <div class="book-card" :class="{ 'fade-in': isVisible }">
                 <div class="book-cover">
-                  <img :src="book.cover" :alt="book.title">
+                  <img :src="book.cover" :alt="book.title" @error="handleImageError">
                   <div class="book-overlay">
                     <RouterLink :to="`/app/books/${book.id}`" class="btn btn-light">
                       Читать

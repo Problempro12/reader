@@ -12,9 +12,14 @@
         ★
       </span>
     </div>
-    <div class="rating-info" v-if="averageRating > 0">
-      <span class="average-rating">{{ averageRating.toFixed(1) }}</span>
-      <span class="rating-count">({{ ratingCount }} оценок)</span>
+    <div class="rating-info">
+      <div v-if="averageRating > 0">
+        <span class="average-rating">{{ averageRating.toFixed(1) }}</span>
+        <span class="rating-count">({{ ratingCount }} оценок)</span>
+      </div>
+      <div v-if="userRating > 0" class="user-rating-info">
+        <span class="user-rating-text">Ваша оценка: {{ userRating }} ★</span>
+      </div>
     </div>
   </div>
 </template>
@@ -44,20 +49,41 @@ export default {
   methods: {
     async fetchRating() {
       try {
-        const response = await axios.get(`/api/books/${this.bookId}/rating/`);
-        this.userRating = response.data.user_rating;
-        this.averageRating = response.data.average_rating;
-        this.ratingCount = response.data.rating_count;
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        
+        const response = await axios.get(`/api/books/${this.bookId}/rating/`, {
+          headers
+        });
+        this.userRating = response.data.user_rating || 0;
+        this.averageRating = response.data.average_rating || 0;
+        this.ratingCount = response.data.rating_count || 0;
       } catch (error) {
         console.error('Ошибка при получении рейтинга:', error);
       }
     },
     async rateBook(rating) {
       try {
-        await axios.post(`/api/books/${this.bookId}/rate/`, { rating });
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert('Для оценки книги необходимо войти в систему');
+          return;
+        }
+        
+        await axios.post(`/api/books/${this.bookId}/rate/`, 
+          { rating },
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
+        );
         await this.fetchRating();
       } catch (error) {
         console.error('Ошибка при оценке книги:', error);
+        if (error.response?.status === 401) {
+          alert('Для оценки книги необходимо войти в систему');
+        }
       }
     },
     resetHover() {
@@ -90,15 +116,29 @@ export default {
   color: #ffd700;
 }
 
-.star:hover {
-  transform: scale(1.1);
-}
+
 
 .rating-info {
   display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  color: #666;
+}
+
+.rating-info > div {
+  display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: #666;
+}
+
+.user-rating-info {
+  font-size: 0.9rem;
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.user-rating-text {
+  color: #4a90e2;
 }
 
 .average-rating {
@@ -109,4 +149,4 @@ export default {
 .rating-count {
   font-size: 0.9rem;
 }
-</style> 
+</style>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Тест сортировки книг</title>
+</head>
+<body>
+    <h1>Тест сортировки книг</h1>
+    <p>Откройте консоль разработчика (F12) и выполните следующие команды:</p>
+    
+    <h2>1. Тест без сортировки:</h2>
+    <pre>
+fetch('http://127.0.0.1:8000/api/books/?limit=5')
+  .then(r => r.json())
+  .then(data => {
+    console.log('Без сортировки:');
+    data.books.forEach(b => console.log(`ID: ${b.id}, Title: ${b.title.substring(0,30)}, Rating: ${b.rating}`));
+  });
+    </pre>
+    
+    <h2>2. Тест с сортировкой по рейтингу:</h2>
+    <pre>
+fetch('http://127.0.0.1:8000/api/books/?sortBy=rating&limit=5')
+  .then(r => r.json())
+  .then(data => {
+    console.log('С сортировкой по рейтингу:');
+    data.books.forEach(b => console.log(`ID: ${b.id}, Title: ${b.title.substring(0,30)}, Rating: ${b.rating}`));
+  });
+    </pre>
+    
+    <h2>3. Тест фронтенда:</h2>
+    <p>Перейдите на <a href="http://localhost:5175/books" target="_blank">http://localhost:5175/books</a></p>
+    <p>Откройте консоль и попробуйте изменить сортировку на "По рейтингу"</p>
+    
+    <script>
+        // Автоматический тест
+        console.log('=== Автоматический тест API ===');
+        
+        // Тест без сортировки
+        fetch('http://127.0.0.1:8000/api/books/?limit=5')
+          .then(r => r.json())
+          .then(data => {
+            console.log('Без сортировки:');
+            data.books.forEach(b => console.log(`ID: ${b.id}, Title: ${b.title.substring(0,30)}, Rating: ${b.rating}`));
+            
+            // Тест с сортировкой
+            return fetch('http://127.0.0.1:8000/api/books/?sortBy=rating&limit=5');
+          })
+          .then(r => r.json())
+          .then(data => {
+            console.log('\nС сортировкой по рейтингу:');
+            data.books.forEach(b => console.log(`ID: ${b.id}, Title: ${b.title.substring(0,30)}, Rating: ${b.rating}`));
+          })
+          .catch(err => console.error('Ошибка:', err));
+    </script>
+</body>
+</html>

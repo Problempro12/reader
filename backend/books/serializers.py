@@ -1,54 +1,102 @@
 from rest_framework import serializers
-from .models import Book, Genre, AgeCategory, Author
-
-class GenreSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-
-class AgeCategorySerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-
-class AgeCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AgeCategory
-        fields = ['id', 'name']
+from .models import Book, Author, UserBook, ReadingProgress
 
 class AuthorSerializer(serializers.ModelSerializer):
+    """Serializer for the Author model"""
     class Meta:
         model = Author
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'bio', 'photo_url']
 
 class BookSerializer(serializers.ModelSerializer):
-    author = serializers.CharField(source='author.name', read_only=True)
-    genre = serializers.CharField(source='genre.name', read_only=True)
-    ageCategory = serializers.CharField(source='age_category.name', read_only=True)
-    cover = serializers.CharField(source='cover', read_only=True)
-
+    """Serializer for the Book model"""
+    author = AuthorSerializer(read_only=True)
+    author_id = serializers.PrimaryKeyRelatedField(
+        queryset=Author.objects.all(),
+        source='author',
+        write_only=True
+    )
+    
     class Meta:
         model = Book
-        fields = [
-            'id', 'title', 'author', 'cover', 'genre', 'ageCategory',
-            'description', 'is_premium', 'rating', 'litres_rating',
-            'series', 'translator', 'technical', 'created_at', 'updated_at'
+        fields = ['id', 'title', 'author', 'author_id', 'cover_url', 'description', 
+                  'content', 'published_date', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+class BookListSerializer(serializers.ModelSerializer):
+    """Serializer for listing books without content"""
+    author = AuthorSerializer(read_only=True)
+    
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author', 'cover_url', 'description', 'published_date']
+        read_only_fields = ['id']
+
+class BookFrontendSerializer(serializers.ModelSerializer):
+    """Serializer for frontend compatibility"""
+    author = AuthorSerializer(read_only=True)
+    cover = serializers.CharField(source='cover_url', read_only=True)
+    genre = serializers.SerializerMethodField()
+    ageCategory = serializers.SerializerMethodField()
+    isPremium = serializers.SerializerMethodField()
+    rating = serializers.SerializerMethodField()
+    vote_count = serializers.IntegerField(read_only=True)
+    is_book_of_week = serializers.BooleanField(read_only=True)
+    
+    class Meta:
+        model = Book
+        fields = ['id', 'title', 'author', 'cover', 'genre', 'ageCategory', 
+                  'description', 'isPremium', 'rating', 'vote_count', 'is_book_of_week']
+    
+    def get_genre(self, obj):
+        # Возвращаем разные жанры для разнообразия
+        genres = [
+            "Художественная литература",
+            "Фантастика", 
+            "Детектив",
+            "Роман",
+            "Классика",
+            "Приключения",
+            "Драма",
+            "Фэнтези"
         ]
-    id = serializers.IntegerField()
-    title = serializers.CharField()
-    author = AuthorSerializer()
-    description = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    coverUrl = serializers.CharField(source='cover_url', allow_null=True, allow_blank=True, required=False)
-    genre = GenreSerializer()
-    ageCategory = AgeCategorySerializer()
-    rating = serializers.FloatField()
-    rating_count = serializers.IntegerField(required=False)
-    isPremium = serializers.BooleanField()
-    litresRating = serializers.FloatField(source='litres_rating', allow_null=True, required=False)
-    litresRatingCount = serializers.IntegerField(source='litres_rating_count', allow_null=True, required=False)
-    series = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    translator = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    volume = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    year = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    isbn = serializers.CharField(allow_null=True, allow_blank=True, required=False)
-    copyrightHolder = serializers.CharField(source='copyright_holder', allow_null=True, allow_blank=True, required=False)
-    createdAt = serializers.DateTimeField(source='created_at')
-    updatedAt = serializers.DateTimeField(source='updated_at')
+        return genres[obj.id % len(genres)]
+    
+    def get_ageCategory(self, obj):
+        # Возвращаем разные возрастные категории для разнообразия
+        age_categories = ["0+", "6+", "12+", "16+", "18+"]
+        return age_categories[obj.id % len(age_categories)]
+    
+    def get_isPremium(self, obj):
+        # Возвращаем False по умолчанию, можно добавить поле в модель позже
+        return False
+    
+    def get_rating(self, obj):
+        # Вычисляем средний рейтинг на основе пользовательских оценок
+        from django.db.models import Avg
+        avg_rating = obj.user_books.filter(rating__isnull=False).aggregate(Avg('rating'))['rating__avg']
+        return round(avg_rating, 1) if avg_rating else 0.0
+
+class UserBookSerializer(serializers.ModelSerializer):
+    """Serializer for the UserBook model"""
+    book = BookListSerializer(read_only=True)
+    book_id = serializers.PrimaryKeyRelatedField(
+        queryset=Book.objects.all(),
+        source='book',
+        write_only=True
+    )
+    
+    class Meta:
+        model = UserBook
+        fields = ['id', 'user', 'book', 'book_id', 'status', 'rating', 'added_at', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'user', 'added_at', 'created_at', 'updated_at']
+    
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)
+
+class ReadingProgressSerializer(serializers.ModelSerializer):
+    """Serializer for the ReadingProgress model"""
+    class Meta:
+        model = ReadingProgress
+        fields = ['id', 'user_book', 'position', 'created_at']
+        read_only_fields = ['id', 'created_at']

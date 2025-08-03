@@ -1,17 +1,13 @@
-from django.urls import path
-from . import views
-from .views import ImportBooksView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import BookViewSet, AuthorViewSet, UserBookViewSet, ReadingProgressViewSet, BookListView
 
-app_name = 'books'
+router = DefaultRouter()
+router.register(r'', BookViewSet)
+router.register(r'authors', AuthorViewSet)
+router.register(r'user-books', UserBookViewSet, basename='user-book')
+router.register(r'reading-progress', ReadingProgressViewSet, basename='reading-progress')
 
 urlpatterns = [
-    path('', views.BookListView.as_view(), name='book-list'),
-    path('<int:pk>/', views.BookDetailView.as_view(), name='book-detail'),
-    path('<int:pk>/rating/', views.BookRatingView.as_view(), name='book-rating'),
-    path('<int:pk>/rate/', views.BookRateView.as_view(), name='book-rate'),
-    path('scrape-litres/', views.ScrapeLitresView.as_view(), name='scrape-litres'),
-    path('run-import-script/', views.RunImportBooksView.as_view(), name='run-import-script'),
-    path('genres/', views.GenreListView.as_view(), name='genre-list'),
-    path('age-categories/', views.AgeCategoryListView.as_view(), name='age-category-list'),
-    path('run-import-script/', ImportBooksView.as_view(), name='run-import-script'),
+    path('', include(router.urls)),
 ]

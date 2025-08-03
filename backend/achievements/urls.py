@@ -1,9 +1,12 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import AchievementViewSet, UserAchievementViewSet, CheckAchievementsView
 
-app_name = 'achievements'
+router = DefaultRouter()
+router.register(r'achievements', AchievementViewSet)
+router.register(r'user-achievements', UserAchievementViewSet, basename='user-achievement')
 
 urlpatterns = [
-    path('', views.AchievementListView.as_view(), name='achievement-list'),
-    path('my/', views.UserAchievementListView.as_view(), name='user-achievement-list'),
-] 
+    path('', include(router.urls)),
+    path('check/', CheckAchievementsView.as_view(), name='check-achievements'),
+]

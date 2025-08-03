@@ -40,8 +40,14 @@
         
         <div class="d-flex align-items-center gap-3">
           <div class="search-box">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Поиск книг..." class="form-control">
+            <i class="bi bi-search" @click="handleSearch"></i>
+            <input 
+              type="text" 
+              placeholder="Поиск книг..." 
+              class="form-control"
+              v-model="searchQuery"
+              @keyup.enter="handleSearch"
+            >
           </div>
           
           <div class="nav-buttons" v-if="!isLoggedIn">
@@ -73,14 +79,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia';
 import axios from 'axios';
 
 const isMenuOpen = ref(false)
 const isScrolled = ref(false)
+const searchQuery = ref('')
 const userStore = useUserStore()
+const router = useRouter()
 
 // Используем storeToRefs для сохранения реактивности при деструктурировании
 const { isLoggedIn, userData, userInitials } = storeToRefs(userStore);
@@ -122,6 +130,17 @@ watch(isLoggedIn, (newValue, oldValue) => {
         fetchUserData();
     }
 });
+
+// Функция для обработки поиска
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({
+      path: '/books',
+      query: { search: searchQuery.value.trim() }
+    });
+    searchQuery.value = ''; // Очищаем поле после поиска
+  }
+};
 
 // Вычисляемое свойство для определения URL отображаемого аватара
 const displayedAvatarUrl = computed(() => {
@@ -245,6 +264,12 @@ const handleAvatarUpload = async (event: Event) => {
   top: 50%;
   transform: translateY(-50%);
   color: #a8e6cf;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.search-box i:hover {
+  color: #8cd3b0;
 }
 
 .search-box input {
@@ -392,4 +417,4 @@ const handleAvatarUpload = async (event: Event) => {
     margin: 0.25rem 0;
   }
 }
-</style> 
+</style>

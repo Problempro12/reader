@@ -16,8 +16,7 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import AdminBooksView from '@/views/admin/BooksView.vue'
 import TermsOfUseView from '@/views/TermsOfUseView.vue'
 import ContactView from '@/views/ContactView.vue'
-import BookReader from '@/components/BookReader.vue'
-import BookDetail from '@/views/BookDetail.vue'
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -109,18 +108,6 @@ const router = createRouter({
           component: AdminBooksView
         }
       ]
-    },
-    {
-      path: '/book/:id',
-      name: 'book-detail',
-      component: BookDetail,
-      props: true
-    },
-    {
-      path: '/book/:id/read',
-      name: 'book-reader',
-      component: BookReader,
-      props: true
     }
   ],
   scrollBehavior() {

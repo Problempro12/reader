@@ -1,13 +1,19 @@
 export interface Book {
   id: number;
   title: string;
-  author: string;
+  author: {
+    id: number;
+    name: string;
+    bio?: string;
+    photo_url?: string;
+  };
   cover: string;
   genre: string;
   ageCategory: string;
   description: string;
   isPremium: boolean;
   rating: number;
+  vote_count?: number;
   litresRating?: {
     value: number;
     count: number;
@@ -33,6 +39,8 @@ export interface BookFilters {
   search?: string;
   genre?: string;
   ageCategory?: string;
+  rating?: number;
+  sortBy?: string;
   page?: number;
   limit?: number;
 }
@@ -46,7 +54,7 @@ export interface BookResponse {
 
 export interface BookCreate {
   title: string;
-  author: string;
+  author: number;
   cover: string;
   genre: string;
   ageCategory: string;
@@ -76,4 +84,4 @@ export interface BookCreate {
 
 export interface BookUpdate extends Partial<BookCreate> {
   id: number;
-} 
+}

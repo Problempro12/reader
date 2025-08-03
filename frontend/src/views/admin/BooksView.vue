@@ -3,17 +3,10 @@
     <div class="admin-header">
       <h2>Управление книгами</h2>
       <div class="header-buttons">
-<<<<<<< HEAD
-      <button class="btn btn-primary" @click="openCreateModal">
-        <i class="bi bi-plus-lg"></i>
-        Добавить книгу
-      </button>
-=======
         <button class="btn btn-primary" @click="openCreateModal">
           <i class="bi bi-plus-lg"></i>
           Добавить книгу
         </button>
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
         <button class="btn btn-secondary" @click="handleRunImport">
           <i class="bi bi-download"></i>
           Запустить импорт
@@ -64,13 +57,13 @@
         <tbody>
           <tr v-for="book in books" :key="book.id">
             <td>
-              <img :src="book.cover" :alt="book.title" class="book-cover" />
+              <img :src="book.cover" :alt="book.title" class="book-cover" @error="handleImageError" />
             </td>
             <td>{{ book.title }}</td>
             <td>{{ book.author }}</td>
             <td>{{ book.genre }}</td>
             <td>{{ book.ageCategory }}</td>
-            <td>{{ book.rating.toFixed(1) }}</td>
+            <td>{{ typeof book.rating === 'number' ? book.rating.toFixed(1) : '0.0' }}</td>
             <td>
               <span class="badge" :class="{ premium: book.isPremium }">
                 {{ book.isPremium ? 'Да' : 'Нет' }}
@@ -395,19 +388,11 @@ const closeDeleteModal = () => {
 
 const handleDelete = async () => {
   if (bookToDelete.value) {
-<<<<<<< HEAD
-  try {
-    await deleteBook(bookToDelete.value.id)
-    closeDeleteModal()
-      await loadBooks() // Перезагружаем книги после удаления
-  } catch (err) {
-=======
     try {
       await deleteBook(bookToDelete.value.id)
       closeDeleteModal()
       await loadBooks() // Перезагружаем книги после удаления
     } catch (err) {
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
       console.error('Ошибка удаления книги:', err)
       alert('Ошибка удаления книги.')
     }
@@ -417,8 +402,8 @@ const handleDelete = async () => {
 const handleRunImport = async () => {
   try {
     loading.value = true;
-    await runImportScript();
-    alert('Скрипт импорта книг успешно запущен. Проверьте консоль бэкенда для деталей.');
+    const result = await runImportScript('популярные книги');
+    alert(`Скрипт импорта книг успешно запущен. ${result.status || 'Проверьте консоль бэкенда для деталей.'}`);
     await loadBooks(); // Обновляем список книг после импорта
   } catch (err) {
     console.error('Ошибка при запуске скрипта импорта:', err);
@@ -426,6 +411,17 @@ const handleRunImport = async () => {
   } finally {
     loading.value = false;
   }
+};
+
+// Обработка ошибок загрузки изображений
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Предотвращаем бесконечный цикл ошибок
+  if (img.src.includes('placeholder-book.svg')) {
+    return;
+  }
+  img.src = '/placeholder-book.svg';
+  img.onerror = null; // Убираем обработчик ошибок для заглушки
 };
 
 onMounted(() => {
@@ -712,4 +708,4 @@ th {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

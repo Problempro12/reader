@@ -7,7 +7,7 @@
       <h3 class="section-subtitle">Текущая книга недели</h3>
       <div class="book-card current">
         <div class="book-cover">
-          <img :src="currentBookOfTheWeek.coverUrl" :alt="currentBookOfTheWeek.title">
+          <img :src="currentBookOfTheWeek.coverUrl" :alt="currentBookOfTheWeek.title" @error="handleImageError">
         </div>
         <div class="book-info">
           <h3 class="book-title">{{ currentBookOfTheWeek.title }}</h3>
@@ -27,7 +27,7 @@
         <div v-for="book in candidates" :key="book.id" class="col">
           <div class="book-card candidate" :class="{ 'voted': hasVoted(book.id) }">
             <div class="book-cover">
-              <img :src="book.coverUrl" :alt="book.title">
+              <img :src="book.coverUrl" :alt="book.title" @error="handleImageError">
             </div>
             <div class="book-info">
               <h3 class="book-title">{{ book.title }}</h3>
@@ -121,6 +121,17 @@ const voteForBook = async (book: Book) => {
 
 const hasVoted = (bookId: number) => {
   return votedBooks.value.includes(bookId);
+};
+
+// Обработка ошибок загрузки изображений
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement;
+  // Предотвращаем бесконечный цикл ошибок
+  if (img.src.includes('placeholder-book.svg')) {
+    return;
+  }
+  img.src = '/placeholder-book.svg';
+  img.onerror = null; // Убираем обработчик ошибок для заглушки
 };
 
 onMounted(() => {
@@ -263,4 +274,4 @@ onMounted(() => {
   border-radius: 15px;
   color: rgba(255, 255, 255, 0.7);
 }
-</style> 
+</style>

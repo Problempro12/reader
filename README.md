@@ -1,13 +1,44 @@
-# Система геймификации чтения книг
+# Reader - Система геймификации чтения книг
 
 ## Описание
-Система для мотивации детей к чтению через геймификацию. Позволяет отслеживать прогресс чтения, получать награды и соревноваться с другими читателями.
+Reader - это веб-приложение для мотивации к чтению через геймификацию. Система позволяет отслеживать прогресс чтения, получать награды за достижения и соревноваться с другими читателями.
+
+## Основные возможности
+- Управление личной библиотекой книг
+- Отслеживание прогресса чтения
+- Система достижений и наград
+- Статистика чтения
+- Профили пользователей
 
 ## Технологии
-- Backend: Django + Django REST Framework
-- Frontend: Vue.js 3 + Vite
-- База данных: PostgreSQL
-- ORM: Prisma
+- **Backend**: Django + Django REST Framework
+- **Frontend**: Vue.js 3 + Vite + TypeScript
+- **База данных**: SQLite (разработка) / PostgreSQL (продакшн)
+- **Аутентификация**: JWT
+
+## Структура проекта
+
+### Backend
+Проект разделен на несколько приложений Django:
+
+- **users** - управление пользователями, аутентификация
+- **books** - модели книг, авторов и прогресса чтения
+- **achievements** - система достижений и наград
+
+### Модели данных
+
+#### Пользователи (users)
+- **User** - расширенная модель пользователя с дополнительными полями
+
+#### Книги (books)
+- **Author** - информация об авторе книги
+- **Book** - информация о книге
+- **UserBook** - связь между пользователем и книгой с указанием статуса (чтение, прочитано, запланировано, брошено)
+- **ReadingProgress** - отметки о прогрессе чтения
+
+#### Достижения (achievements)
+- **Achievement** - типы достижений
+- **UserAchievement** - полученные пользователем достижения
 
 ## Установка и запуск
 
@@ -26,29 +57,17 @@ venv\Scripts\activate  # для Windows
 pip install -r requirements.txt
 ```
 
-3. Создайте файл .env:
-```bash
-cp .env.example .env
-```
-
-4. Настройте переменные окружения в .env:
-```
-DEBUG=True
-SECRET_KEY=your-secret-key
-DB_NAME=reader
-DB_USER=reader
-DB_PASSWORD=your-password
-DB_HOST=localhost
-DB_PORT=5432
-FRONTEND_URL=http://localhost:3000
-```
-
-5. Примените миграции:
+3. Примените миграции:
 ```bash
 python manage.py migrate
 ```
 
-6. Запустите сервер:
+4. Создайте суперпользователя:
+```bash
+python manage.py createsuperuser
+```
+
+5. Запустите сервер:
 ```bash
 python manage.py runserver
 ```
@@ -66,28 +85,55 @@ npm run dev
 ```
 
 ## Доступ к приложению
-- Backend API: http://localhost:8000
-- Frontend: http://localhost:3000
-- Админ-панель: http://localhost:8000/admin 
+- Backend API: http://localhost:8000/api/
+- Frontend: http://localhost:5173/
+- Админ-панель: http://localhost:8000/admin/
 
-## Работа с базой данных
+## API Endpoints
 
-Для открытия графического интерфейса Prisma Studio выполните:
+### Пользователи
+- `POST /api/users/register/` - регистрация нового пользователя
+- `POST /api/users/token/` - получение JWT токена
+- `GET /api/users/me/` - информация о текущем пользователе
 
+### Книги
+- `GET /api/books/books/` - список всех книг
+- `GET /api/books/books/{id}/` - детальная информация о книге
+- `GET /api/books/authors/` - список всех авторов
+- `GET /api/books/authors/{id}/` - детальная информация об авторе
+
+### Книги пользователя
+- `GET /api/books/user-books/` - список книг пользователя
+- `POST /api/books/user-books/` - добавление книги в библиотеку пользователя
+- `PATCH /api/books/user-books/{id}/` - обновление статуса книги
+
+### Прогресс чтения
+- `GET /api/books/reading-progress/` - история прогресса чтения
+- `POST /api/books/reading-progress/` - добавление новой отметки о прогрессе
+
+### Достижения
+- `GET /api/achievements/achievements/` - список всех достижений
+- `GET /api/achievements/user-achievements/` - достижения пользователя
+
+### Импорт книг
+- `POST /api/books/run-import-script/` - запуск импорта книг из Google Books API. Требует передачи параметра `query` в теле запроса для поиска книг. Для полноценной работы необходимо установить переменную окружения `GOOGLE_BOOKS_API_KEY` в файле `backend/books/utils.py`.
+
+## Разработка
+
+### Создание миграций
 ```bash
-# Добавляем путь к исполняемым файлам Python в PATH
-export PATH=$PATH:$HOME/Library/Python/3.9/bin
-
-# Переходим в директорию backend
-cd backend
-
-# Запускаем Prisma Studio
-prisma studio
+python manage.py makemigrations
 ```
 
-Prisma Studio откроется в браузере и позволит удобно просматривать и редактировать данные в вашей базе данных.
+### Применение миграций
+```bash
+python manage.py migrate
+```
 
-Если команда `prisma` не найдена, убедитесь что:
-1. Prisma установлен: `pip3 install prisma`
-2. Путь к исполняемым файлам Python добавлен в PATH
-3. Вы находитесь в директории `backend` 
+### Запуск тестов
+```bash
+python manage.py test
+```
+
+## Лицензия
+MIT
