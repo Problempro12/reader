@@ -1,18 +1,14 @@
 from rest_framework import serializers
-<<<<<<< HEAD
 from .models import Book, Genre, AgeCategory, Author
-=======
 
 class GenreSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
 
 class AgeCategorySerializer(serializers.Serializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
 
-<<<<<<< HEAD
 class AgeCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = AgeCategory
@@ -35,13 +31,7 @@ class BookSerializer(serializers.ModelSerializer):
             'id', 'title', 'author', 'cover', 'genre', 'ageCategory',
             'description', 'is_premium', 'rating', 'litres_rating',
             'series', 'translator', 'technical', 'created_at', 'updated_at'
-        ] 
-=======
-class AuthorSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    name = serializers.CharField()
-
-class BookSerializer(serializers.Serializer):
+        ]
     id = serializers.IntegerField()
     title = serializers.CharField()
     author = AuthorSerializer()
@@ -61,5 +51,4 @@ class BookSerializer(serializers.Serializer):
     isbn = serializers.CharField(allow_null=True, allow_blank=True, required=False)
     copyrightHolder = serializers.CharField(source='copyright_holder', allow_null=True, allow_blank=True, required=False)
     createdAt = serializers.DateTimeField(source='created_at')
-    updatedAt = serializers.DateTimeField(source='updated_at') 
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
+    updatedAt = serializers.DateTimeField(source='updated_at')

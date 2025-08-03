@@ -7,8 +7,6 @@ from datetime import datetime
 from rest_framework.permissions import IsAuthenticated
 from .google_books_api import GoogleBooksAPI
 import asyncio
-<<<<<<< HEAD
-=======
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 import requests
@@ -16,6 +14,7 @@ from bs4 import BeautifulSoup
 from asgiref.sync import async_to_sync, sync_to_async
 from scripts.import_books import import_books
 from django.utils.decorators import classonlymethod
+from prisma import Prisma
 
 def run_async(coro):
     return asyncio.run(coro)
@@ -52,14 +51,11 @@ async def check_and_award_achievements(user_id: int, prisma: Prisma):
                     print(f"Достижение '{achievement.name}' выдано пользователю {user_id}")
 
 # Create your views here.
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
 
 class BookListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = BookSerializer
-<<<<<<< HEAD
     queryset = Book.objects.all()
-=======
 
     def get_queryset(self):
         async def get_books():
@@ -85,7 +81,6 @@ class BookListView(generics.ListCreateAPIView):
             await prisma.disconnect()
             return book
         return run_async(create_book())
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
 
 class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -161,9 +156,15 @@ class ImportBooksView(APIView):
             'errors': total_errors
         }
 
-<<<<<<< HEAD
-# Добавь остальные вьюхи по аналогии, если нужно (UserBook, Vote, ReadingProgress и т.д.)
-=======
+
+class VoteCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        async def create_vote():
+            prisma = Prisma()
+            await prisma.connect()
+            vote = await prisma.vote.create(data=serializer.validated_data)
             await prisma.disconnect()
             return vote
         return async_to_sync(create_vote())
@@ -575,4 +576,3 @@ class BookRateView(generics.CreateAPIView):
             return Response({'status': 'success'})
         finally:
             await prisma.disconnect()
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c

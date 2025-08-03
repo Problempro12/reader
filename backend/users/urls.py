@@ -9,12 +9,8 @@ urlpatterns = [
     path('register/', views.UserRegisterView.as_view(), name='user-register'),
     path('login/', views.UserLoginView.as_view(), name='user-login'),
     path('me/', UserProfileView.as_view(), name='user-profile'),
-<<<<<<< HEAD
-]
-=======
     path('notifications/', views.NotificationListView.as_view(), name='notification-list'),
     path('premium/', views.PremiumSubscriptionView.as_view(), name='premium-subscription'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-] 
->>>>>>> 521318b5f2f30b230af1e4fd3d826e69daa0432c
+]
