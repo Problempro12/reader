@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics, permissions, status
 from rest_framework.response import Response
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
@@ -8,7 +8,8 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from .models import Book, Author, UserBook, ReadingProgress, BookVote, WeeklyBook
 from .serializers import BookSerializer, BookListSerializer, BookFrontendSerializer, AuthorSerializer, UserBookSerializer, ReadingProgressSerializer
-from .utils import import_books_from_google_books
+# Google Books импорт удален - используем только Флибусту
+from .external_sources import search_external_books, import_book_from_external_source, FlibustaTorClient
 
 class IsAdminOrReadOnly(permissions.BasePermission):
     """Custom permission to only allow admins to edit objects"""
@@ -142,114 +143,52 @@ class BookViewSet(viewsets.ModelViewSet):
             'page': page,
             'limit': limit
         })
-    
-    def retrieve(self, request, pk=None):
-        """Get a single book by ID"""
-        book = get_object_or_404(Book, pk=pk)
-        serializer = self.get_serializer(book)
-        return Response(serializer.data)
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def current_week(self, request):
-        """Get the book of the current week"""
-        from django.utils import timezone
-        from datetime import timedelta
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def content(self, request, pk=None):
+        """Get book content for reading"""
+        from .utils import get_book_content_from_external_sources
+        from .external_sources import ExternalBookSources
         
-        # Получаем текущую дату
-        now = timezone.now().date()
+        book = self.get_object()
         
-        # Находим понедельник текущей недели
-        days_since_monday = now.weekday()
-        week_start = now - timedelta(days=days_since_monday)
-        week_end = week_start + timedelta(days=6)
+        # Если контент пустой или содержит заглушку, пытаемся получить контент
+        if not book.content or book.content == 'Содержимое книги будет добавлено позже.' or len(book.content.strip()) < 100:
+            content_loaded = False
+            
+            # Если книга импортирована с Флибусты, пытаемся загрузить с Флибусты
+            if book.source_type == 'flibusta' and book.source_id:
+                 try:
+                     external_sources = ExternalBookSources(use_tor_for_flibusta=True)
+                     book_data = {
+                         'source_id': book.source_id,
+                         'title': book.title,
+                         'download_links': []  # Будет получено через source_id
+                     }
+                     flibusta_content = external_sources.get_book_content('flibusta', book_data, 'fb2')
+                     if flibusta_content and len(flibusta_content.strip()) > 100:
+                         book.content = flibusta_content
+                         book.save()
+                         content_loaded = True
+                 except Exception as e:
+                     print(f"Ошибка загрузки с Флибусты: {e}")
+            
+            # Если не удалось загрузить с Флибусты, используем демо-контент
+            if not content_loaded:
+                demo_content = get_book_content_from_external_sources(book.title, book.author.name)
+                if demo_content:
+                    book.content = demo_content
+                    book.save()
         
-        # Ищем книгу недели для текущей недели
-        weekly_book = WeeklyBook.objects.filter(
-            week_start=week_start,
-            week_end=week_end
-        ).first()
+        content = book.content or 'Содержимое книги пока недоступно. Не удалось загрузить текст.'
         
-        if weekly_book:
-            serializer = self.get_serializer(weekly_book.book)
-            data = serializer.data
-            data['is_book_of_week'] = True
-            data['week_start'] = weekly_book.week_start
-            data['week_end'] = weekly_book.week_end
-            data['votes_at_selection'] = weekly_book.votes_at_selection
-            return Response(data)
-        
-        # Если нет книги недели, ищем текущую книгу недели по флагу
-        book = Book.objects.filter(is_book_of_week=True).first()
-        if book:
-            serializer = self.get_serializer(book)
-            data = serializer.data
-            data['is_book_of_week'] = True
-            return Response(data)
-        
-        return Response({'detail': 'No book of the week selected'}, status=404)
-    
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def top(self, request):
-        """Get top rated books"""
-        limit = int(request.query_params.get('limit', 5))
-        # For now, return first books as top books
-        # In real implementation, this would be sorted by rating
-        books = Book.objects.all()[:limit]
-        serializer = self.get_serializer(books, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def recommended(self, request):
-        """Get recommended books"""
-        limit = int(request.query_params.get('limit', 5))
-        # For now, return random books as recommended
-        # In real implementation, this would be based on user preferences
-        books = Book.objects.all().order_by('?')[:limit]
-        serializer = self.get_serializer(books, many=True)
-        return Response(serializer.data)
+        return Response({
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.name,
+            'content': content
+        })
 
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def genres(self, request):
-        """Get list of all available genres"""
-        # For now, return a static list of genres
-        # In real implementation, this would be extracted from books
-        genres = [
-            "Художественная литература",
-            "Фантастика",
-            "Детектив",
-            "Роман",
-            "Классика",
-            "Приключения",
-            "Драма",
-            "Комедия",
-            "Триллер",
-            "Фэнтези"
-        ]
-        return Response(genres)
-
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def age_categories(self, request):
-        """Get list of all available age categories"""
-        # For now, return a static list of age categories
-        # In real implementation, this would be extracted from books
-        age_categories = [
-            "0+",
-            "6+",
-            "12+",
-            "16+",
-            "18+"
-        ]
-        return Response(age_categories)
-
-    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
-    def voting_candidates(self, request):
-        """Get books that are candidates for voting"""
-        # Placeholder for actual logic to determine voting candidates
-        # For now, return a few books
-        candidates = Book.objects.all()[:5] # Example: first 5 books
-        serializer = self.get_serializer(candidates, many=True)
-        return Response(serializer.data)
-    
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def top_voted(self, request):
         """Get top 5 books by vote count"""
@@ -272,7 +211,8 @@ class BookViewSet(viewsets.ModelViewSet):
         try:
             # Example: call a function that runs the import script
             query = request.data.get('query', 'популярные книги')
-            result = import_books_from_google_books(query)
+            # Google Books импорт отключен - используем только Флибусту
+            result = {'error': 'Google Books импорт отключен. Используйте поиск по внешним источникам.'}
             return Response(result, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -387,6 +327,273 @@ class BookViewSet(viewsets.ModelViewSet):
             'vote_count': book.vote_count,
             'user_voted': user_voted
         })
+
+    def retrieve(self, request, pk=None):
+        """Get a specific book by ID"""
+        book = self.get_object()
+        serializer = BookFrontendSerializer(book)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def current_week(self, request):
+        """Get the current book of the week"""
+        try:
+            # Get the most recent weekly book
+            weekly_book = WeeklyBook.objects.select_related('book', 'book__author').latest('week_start')
+            
+            # Check if it's still current (within the week)
+            from datetime import datetime, timedelta
+            now = datetime.now().date()
+            week_end = weekly_book.week_start + timedelta(days=7)
+            
+            if now <= week_end:
+                # Still current
+                book_data = BookFrontendSerializer(weekly_book.book).data
+                book_data['week_start'] = weekly_book.week_start
+                book_data['week_end'] = week_end
+                book_data['is_current'] = True
+                return Response(book_data)
+            else:
+                # Week has ended, no current book
+                return Response({
+                    'message': 'No current book of the week',
+                    'is_current': False
+                }, status=status.HTTP_404_NOT_FOUND)
+                
+        except WeeklyBook.DoesNotExist:
+            return Response({
+                'message': 'No book of the week has been set',
+                'is_current': False
+            }, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def top(self, request):
+        """Get top books (most popular)"""
+        # For now, return books ordered by ID (newest first)
+        # In a real app, this would be based on ratings, views, etc.
+        books = Book.objects.all().order_by('-id')[:10]
+        serializer = BookFrontendSerializer(books, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def recommended(self, request):
+        """Get recommended books"""
+        # Simple recommendation: return random books
+        # In a real app, this would use ML or user preferences
+        books = Book.objects.all().order_by('?')[:10]
+        serializer = BookFrontendSerializer(books, many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def genres(self, request):
+        """Get list of all available genres"""
+        # For now, return a static list of genres
+        # In real implementation, this would be extracted from books
+        genres = [
+            "Художественная литература",
+            "Фантастика",
+            "Детектив",
+            "Роман",
+            "Классика",
+            "Приключения",
+            "Драма",
+            "Комедия",
+            "Триллер",
+            "Фэнтези"
+        ]
+        return Response(genres)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def flibusta_categories(self, request):
+        """Get all available categories from Flibusta"""
+        try:
+            client = FlibustaTorClient(use_tor=True)
+            
+            # Получаем все жанры напрямую с HTML-страницы
+            all_categories = client.get_all_genres()
+            
+            # Преобразуем формат для соответствия ожидаемой структуре
+            formatted_categories = []
+            for category in all_categories:
+                formatted_categories.append({
+                    'name': category['name'],
+                    'url': category['url']
+                })
+            
+            return Response({
+                'success': True,
+                'categories': formatted_categories,
+                'count': len(formatted_categories)
+            })
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e),
+                'categories': [],
+                'count': 0
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def age_categories(self, request):
+        """Get list of all available age categories"""
+        # For now, return a static list of age categories
+        # In real implementation, this would be extracted from books
+        age_categories = [
+            "0+",
+            "6+",
+            "12+",
+            "16+",
+            "18+"
+        ]
+        return Response(age_categories)
+
+    @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
+    def import_category_books(self, request):
+        """Import books from a specific category"""
+        from django.db import transaction
+        from .models import Author
+        
+        try:
+            category_url = request.data.get('category_url')
+            count = request.data.get('count', 10)
+            
+            if not category_url:
+                return Response({
+                    'success': False,
+                    'error': 'Category URL is required'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Validate count
+            try:
+                count = int(count)
+                if count <= 0 or count > 50:
+                    return Response({
+                        'success': False,
+                        'error': 'Count must be between 1 and 50'
+                    }, status=status.HTTP_400_BAD_REQUEST)
+            except (ValueError, TypeError):
+                return Response({
+                    'success': False,
+                    'error': 'Invalid count value'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Import books using the external sources client
+            client = FlibustaTorClient(use_tor=True)
+            books_data = client.browse_books_by_category(category_url, sort_by_popularity=True, limit=count)
+            
+            imported_count = 0
+            errors = []
+            
+            with transaction.atomic():
+                for book_data in books_data:
+                    try:
+                        # Check if book already exists
+                        existing_book = Book.objects.filter(
+                            title=book_data.get('title', ''),
+                            author__name=book_data.get('author', '')
+                        ).first()
+                        
+                        if existing_book:
+                            continue
+                        
+                        # Create or get author
+                        author_name = book_data.get('author', 'Неизвестный автор')
+                        author, created = Author.objects.get_or_create(
+                            name=author_name,
+                            defaults={'bio': ''}
+                        )
+                        
+                        # Download full book content
+                        full_book_data = import_book_from_external_source(book_data, 'flibusta', 'fb2', use_tor=True)
+                        
+                        # Create book in database with full content
+                        book = Book.objects.create(
+                            title=book_data.get('title', 'Без названия'),
+                            author=author,
+                            description=book_data.get('description', ''),
+                            content=full_book_data.get('content', '') if full_book_data else '',
+                            cover_url=full_book_data.get('cover_url', '') if full_book_data else book_data.get('cover_url', ''),
+                            genre=book_data.get('genre', 'Общее')
+                        )
+                        
+                        imported_count += 1
+                        
+                    except Exception as e:
+                        errors.append(f"Error importing '{book_data.get('title', 'Unknown')}': {str(e)}")
+            
+            return Response({
+                'success': True,
+                'imported_count': imported_count,
+                'total_found': len(books_data),
+                'errors': errors[:5] if errors else []  # Limit errors to first 5
+            })
+            
+        except Exception as e:
+            return Response({
+                'success': False,
+                'error': str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def voting_candidates(self, request):
+        """Get books that are candidates for voting"""
+        # Placeholder for actual logic to determine voting candidates
+        # For now, return a few books
+        candidates = Book.objects.all()[:5] # Example: first 5 books
+        serializer = self.get_serializer(candidates, many=True)
+        return Response(serializer.data)
+
+
+# Отдельные функции представлений для внешних источников
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def search_external_books_view(request):
+    """Поиск книг во внешних источниках"""
+    try:
+        query = request.data.get('query', '')
+        sources = request.data.get('sources', ['flibusta'])
+        use_tor = request.data.get('use_tor', True)
+        limit = request.data.get('limit', 10)
+        
+        if not query:
+            return Response({'error': 'Query parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        results = search_external_books(query, sources, use_tor, limit)
+        return Response(results)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def import_external_book_view(request):
+    """Импорт книги из внешнего источника"""
+    try:
+        book_data = request.data.get('book_data')
+        source = request.data.get('source', 'flibusta')
+        download_format = request.data.get('download_format', 'fb2')
+        
+        if not book_data:
+            return Response({'error': 'Book data is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        book = import_book_from_external_source(book_data, source, download_format, use_tor=True)
+        
+        if book:
+            from .serializers import BookSerializer
+            serializer = BookSerializer(book)
+            return Response({
+                'success': True,
+                'book': serializer.data,
+                'message': 'Book imported successfully'
+            })
+        else:
+            return Response({'error': 'Failed to import book'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
 
 class AuthorViewSet(viewsets.ModelViewSet):
     """ViewSet for authors"""

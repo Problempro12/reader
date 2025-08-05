@@ -11,7 +11,7 @@
         </div>
       </div>
       <RouterLink 
-        :to="`/app/books/${bookOfWeek.id}`" 
+        :to="`/books/${bookOfWeek.id}`" 
         class="btn btn-primary btn-sm"
       >
         Читать
@@ -29,13 +29,44 @@
       
       <div class="book-info">
         <RouterLink 
-          :to="`/app/books/${bookOfWeek.id}`" 
+          :to="`/books/${bookOfWeek.id}`" 
           class="book-title-link"
         >
           <h4 class="book-title">{{ bookOfWeek.title }}</h4>
         </RouterLink>
         
         <p class="book-author">{{ bookOfWeek.author?.name }}</p>
+        
+        <div class="book-meta" v-if="bookOfWeek.technical?.year || bookOfWeek.genre || bookOfWeek.ageCategory">
+          <div class="meta-item" v-if="bookOfWeek.technical?.year">
+            <i class="bi bi-calendar3"></i>
+            <span>{{ bookOfWeek.technical.year }} год</span>
+          </div>
+          
+          <div class="meta-item" v-if="bookOfWeek.genre">
+            <i class="bi bi-tags"></i>
+            <span>{{ bookOfWeek.genre }}</span>
+          </div>
+          
+          <div class="meta-item" v-if="bookOfWeek.ageCategory">
+            <i class="bi bi-person-check"></i>
+            <span>{{ bookOfWeek.ageCategory }}</span>
+          </div>
+        </div>
+        
+        <div class="book-additional-info" v-if="bookOfWeek.series || bookOfWeek.translator">
+          <div class="additional-item" v-if="bookOfWeek.series">
+            <i class="bi bi-collection"></i>
+            <span class="info-label">Серия:</span>
+            <span>{{ bookOfWeek.series }}</span>
+          </div>
+          
+          <div class="additional-item" v-if="bookOfWeek.translator">
+            <i class="bi bi-translate"></i>
+            <span class="info-label">Переводчик:</span>
+            <span>{{ bookOfWeek.translator }}</span>
+          </div>
+        </div>
         
         <div class="book-stats">
           <div class="stat-item" v-if="bookOfWeek.votes_at_selection">
@@ -47,10 +78,15 @@
             <i class="bi bi-star-fill text-warning"></i>
             <span>{{ bookOfWeek.rating }}</span>
           </div>
+          
+          <div class="stat-item" v-if="bookOfWeek.technical?.volume">
+            <i class="bi bi-file-earmark-text"></i>
+            <span>{{ bookOfWeek.technical.volume }}</span>
+          </div>
         </div>
         
         <p class="book-description" v-if="bookOfWeek.description">
-          {{ truncateDescription(bookOfWeek.description, 120) }}
+          {{ truncateDescription(bookOfWeek.description, 180) }}
         </p>
       </div>
     </div>
@@ -118,6 +154,8 @@ const truncateDescription = (text: string, maxLength: number) => {
   return text.substring(0, maxLength).trim() + '...';
 };
 
+
+
 onMounted(() => {
   fetchBookOfWeek();
 });
@@ -129,10 +167,9 @@ onMounted(() => {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 16px;
-  padding: 24px;
+  padding: 12px;
   color: white;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  height: 100%;
 }
 
 .book-of-week-header {
@@ -163,6 +200,7 @@ onMounted(() => {
   font-size: 0.75rem;
   font-weight: 500;
   align-self: flex-start;
+  margin-top: 6px;
 }
 
 .book-of-week-content {
@@ -176,8 +214,8 @@ onMounted(() => {
 }
 
 .cover-image {
-  width: 100px;
-  height: 140px;
+  width: 120px;
+  height: 168px;
   object-fit: cover;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
@@ -211,6 +249,21 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.book-meta {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
 .book-stats {
   display: flex;
   gap: 16px;
@@ -226,11 +279,35 @@ onMounted(() => {
 }
 
 .book-description {
-  margin: 0;
+  margin: 0 0 16px 0;
   font-size: 0.9rem;
   line-height: 1.5;
   opacity: 0.9;
 }
+
+.book-additional-info {
+  margin-bottom: 12px;
+}
+
+.additional-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.additional-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-label {
+  font-weight: 500;
+  min-width: 80px;
+}
+
+
 
 .book-description-old {
   margin: 0 0 16px 0;

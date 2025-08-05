@@ -1,0 +1,166 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{{ title }} | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url 'admin:books_book_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="module aligned wide">
+    <h1>{{ title }}</h1>
+    
+    <div class="form-row">
+        <div class="field-box">
+            <p>Выберите категорию и количество книг для импорта из Флибусты. Книги, которые уже существуют в базе данных, будут пропущены.</p>
+        </div>
+    </div>
+    
+    <form id="import-form" method="post">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="field-box">
+                <label for="id_category">Категория:</label>
+                <select name="category" id="id_category" required>
+                    <option value="">Выберите категорию...</option>
+                    {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="field-box">
+                <label for="id_count">Количество книг:</label>
+                <input type="number" name="count" id="id_count" value="10" min="1" max="100" required>
+                <p class="help">Количество книг для импорта (от 1 до 100)</p>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="field-box">
+                <label for="id_skip_existing">
+                    <input type="checkbox" name="skip_existing" id="id_skip_existing" checked>
+                    Пропускать существующие книги
+                </label>
+                <p class="help">Если отмечено, книги, которые уже есть в базе, будут пропущены</p>
+            </div>
+        </div>
+        
+        <div class="submit-row">
+            <input type="button" value="Начать импорт" class="default" id="start-import">
+            <a href="{% url 'admin:books_book_changelist' %}" class="button cancel-link">Отмена</a>
+        </div>
+    </form>
+    
+    <div id="import-status" style="display: none; margin-top: 20px;">
+        <h3>Статус импорта:</h3>
+        <div id="import-progress" style="background: #f0f0f0; padding: 10px; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; font-family: monospace; white-space: pre-wrap;"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('import-form');
+    const startButton = document.getElementById('start-import');
+    const statusDiv = document.getElementById('import-status');
+    const progressDiv = document.getElementById('import-progress');
+    
+    startButton.addEventListener('click', function() {
+        const formData = new FormData(form);
+        const category = formData.get('category');
+        const count = formData.get('count');
+        
+        if (!category) {
+            alert('Пожалуйста, выберите категорию');
+            return;
+        }
+        
+        // Отключаем кнопку и показываем статус
+        startButton.disabled = true;
+        startButton.value = 'Импорт в процессе...';
+        statusDiv.style.display = 'block';
+        progressDiv.textContent = `Начинаем импорт ${count} книг из категории "${category}"...\n`;
+        
+        // Отправляем запрос
+        fetch('{% url "admin:books_run_import_category" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                progressDiv.textContent += '\n=== РЕЗУЛЬТАТ ===\n';
+                progressDiv.textContent += data.output;
+                if (data.errors) {
+                    progressDiv.textContent += '\n=== ОШИБКИ ===\n';
+                    progressDiv.textContent += data.errors;
+                }
+                progressDiv.textContent += '\n=== ЗАВЕРШЕНО ===\n';
+                progressDiv.textContent += data.message;
+            } else {
+                progressDiv.textContent += '\n=== ОШИБКА ===\n';
+                progressDiv.textContent += data.error;
+            }
+        })
+        .catch(error => {
+            progressDiv.textContent += '\n=== КРИТИЧЕСКАЯ ОШИБКА ===\n';
+            progressDiv.textContent += 'Ошибка сети: ' + error.message;
+        })
+        .finally(() => {
+            startButton.disabled = false;
+            startButton.value = 'Начать импорт';
+        });
+    });
+});
+</script>
+
+<style>
+.field-box {
+    margin-bottom: 15px;
+}
+
+.field-box label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.field-box input, .field-box select {
+    width: 300px;
+    padding: 5px;
+}
+
+.field-box input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+}
+
+.help {
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.submit-row {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.cancel-link {
+    margin-left: 10px;
+}
+</style>
+{% endblock %}

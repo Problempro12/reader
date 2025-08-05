@@ -79,40 +79,38 @@ onMounted(() => {
   <div class="home-page">
     <!-- Приветственный баннер (вынесен за .container) -->
     <div class="hero-section w-100 position-relative">
-      <div class="row align-items-center min-vh-100 m-0">
-        <div class="col-lg-6 px-5 d-flex flex-column justify-content-center" :class="{ 'fade-in': isVisible }">
-          <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
-          <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
-          <div class="d-flex gap-3">
-            <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
-              Начать читать
-              <i class="bi bi-arrow-right ms-2"></i>
-            </RouterLink>
-            <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
-              Присоединиться
-            </RouterLink>
+      <div class="hero-main-content">
+        <div class="row h-100 m-0">
+          <div class="col-lg-7 px-5 d-flex flex-column justify-content-start" :class="{ 'fade-in': isVisible }">
+            <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
+            <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
+            <div class="d-flex gap-3">
+              <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
+                Начать читать
+                <i class="bi bi-arrow-right ms-2"></i>
+              </RouterLink>
+              <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
+                Присоединиться
+              </RouterLink>
+            </div>
           </div>
-        </div>
-        <div class="col-lg-6 d-none d-lg-block position-relative">
-          <div class="floating-books">
-            <img :src="masterImg" alt="Книга" class="book-1">
-            <img :src="crimeImg" alt="Книга" class="book-2">
-            <img :src="warImg" alt="Книга" class="book-3">
+          <div class="col-lg-5 d-none d-lg-block position-relative">
+            <div class="floating-books">
+              <img :src="masterImg" alt="Книга" class="book-1">
+              <img :src="crimeImg" alt="Книга" class="book-2">
+              <img :src="warImg" alt="Книга" class="book-3">
+            </div>
           </div>
         </div>
       </div>
       <!-- Книга недели и блок голосования в самом низу hero-секции -->
-      <div style="position: absolute; bottom: 40px; left: 0; right: 0; z-index: 10;">
-        <div class="container">
-          <div class="row">
-            <div class="col-lg-6">
+      <div class="hero-bottom-section">
+        <div class="row g-4 m-0">
+          <div class="col-lg-7 px-5 d-flex align-items-end">
               <BookOfWeek />
             </div>
-            <div class="col-lg-6 d-flex justify-content-end">
-              <div style="min-width: 320px;">
-                <TopBooksVoting />
-              </div>
-            </div>
+          <div class="col-lg-5">
+            <TopBooksVoting />
           </div>
         </div>
       </div>
@@ -158,7 +156,7 @@ onMounted(() => {
                 <div class="book-cover">
                   <img :src="book.cover" :alt="book.title" @error="handleImageError">
                   <div class="book-overlay">
-                    <RouterLink :to="`/app/books/${book.id}`" class="btn btn-light">
+                    <RouterLink :to="`/books/${book.id}`" class="btn btn-light">
                       Читать
                     </RouterLink>
                   </div>
@@ -200,11 +198,31 @@ onMounted(() => {
 }
 
 .hero-section {
-  min-height: 80vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(52, 73, 94, 0.9) 100%);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
+
+.hero-main-content {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 80px;
+  min-height: calc(100vh - 120px);
+}
+
+.hero-bottom-section {
+  position: absolute;
+  bottom: 40px;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+
 
 .hero-section::before {
   content: '';
@@ -226,7 +244,8 @@ onMounted(() => {
 
 .floating-books {
   position: relative;
-  height: 500px;
+  height: 300px;
+  margin-top: -120px;
 }
 
 .floating-books img {

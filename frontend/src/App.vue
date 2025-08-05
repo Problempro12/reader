@@ -9,19 +9,23 @@ const isAdminRoute = () => {
   return route.path.startsWith('/admin')
 }
 
+const isReaderRoute = () => {
+  return route.path.includes('/read')
+}
+
 // Импортируем AppFooter, если нужен на всех страницах
 // import AppFooter from '@/components/AppFooter.vue'
 </script>
 
 <template>
   <div id="app" class="d-flex flex-column min-vh-100 bg-dark text-light">
-    <AppHeader v-if="!isAdminRoute()" />
+    <AppHeader v-if="!isAdminRoute() && !isReaderRoute()" />
     
     <main class="flex-grow-1">
       <RouterView />
     </main>
     
-    <AppFooter />
+    <AppFooter v-if="!isReaderRoute()" />
   </div>
 </template>
 

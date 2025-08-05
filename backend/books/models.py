@@ -6,6 +6,8 @@ class Author(models.Model):
     name = models.CharField(max_length=255)
     bio = models.TextField(blank=True, null=True)
     photo_url = models.ImageField(upload_to='authors/', null=True, blank=True)
+    birth_year = models.IntegerField(null=True, blank=True)
+    death_year = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
         return self.name
@@ -17,9 +19,13 @@ class Book(models.Model):
     cover_url = models.URLField(max_length=500, null=True, blank=True)
     description = models.TextField(blank=True, null=True)
     content = models.TextField()
+    genre = models.CharField(max_length=255, blank=True, null=True)
     published_date = models.DateField(null=True, blank=True)
     vote_count = models.IntegerField(default=0)
     is_book_of_week = models.BooleanField(default=False)
+    gutenberg_id = models.IntegerField(null=True, blank=True, unique=True)
+    source_id = models.CharField(max_length=255, null=True, blank=True)  # ID книги во внешнем источнике (Флибуста, LibGen)
+    source_type = models.CharField(max_length=50, null=True, blank=True)  # Тип источника: flibusta, libgen, google_books
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

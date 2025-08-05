@@ -1,0 +1,183 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block title %}{{ title }} | {{ site_title|default:_("Django site admin") }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+&rsaquo; <a href="{% url 'admin:books_book_changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
+&rsaquo; {{ title }}
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="module aligned wide">
+    <h1>{{ title }}</h1>
+    
+    <div class="form-row">
+        <div class="field-box">
+            <p>Принудительное обновление обложек книг из внешних источников.</p>
+            <div class="stats">
+                <p><strong>Всего книг в базе:</strong> {{ total_books }}</p>
+                <p><strong>Книг без обложек:</strong> {{ books_without_covers }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <form id="update-form" method="post">
+        {% csrf_token %}
+        
+        <div class="form-row">
+            <div class="field-box">
+                <label for="id_force">
+                    <input type="checkbox" name="force" id="id_force">
+                    Принудительно обновить все обложки
+                </label>
+                <p class="help">Если отмечено, обложки будут обновлены даже у книг, у которых уже есть обложка</p>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="field-box">
+                <label for="id_only_missing">
+                    <input type="checkbox" name="only_missing" id="id_only_missing" checked>
+                    Обновить только книги без обложек
+                </label>
+                <p class="help">Если отмечено, обложки будут обновлены только у книг, у которых нет обложки</p>
+            </div>
+        </div>
+        
+        <div class="submit-row">
+            <input type="button" value="Начать обновление" class="default" id="start-update">
+            <a href="{% url 'admin:books_book_changelist' %}" class="button cancel-link">Отмена</a>
+        </div>
+    </form>
+    
+    <div id="update-status" style="display: none; margin-top: 20px;">
+        <h3>Статус обновления:</h3>
+        <div id="update-progress" style="background: #f0f0f0; padding: 10px; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; font-family: monospace; white-space: pre-wrap;"></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('update-form');
+    const startButton = document.getElementById('start-update');
+    const statusDiv = document.getElementById('update-status');
+    const progressDiv = document.getElementById('update-progress');
+    const forceCheckbox = document.getElementById('id_force');
+    const onlyMissingCheckbox = document.getElementById('id_only_missing');
+    
+    // Взаимоисключающие чекбоксы
+    forceCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            onlyMissingCheckbox.checked = false;
+        }
+    });
+    
+    onlyMissingCheckbox.addEventListener('change', function() {
+        if (this.checked) {
+            forceCheckbox.checked = false;
+        }
+    });
+    
+    startButton.addEventListener('click', function() {
+        const formData = new FormData(form);
+        const force = formData.get('force');
+        const onlyMissing = formData.get('only_missing');
+        
+        let mode = 'обычном';
+        if (force) {
+            mode = 'принудительном';
+        } else if (onlyMissing) {
+            mode = 'только для книг без обложек';
+        }
+        
+        // Отключаем кнопку и показываем статус
+        startButton.disabled = true;
+        startButton.value = 'Обновление в процессе...';
+        statusDiv.style.display = 'block';
+        progressDiv.textContent = `Начинаем обновление обложек в ${mode} режиме...\n`;
+        
+        // Отправляем запрос
+        fetch('{% url "admin:books_run_update_covers" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                progressDiv.textContent += '\n=== РЕЗУЛЬТАТ ===\n';
+                progressDiv.textContent += data.output;
+                if (data.errors) {
+                    progressDiv.textContent += '\n=== ОШИБКИ ===\n';
+                    progressDiv.textContent += data.errors;
+                }
+                progressDiv.textContent += '\n=== ЗАВЕРШЕНО ===\n';
+                progressDiv.textContent += data.message;
+            } else {
+                progressDiv.textContent += '\n=== ОШИБКА ===\n';
+                progressDiv.textContent += data.error;
+            }
+        })
+        .catch(error => {
+            progressDiv.textContent += '\n=== КРИТИЧЕСКАЯ ОШИБКА ===\n';
+            progressDiv.textContent += 'Ошибка сети: ' + error.message;
+        })
+        .finally(() => {
+            startButton.disabled = false;
+            startButton.value = 'Начать обновление';
+        });
+    });
+});
+</script>
+
+<style>
+.field-box {
+    margin-bottom: 15px;
+}
+
+.field-box label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.field-box input[type="checkbox"] {
+    width: auto;
+    margin-right: 5px;
+}
+
+.help {
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.stats {
+    background: #f8f8f8;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin: 10px 0;
+}
+
+.stats p {
+    margin: 5px 0;
+}
+
+.submit-row {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.cancel-link {
+    margin-left: 10px;
+}
+</style>
+{% endblock %}

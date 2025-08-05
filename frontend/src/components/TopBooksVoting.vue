@@ -11,7 +11,7 @@
         <div class="book-rank">{{ index + 1 }}</div>
         <div class="book-content">
           <RouterLink 
-            :to="`/app/books/${book.id}`" 
+            :to="`/books/${book.id}`" 
             class="book-title-link"
           >
             {{ book.title }}

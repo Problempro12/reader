@@ -1,86 +1,89 @@
 import requests
 from datetime import datetime
 from .models import Book, Author
+import re
 
-# TODO: Replace with your actual Google Books API Key
-GOOGLE_BOOKS_API_KEY = "AIzaSyDuGTLUy05d8pBo6sWuXwdsX8NnUZxhWdg"
+# Google Books импорт удален - используем только Флибусту
 
-def import_books_from_google_books(query):
-    if not GOOGLE_BOOKS_API_KEY or GOOGLE_BOOKS_API_KEY == "YOUR_GOOGLE_BOOKS_API_KEY":
-        return {"error": "Google Books API Key is not configured. Please set GOOGLE_BOOKS_API_KEY in backend/books/utils.py"}
-
-    url = f"https://www.googleapis.com/books/v1/volumes?q={query}&key={GOOGLE_BOOKS_API_KEY}"
+def get_real_book_content_from_external_sources(book_title, author_name):
+    """
+    Получает реальное содержимое книги из внешних источников (только Флибуста)
+    """
     try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        data = response.json()
-
-        imported_count = 0
-        for item in data.get('items', []):
-            volume_info = item.get('volumeInfo', {})
-            title = volume_info.get('title')
-            authors = volume_info.get('authors', [])
-            description = volume_info.get('description')
-            published_date = volume_info.get('publishedDate')
-
-            if title and authors:
-                author_name = authors[0] # Taking the first author for simplicity
-                author, created = Author.objects.get_or_create(name=author_name)
-
-                # Parse publication date
-                parsed_date = None
-                if published_date:
-                    try:
-                        # Try different date formats
-                        if len(published_date) == 4:  # Year only
-                            parsed_date = datetime.strptime(published_date, '%Y').date()
-                        elif len(published_date) == 7:  # Year-Month
-                            parsed_date = datetime.strptime(published_date, '%Y-%m').date()
-                        elif len(published_date) == 10:  # Full date
-                            parsed_date = datetime.strptime(published_date, '%Y-%m-%d').date()
-                    except ValueError:
-                        # If parsing fails, leave as None
-                        parsed_date = None
-
-                # Get cover image URL
-                cover_url = None
-                image_links = volume_info.get('imageLinks', {})
-                if image_links:
-                    # Try to get the highest quality image available
-                    cover_url = (image_links.get('extraLarge') or 
-                               image_links.get('large') or 
-                               image_links.get('medium') or 
-                               image_links.get('small') or 
-                               image_links.get('thumbnail'))
-                    
-                    # Ensure high quality by using zoom=0
-                    if cover_url and 'zoom=1' in cover_url:
-                        cover_url = cover_url.replace('zoom=1', 'zoom=0')
-                    
-                    # Convert HTTP to HTTPS to avoid mixed content issues
-                    if cover_url and cover_url.startswith('http://'):
-                        cover_url = cover_url.replace('http://', 'https://')
-
-                try:
-                    book, created = Book.objects.get_or_create(
-                        title=title,
-                        author=author,
-                        defaults={
-                            'description': description or '',
-                            'content': description or 'Содержимое книги будет добавлено позже.',
-                            'published_date': parsed_date,
-                            'cover_url': cover_url
-                        }
-                    )
-                    if created:
-                        imported_count += 1
-                except Exception as e:
-                    print(f"Error creating book '{title}': {e}")
-                    continue
-
-        return {"status": f"Successfully imported {imported_count} books from Google Books.", "query": query}
-
-    except requests.exceptions.RequestException as e:
-        return {"error": f"Error fetching data from Google Books API: {e}"}
+        from .external_sources import ExternalBookSources
+        
+        # Создаем клиент для работы с внешними источниками
+        sources = ExternalBookSources()
+        
+        # Ищем книгу в Флибусте
+        search_results = sources.search_flibusta(f"{book_title} {author_name}", limit=1)
+        
+        if search_results:
+            book_data = search_results[0]
+            # Пытаемся загрузить содержимое
+            content = sources.get_book_content(book_data, 'fb2')
+            
+            if content and len(content.strip()) > 100:  # Проверяем что контент не пустой
+                return format_book_content(book_title, author_name, content)
+    
     except Exception as e:
-        return {"error": f"An unexpected error occurred during import: {e}"}
+        print(f"Ошибка при получении книги из внешних источников: {e}")
+    
+    # Если не удалось получить реальное содержимое, возвращаем заглушку
+    return get_demo_book_content(book_title, author_name)
+
+def format_book_content(title, author, content):
+    """
+    Форматирует содержимое книги для отображения
+    """
+    if not content or len(content.strip()) < 50:
+        return get_demo_book_content(title, author)
+    
+    formatted_content = f"""# {title}
+
+**Автор:** {author}
+
+---
+
+{content}
+
+---
+
+*Источник: Флибуста*"""
+    
+    return formatted_content
+
+def get_demo_book_content(book_title, author_name):
+    """
+    Возвращает демонстрационное содержимое, если реальный текст недоступен
+    """
+    return f"""# {book_title}
+
+**Автор:** {author_name}
+
+---
+
+## Демонстрационное содержимое
+
+К сожалению, полный текст этой книги временно недоступен для автоматической загрузки.
+
+### Что можно сделать:
+
+1. **Поиск в других источниках** - попробуйте альтернативные библиотеки
+2. **Покупка лицензированной версии** - для современных произведений под авторским правом
+3. **Обратитесь к администратору** - для добавления книги в библиотеку
+
+### Доступные форматы:
+
+- FB2 (FictionBook)
+- EPUB (Electronic Publication)
+- TXT (Plain Text)
+- PDF (Portable Document Format)
+
+---
+
+*Примечание: Это демонстрационная читалка. Полное содержимое будет доступно после загрузки из источников.*"""
+
+def get_book_content_from_external_sources(book_title, author_name):
+    """Получение содержимого книги из внешних источников"""
+    return get_real_book_content_from_external_sources(book_title, author_name)

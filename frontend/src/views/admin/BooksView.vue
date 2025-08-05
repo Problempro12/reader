@@ -11,6 +11,14 @@
           <i class="bi bi-download"></i>
           Запустить импорт
         </button>
+        <button class="btn btn-info" @click="openSearchModal">
+          <i class="bi bi-search"></i>
+          Поиск в Флибусте
+        </button>
+        <button class="btn btn-warning" @click="openBulkImportModal">
+          <i class="bi bi-collection"></i>
+          Массовый импорт
+        </button>
       </div>
     </div>
 
@@ -183,12 +191,76 @@
         </div>
       </div>
     </div>
+
+    <!-- Модальное окно поиска в Флибусте -->
+    <div class="modal" v-if="showSearchModal">
+      <div class="modal-content">
+        <h3>Поиск книг в Флибусте</h3>
+        <div class="form-group">
+          <label>Поисковый запрос</label>
+          <input type="text" v-model="searchQuery" placeholder="Введите название книги или автора" />
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" @click="handleExternalSearch" :disabled="!searchQuery.trim()">
+            <i class="bi bi-search"></i>
+            Найти книги
+          </button>
+        </div>
+        <div v-if="searchResults.length > 0" class="search-results">
+          <h4>Результаты поиска:</h4>
+          <div v-for="result in searchResults" :key="result.source_id" class="search-result-item">
+            <div class="result-info">
+              <strong>{{ result.title }}</strong>
+              <p>Автор: {{ result.author }}</p>
+              <p v-if="result.series">Серия: {{ result.series }}</p>
+              <p>Формат: {{ result.format }}</p>
+            </div>
+            <button class="btn btn-sm btn-primary" @click="handleImportBook(result)">
+              <i class="bi bi-download"></i>
+              Импортировать
+            </button>
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" @click="closeSearchModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Модальное окно массового импорта -->
+    <div class="modal" v-if="showBulkImportModal">
+      <div class="modal-content">
+        <h3>Массовый импорт книг</h3>
+        <div class="form-group">
+          <label>Категория для импорта</label>
+          <select v-model="bulkImportCategory">
+            <option value="">Выберите категорию</option>
+            <option v-for="category in flibustCategories" :key="category.url" :value="category.url">
+              {{ category.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Количество книг</label>
+          <input type="number" v-model="bulkImportCount" min="1" max="50" placeholder="Максимум 50" />
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary" @click="handleBulkImport" :disabled="!bulkImportCategory || !bulkImportCount">
+            <i class="bi bi-collection"></i>
+            Запустить массовый импорт
+          </button>
+        </div>
+        <div class="modal-actions">
+          <button class="btn" @click="closeBulkImportModal">Закрыть</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { getBooks, createBook, updateBook, deleteBook, runImportScript } from '@/api/books'
+import { getBooks, createBook, updateBook, deleteBook, runImportScript, getFlibustCategories, importCategoryBooks } from '@/api/books'
 import type { Book, BookCreate } from '@/types/book'
 
 const books = ref<Book[]>([])
@@ -208,8 +280,19 @@ const error = ref<string | null>(null)
 // Модальные окна
 const showModal = ref(false)
 const showDeleteModal = ref(false)
+const showSearchModal = ref(false)
+const showBulkImportModal = ref(false)
 const editingBook = ref<Book | null>(null)
 const bookToDelete = ref<Book | null>(null)
+
+// Поиск в внешних источниках
+const searchQuery = ref('')
+const searchResults = ref<any[]>([])
+
+// Массовый импорт
+const bulkImportCategory = ref('')
+const bulkImportCount = ref(10)
+const flibustCategories = ref<any[]>([])
 
 const form = reactive<BookCreate>({
   title: '',
@@ -424,8 +507,115 @@ const handleImageError = (event: Event) => {
   img.onerror = null; // Убираем обработчик ошибок для заглушки
 };
 
+// Функции для работы с внешними источниками
+const openSearchModal = () => {
+  showSearchModal.value = true;
+  searchQuery.value = '';
+  searchResults.value = [];
+};
+
+const closeSearchModal = () => {
+  showSearchModal.value = false;
+  searchQuery.value = '';
+  searchResults.value = [];
+};
+
+const openBulkImportModal = () => {
+  showBulkImportModal.value = true;
+  bulkImportCategory.value = '';
+  bulkImportCount.value = 10;
+};
+
+const closeBulkImportModal = () => {
+  showBulkImportModal.value = false;
+};
+
+const handleExternalSearch = async () => {
+  if (!searchQuery.value.trim()) return;
+  
+  try {
+    loading.value = true;
+    // Здесь должен быть вызов API для поиска в внешних источниках
+    // const response = await searchExternalBooks(searchQuery.value);
+    // searchResults.value = response.results || [];
+    
+    // Временная заглушка
+    searchResults.value = [
+      {
+        source_id: '1',
+        title: 'Пример книги',
+        author: 'Пример автора',
+        series: 'Пример серии',
+        format: 'fb2'
+      }
+    ];
+    
+    alert('Поиск в внешних источниках временно недоступен');
+  } catch (err) {
+    console.error('Ошибка поиска:', err);
+    alert('Ошибка при поиске книг');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleImportBook = async (bookData: any) => {
+  try {
+    loading.value = true;
+    // Здесь должен быть вызов API для импорта книги
+    // await importExternalBook(bookData);
+    
+    alert(`Книга "${bookData.title}" успешно импортирована`);
+    await loadBooks();
+    closeSearchModal();
+  } catch (err) {
+    console.error('Ошибка импорта:', err);
+    alert('Ошибка при импорте книги');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleBulkImport = async () => {
+  if (!bulkImportCategory.value || !bulkImportCount.value) return;
+  
+  try {
+    loading.value = true;
+    
+    const result = await importCategoryBooks(bulkImportCategory.value, bulkImportCount.value);
+    
+    if (result.success) {
+      alert(`Массовый импорт завершен успешно! Импортировано книг: ${result.imported_count || 0}`);
+    } else {
+      alert(`Ошибка массового импорта: ${result.error || 'Неизвестная ошибка'}`);
+    }
+    
+    await loadBooks();
+    closeBulkImportModal();
+  } catch (err) {
+    console.error('Ошибка массового импорта:', err);
+    alert('Ошибка при массовом импорте');
+  } finally {
+    loading.value = false;
+  }
+};
+
+const loadFlibustCategories = async () => {
+  try {
+    const response = await getFlibustCategories()
+    if (response.success) {
+      flibustCategories.value = response.categories
+    } else {
+      console.error('Ошибка загрузки категорий:', response.error)
+    }
+  } catch (err) {
+    console.error('Ошибка загрузки категорий Flibusta:', err)
+  }
+}
+
 onMounted(() => {
   loadBooks()
+  loadFlibustCategories()
 })
 </script>
 
@@ -672,6 +862,56 @@ th {
 
 .btn-danger:hover {
   background-color: #bb2d3b;
+}
+
+.btn-info {
+  background-color: #0dcaf0;
+  color: #000;
+}
+
+.btn-info:hover {
+  background-color: #31d2f2;
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.btn-warning:hover {
+  background-color: #ffcd39;
+}
+
+.search-results {
+  margin-top: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #333;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+  background-color: #1a1a1a;
+}
+
+.result-info {
+  flex: 1;
+}
+
+.result-info strong {
+  color: #fff;
+  font-size: 1.1rem;
+}
+
+.result-info p {
+  margin: 0.25rem 0;
+  color: #ccc;
+  font-size: 0.9rem;
 }
 
 .price-info,

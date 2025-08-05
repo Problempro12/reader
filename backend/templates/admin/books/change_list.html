@@ -1,0 +1,33 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static %}
+
+{% block object-tools-items %}
+    {{ block.super }}
+    
+    {% if custom_buttons %}
+        {% for button in custom_buttons %}
+            <li>
+                <a href="{{ button.url }}" class="{{ button.class }}">
+                    {{ button.title }}
+                </a>
+            </li>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <style>
+        .object-tools li a.addlink {
+            background-image: url("{% static 'admin/img/icon-addlink.svg' %}");
+        }
+        
+        .object-tools li a.changelink {
+            background-image: url("{% static 'admin/img/icon-changelink.svg' %}");
+        }
+        
+        .object-tools li {
+            margin-left: 5px;
+        }
+    </style>
+{% endblock %}

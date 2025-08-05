@@ -1,0 +1,33 @@
+# Django и основные зависимости
+Django>=4.2.0,<5.0.0
+djangorestframework>=3.14.0
+django-cors-headers>=4.0.0
+django-filter>=23.0
+
+# База данных
+psycopg2-binary>=2.9.0  # для PostgreSQL
+# или sqlite3 (встроен в Python)
+
+# HTTP запросы и работа с внешними API
+requests>=2.31.0
+requests[socks]>=2.31.0  # поддержка SOCKS прокси для Tor
+beautifulsoup4>=4.12.0  # для парсинга HTML
+lxml>=4.9.0  # XML/HTML парсер
+
+# Работа с книгами и текстом
+chardet>=5.0.0  # определение кодировки
+epub-meta>=0.1.0  # работа с EPUB файлами
+
+# Утилиты
+python-dotenv>=1.0.0  # для переменных окружения
+Pillow>=10.0.0  # обработка изображений
+
+# Разработка и тестирование
+pytest>=7.0.0
+pytest-django>=4.5.0
+flake8>=6.0.0
+black>=23.0.0
+
+# Производство
+gunicorn>=21.0.0
+whitenoise>=6.5.0  # статические файлы
