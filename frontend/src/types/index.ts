@@ -20,6 +20,7 @@ export interface BookStats {
   reading_count: number;
   dropped_count: number;
   total_count: number;
+  progress_marks_count: number;
 }
 
-// Можете добавить другие типы здесь по мере необходимости 
+// Можете добавить другие типы здесь по мере необходимости

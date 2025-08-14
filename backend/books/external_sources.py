@@ -414,9 +414,14 @@ class FlibustaTorClient:
     
     def _search_via_opds(self, query: str, limit: int) -> List[Dict[str, Any]]:
         """Поиск через OPDS каталог"""
+        print(f"🔍 Начинаем поиск через OPDS для запроса: '{query}' (лимит: {limit})")
+        
         search_url = f"{self.opds_url}/search?searchTerm={query}"
+        print(f"📡 Отправляем запрос к: {search_url}")
+        
         response = self.session.get(search_url, timeout=self.timeout)
         response.raise_for_status()
+        print(f"✅ Получен ответ, размер: {len(response.content)} байт")
         
         # Парсим OPDS XML
         root = ET.fromstring(response.content)
@@ -429,6 +434,7 @@ class FlibustaTorClient:
         }
         
         entries = root.findall('.//atom:entry', ns)
+        print(f"📋 Найдено {len(entries)} записей в первоначальном ответе")
         
         # Ищем поисковые ссылки в первоначальном ответе
         search_links = []
@@ -444,12 +450,17 @@ class FlibustaTorClient:
                         link_type = link.get('type')
                         if href and link_type == 'application/atom+xml;profile=opds-catalog':
                             search_links.append((title_text, href))
+                            print(f"🔗 Найдена поисковая ссылка: {title_text} -> {href}")
                             break
+        
+        print(f"🔍 Найдено {len(search_links)} поисковых ссылок")
         
         # Если найдены поисковые ссылки, переходим по ним
         if search_links:
+            print(f"🚀 Переходим по поисковым ссылкам...")
             for search_type, search_href in search_links:
                 if len(books) >= limit:
+                    print(f"⏹️ Достигнут лимит книг ({limit}), прекращаем поиск")
                     break
                     
                 try:
@@ -465,26 +476,33 @@ class FlibustaTorClient:
                     elif 'searchTerm=' not in full_url:
                         full_url += f"&searchTerm={query}"
                     
-                    self.logger.info(f"Переходим по ссылке {search_type}: {full_url}")
+                    print(f"🔗 Переходим по ссылке '{search_type}': {full_url}")
                     
                     # Получаем результаты поиска
                     search_response = self.session.get(full_url, timeout=self.timeout)
                     search_response.raise_for_status()
+                    print(f"✅ Получен ответ от поисковой ссылки, размер: {len(search_response.content)} байт")
                     
                     # Парсим результаты
                     search_root = ET.fromstring(search_response.content)
                     search_entries = search_root.findall('.//atom:entry', ns)
+                    print(f"📚 Найдено {len(search_entries)} книг в результатах поиска")
                     
-                    for entry in search_entries:
+                    for i, entry in enumerate(search_entries):
                         if len(books) >= limit:
+                            print(f"⏹️ Достигнут лимит книг ({limit}), прекращаем парсинг")
                             break
                             
+                        print(f"📖 Обрабатываем книгу {i+1}/{len(search_entries)}...")
                         book_data = self._parse_book_entry(entry, ns)
                         if book_data:
                             books.append(book_data)
+                            print(f"✅ Книга добавлена: {book_data.get('title', 'Без названия')} - {book_data.get('author', 'Неизвестный автор')}")
+                        else:
+                            print(f"❌ Не удалось обработать книгу {i+1}")
                             
                 except Exception as e:
-                    self.logger.warning(f"Ошибка при переходе по ссылке {search_type}: {e}")
+                    print(f"❌ Ошибка при переходе по ссылке '{search_type}': {e}")
                     continue
         else:
             # Если это уже результаты поиска, парсим их напрямую
@@ -617,10 +635,15 @@ class FlibustaTorClient:
             summary = entry.find('atom:summary', ns)
             updated = entry.find('atom:updated', ns)
             
+            title_text = title.text.strip() if title is not None and title.text else "Без названия"
+            author_text = author.text.strip() if author is not None and author.text else "Неизвестный автор"
+            
+            print(f"  🔍 Парсим запись: '{title_text}' - {author_text}")
+            
             # Пропускаем служебные записи
             if title is not None:
-                title_text = title.text.strip()
                 if any(skip_word in title_text for skip_word in ['Поиск', 'Search', 'Каталог', 'Catalog']):
+                    print(f"  ⏭️ Пропускаем служебную запись: {title_text}")
                     return None
             
             # Проверяем, есть ли ссылки для скачивания (acquisition) - это отличает книги от категорий
@@ -695,7 +718,7 @@ class FlibustaTorClient:
                 cover_url = get_book_cover_url(title_text, author_text, book_id)
                 self.logger.info(f"Получена обложка для '{title_text}' (ID: {book_id}): {cover_url}")
             
-            return {
+            book_data = {
                 'title': title.text.strip() if title is not None else 'Без названия',
                 'author': author.text.strip() if author is not None else 'Неизвестный автор',
                 'description': summary.text.strip() if summary is not None else '',
@@ -706,6 +729,9 @@ class FlibustaTorClient:
                 'genre': genre,
                 'cover_url': cover_url
             }
+            
+            print(f"  ✅ Успешно спарсили книгу: '{book_data['title']}' - {book_data['author']} (ID: {book_id})")
+            return book_data
             
         except Exception as e:
             self.logger.error(f"Ошибка парсинга записи книги: {e}")
@@ -789,6 +815,10 @@ class FlibustaTorClient:
     def download_book(self, book_data: Dict[str, Any], format_preference: str = 'fb2') -> Optional[str]:
         """Скачивание книги с Флибусты"""
         try:
+            title = book_data.get('title', 'Неизвестная книга')
+            author = book_data.get('author', 'Неизвестный автор')
+            print(f"📥 Начинаем скачивание книги: '{title}' - {author}")
+            
             download_links = book_data.get('download_links', {})
             
             if not download_links:
@@ -846,10 +876,13 @@ class FlibustaTorClient:
             if not download_url.startswith('http'):
                 download_url = urljoin(self.base_url, download_url)
             
-            self.logger.info(f"Скачивание книги: {book_data.get('title')} в формате {preferred_link.get('format')}")
+            format_name = preferred_link.get('format', 'неизвестный')
+            print(f"🔗 Скачиваем файл в формате {format_name} с URL: {download_url}")
+            self.logger.info(f"Скачивание книги: {book_data.get('title')} в формате {format_name}")
             
             response = self.session.get(download_url, timeout=self.timeout * 2, stream=True)
             response.raise_for_status()
+            print(f"✅ HTTP запрос успешен, статус: {response.status_code}")
             
             # Проверяем размер файла
             content_length = response.headers.get('content-length')
@@ -858,15 +891,28 @@ class FlibustaTorClient:
                 return None
             
             # Получаем содержимое
+            print(f"📦 Загружаем содержимое файла...")
             content = b''
+            total_size = 0
             for chunk in response.iter_content(chunk_size=8192):
                 content += chunk
+                total_size += len(chunk)
                 if len(content) > EXTERNAL_SOURCES_CONFIG['max_file_size']:
                     self.logger.error("Превышен максимальный размер файла")
                     return None
             
+            print(f"✅ Файл загружен, размер: {total_size} байт")
+            
             # Определяем кодировку и декодируем
-            return self._decode_content(content, preferred_link.get('format', 'fb2'))
+            print(f"🔄 Обрабатываем содержимое файла в формате {format_name}...")
+            result = self._decode_content(content, preferred_link.get('format', 'fb2'))
+            
+            if result:
+                print(f"✅ Книга '{title}' успешно обработана и готова к использованию")
+            else:
+                print(f"❌ Ошибка обработки книги '{title}'")
+                
+            return result
             
         except Exception as e:
             self.logger.error(f"Ошибка скачивания с Флибусты: {e}")
@@ -957,9 +1003,14 @@ class FlibustaTorClient:
     def _decode_content(self, content: bytes, file_format: str) -> str:
         """Декодирование содержимого файла"""
         try:
+            print(f"🔍 Анализируем тип файла: {file_format}")
+            
             # Проверяем, является ли файл ZIP архивом
             if self._is_zip_archive(content):
+                print(f"📦 Обнаружен ZIP архив, начинаем разархивирование...")
                 return self._extract_from_zip(content, file_format)
+            else:
+                print(f"📄 Обычный файл, начинаем декодирование...")
             
             # Для текстовых форматов пытаемся определить кодировку
             if file_format in ['fb2', 'txt']:
@@ -1010,6 +1061,7 @@ class FlibustaTorClient:
             with zipfile.ZipFile(io.BytesIO(content), 'r') as zip_file:
                 # Получаем список файлов в архиве
                 file_list = zip_file.namelist()
+                print(f"📋 Файлы в архиве: {file_list}")
                 
                 # Ищем файл нужного формата
                 target_file = None
@@ -1047,8 +1099,12 @@ class FlibustaTorClient:
                     target_file = file_list[0]
                 
                 if target_file:
+                    print(f"🎯 Найден целевой файл: {target_file}")
+                    
                     # Извлекаем файл
+                    print(f"📤 Извлекаем файл из архива...")
                     extracted_content = zip_file.read(target_file)
+                    print(f"✅ Файл извлечен, размер: {len(extracted_content)} байт")
                     
                     # Определяем формат по расширению файла
                     file_format = expected_format
@@ -1057,11 +1113,14 @@ class FlibustaTorClient:
                             file_format = fmt
                             break
                     
+                    print(f"📝 Определен формат файла: {file_format}")
                     self.logger.info(f"Извлечен файл {target_file} из архива, формат: {file_format}")
                     
                     # Рекурсивно обрабатываем извлеченный файл
+                    print(f"🔄 Рекурсивно обрабатываем извлеченный файл...")
                     return self._decode_content(extracted_content, file_format)
                 else:
+                    print(f"❌ В архиве не найдено подходящих файлов")
                     self.logger.error("В архиве не найдено подходящих файлов")
                     return "Ошибка: в архиве не найдено подходящих файлов"
                     

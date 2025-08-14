@@ -79,7 +79,7 @@
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-hourglass"></i></div>
                     <div class="stat-content">
-                       <h3 class="stat-value">0</h3>
+                       <h3 class="stat-value">{{ userStats.reading_hours }}</h3>
                        <p class="stat-label">часов начитано</p>
                     </div>
                  </div>
@@ -88,7 +88,7 @@
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-star"></i></div>
                     <div class="stat-content">
-                       <h3 class="stat-value">0</h3>
+                       <h3 class="stat-value">{{ userStats.books_rated }}</h3>
                        <p class="stat-label">книг оценено</p>
                     </div>
                  </div>
@@ -98,7 +98,7 @@
                  <div class="stat-card">
                     <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
                     <div class="stat-content">
-                       <h3 class="stat-value">0</h3>
+                       <h3 class="stat-value">{{ userStats.votes_cast }}</h3>
                        <p class="stat-label">голосов отдано</p>
                     </div>
                  </div>
@@ -170,17 +170,17 @@
           <div class="level-card">
              <div class="level-icon">
                  <i class="bi bi-book-fill"></i>
-                 <span>1</span>
+                 <span>{{ currentLevel }}</span>
              </div>
              <div class="level-info">
-                 <p class="current-level">Текущий уровень: Читатель 1</p>
+                 <p class="current-level">Текущий уровень: Читатель {{ currentLevel }}</p>
                   <div class="level-progress-bar">
-                      <div class="progress" role="progressbar" aria-label="Level Progress" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
-                        <div class="progress-bar" style="width: 10%"></div>
+                      <div class="progress" role="progressbar" aria-label="Level Progress" :aria-valuenow="nextLevelProgressPercentage" aria-valuemin="0" aria-valuemax="100">
+                        <div class="progress-bar" :style="{ width: nextLevelProgressPercentage + '%' }"></div>
                       </div>
-                      <span class="progress-text">10% до уровня 2</span>
+                      <span class="progress-text">{{ nextLevelProgressPercentage }}% до уровня {{ currentLevel + 1 }}</span>
                   </div>
-                  <p class="level-hint">Сделай больше отметок для следующего уровня.</p>
+                  <p class="level-hint">Получи {{ achievementsNeededForNextLevel }} достижений для следующего уровня.</p>
              </div>
           </div>
       </section>
@@ -233,7 +233,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { fetchUserAchievements, fetchAllAchievements, checkAchievements } from '@/api/achievements'
+import { fetchUserAchievements, fetchAllAchievements, checkAchievements, fetchUserStats } from '@/api/achievements'
 import type { Achievement as ApiAchievement, UserAchievement } from '@/api/achievements'
 
 interface Achievement {
@@ -255,6 +255,13 @@ const error = ref<string | null>(null)
 // Данные достижений
 const allAchievements = ref<ApiAchievement[]>([])
 const userAchievements = ref<UserAchievement[]>([])
+
+// Статистика пользователя
+const userStats = ref({
+  reading_hours: 0,
+  books_rated: 0,
+  votes_cast: 0
+})
 
 // Преобразованные данные для отображения
 const achievements = ref<Achievement[]>([])
@@ -350,6 +357,16 @@ const nextLevelProgress = computed(() => {
   return Math.max(0, 5 - achievementsForNextLevel)
 })
 
+const nextLevelProgressPercentage = computed(() => {
+  const achievementsInCurrentLevel = completedCount.value % 5
+  return Math.round((achievementsInCurrentLevel / 5) * 100)
+})
+
+const achievementsNeededForNextLevel = computed(() => {
+  const achievementsInCurrentLevel = completedCount.value % 5
+  return 5 - achievementsInCurrentLevel
+})
+
 
 
 const toggleShowAll = () => {
@@ -361,6 +378,11 @@ onMounted(async () => {
   await loadAchievements()
 })
 
+// Функция обновления достижений
+const refreshAchievements = async () => {
+  await loadAchievements()
+}
+
 // Функция загрузки достижений
 const loadAchievements = async () => {
   try {
@@ -368,15 +390,15 @@ const loadAchievements = async () => {
     error.value = null
     
     // Загружаем все данные параллельно
-     const [allAchievementsData, userAchievementsData] = await Promise.all([
+     const [allAchievementsData, userAchievementsData, userStatsData] = await Promise.all([
        fetchAllAchievements(),
-       fetchUserAchievements()
+       fetchUserAchievements(),
+       fetchUserStats()
      ])
-     
-     
      
      allAchievements.value = allAchievementsData
      userAchievements.value = userAchievementsData
+     userStats.value = userStatsData
     
     // Преобразуем данные для отображения
     transformAchievementsData()
@@ -442,15 +464,10 @@ const mapCategoryToType = (category: string): 'reading' | 'voting' => {
   const typeMap: Record<string, 'reading' | 'voting'> = {
     'READING': 'reading',
     'BOOKS': 'reading',
-    'SOCIAL': 'reading',
+    'SOCIAL': 'voting',
     'OTHER': 'voting'
   }
   return typeMap[category] || 'reading'
-}
-
-// Функция обновления достижений
-const refreshAchievements = async () => {
-  await loadAchievements()
 }
 
 </script>

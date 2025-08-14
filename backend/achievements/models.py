@@ -4,10 +4,10 @@ from django.conf import settings
 class Achievement(models.Model):
     """Achievement model"""
     class Category(models.TextChoices):
-        READING = 'reading', 'Reading'
-        BOOKS = 'books', 'Books'
-        SOCIAL = 'social', 'Social'
-        OTHER = 'other', 'Other'
+        READING = 'READING', 'Reading'
+        BOOKS = 'BOOKS', 'Books'
+        SOCIAL = 'SOCIAL', 'Social'
+        OTHER = 'OTHER', 'Other'
     
     title = models.CharField(max_length=255)
     description = models.TextField()

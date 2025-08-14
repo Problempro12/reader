@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
 
 :root {
   --primary-color: #a8e6cf;
@@ -6,11 +7,13 @@
   --danger-color: #ff6b6b;
   --success-color: #51cf66;
   --warning-color: #fcc419;
-  --text-color: #2c3e50;
-  --text-light: #666;
-  --border-color: #ddd;
-  --bg-light: #f8f9fa;
-  --bg-white: #fff;
+  --text-color: #ffffff;
+  --text-light: #e0e0e0;
+  --border-color: #3a3a3a;
+  --bg-light: #2a2a2a;
+  --bg-white: #1e1e1e;
+  --bg-dark: #1a1a1a;
+  --bg-darker: #0f0f0f;
 }
 
 * {
@@ -23,7 +26,7 @@ body {
   font-family: 'Inter', sans-serif;
   color: var(--text-color);
   line-height: 1.5;
-  background: var(--bg-light);
+  background: var(--bg-dark);
 }
 
 .btn {
@@ -92,8 +95,19 @@ body {
   background: #fab005;
 }
 
-/* Иконки Bootstrap */
-@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+.btn-outline-primary {
+  background: transparent;
+  color: var(--primary-color);
+  border: 1px solid var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-color);
+  color: var(--primary-dark);
+  border-color: var(--primary-color);
+}
+
+/* Иконки Bootstrap - перемещено в начало файла */
 
 /* Анимации */
 .fade-enter-active,
@@ -187,4 +201,29 @@ textarea {
     width: 100%;
     margin-bottom: 1rem;
   }
-} 
+}
+
+.btn-gradient {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7fb069 100%);
+  border: none;
+  color: var(--primary-dark);
+  font-weight: 600;
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(127, 176, 105, 0.3);
+}
+
+.btn-gradient:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7fb069 0%, var(--primary-color) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(127, 176, 105, 0.4);
+  color: var(--primary-dark);
+}
+
+.btn-gradient:disabled {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
+  cursor: not-allowed;
+}

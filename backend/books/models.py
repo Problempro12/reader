@@ -55,13 +55,22 @@ class UserBook(models.Model):
         return f"{self.user.username} - {self.book.title} ({self.status})"
 
 class ReadingProgress(models.Model):
-    """Reading progress for a user's book"""
+    """Reading progress for a user book"""
     user_book = models.ForeignKey(UserBook, on_delete=models.CASCADE, related_name='progress_marks')
-    position = models.IntegerField()  # Position in the text
+    position = models.IntegerField()  # Position in the text (character position)
+    current_page = models.IntegerField(default=1)  # Current page number
+    total_pages = models.IntegerField(default=1)  # Total pages in book
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"{self.user_book.user.username} - {self.user_book.book.title} - Position: {self.position}"
+        return f"{self.user_book.user.username} - {self.user_book.book.title} - Page: {self.current_page}/{self.total_pages}"
+    
+    @property
+    def progress_percentage(self):
+        """Calculate reading progress as percentage"""
+        if self.total_pages <= 0:
+            return 0
+        return min(100, (self.current_page / self.total_pages) * 100)
 
 class BookVote(models.Model):
     """User vote for a book"""

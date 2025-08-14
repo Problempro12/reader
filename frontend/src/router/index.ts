@@ -10,6 +10,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import BookDetailView from '@/views/BookDetailView.vue'
 import BookReaderView from '@/views/BookReaderView.vue'
 import SettingsView from '@/views/SettingsView.vue'
+import UserListsView from '@/views/UserListsView.vue'
 import PrivacyPolicyView from '@/views/PrivacyPolicyView.vue'
 import AchievementsView from '@/views/AchievementsView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
@@ -59,6 +60,12 @@ const router = createRouter({
       path: '/profile/settings',
       name: 'profile-settings',
       component: SettingsView,
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/profile/lists',
+      name: 'profile-lists',
+      component: UserListsView,
       meta: { requiresAuth: true }
     },
     {

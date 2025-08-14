@@ -133,12 +133,12 @@ export default {
 
 .user-rating-info {
   font-size: 0.9rem;
-  color: #4a90e2;
+  color: var(--primary-color);
   font-weight: 500;
 }
 
 .user-rating-text {
-  color: #4a90e2;
+  color: var(--primary-color);
 }
 
 .average-rating {

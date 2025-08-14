@@ -24,6 +24,11 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+// Создаем отдельный экземпляр axios для обновления токенов (без интерсепторов)
+const refreshAxios = axios.create({
+  baseURL: 'http://127.0.0.1:8000/api/',
+});
+
 // Добавляем интерсептор для обработки ошибок авторизации
 axiosInstance.interceptors.response.use(
   (response) => {
@@ -40,8 +45,8 @@ axiosInstance.interceptors.response.use(
     
     const originalRequest = error.config;
     
-    // Если ошибка 401 и это не повторный запрос
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Если ошибка 401 и это не повторный запрос и не запрос на обновление токена
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url?.includes('token/refresh')) {
       originalRequest._retry = true;
       
       try {
@@ -49,7 +54,8 @@ axiosInstance.interceptors.response.use(
         const refreshToken = localStorage.getItem('refreshToken');
         if (refreshToken) {
           console.log('Попытка обновления токена...');
-          const response = await axiosInstance.post('users/token/refresh/', {
+          // Используем отдельный экземпляр axios для обновления токена
+          const response = await refreshAxios.post('users/token/refresh/', {
             refresh: refreshToken
           });
           
@@ -75,6 +81,19 @@ axiosInstance.interceptors.response.use(
         if (router.currentRoute.value.path !== '/auth/login') {
           router.push('/auth/login');
         }
+      }
+    }
+    
+    // Если это ошибка 401 на эндпоинте обновления токена, сразу очищаем данные
+    if (error.response?.status === 401 && originalRequest.url?.includes('token/refresh')) {
+      console.log('Refresh токен недействителен, очищаем данные');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      delete axiosInstance.defaults.headers.common['Authorization'];
+      
+      if (router.currentRoute.value.path !== '/auth/login') {
+        router.push('/auth/login');
       }
     }
     

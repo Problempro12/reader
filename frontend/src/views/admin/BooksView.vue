@@ -2,24 +2,6 @@
   <div class="admin-books">
     <div class="admin-header">
       <h2>Управление книгами</h2>
-      <div class="header-buttons">
-        <button class="btn btn-primary" @click="openCreateModal">
-          <i class="bi bi-plus-lg"></i>
-          Добавить книгу
-        </button>
-        <button class="btn btn-secondary" @click="handleRunImport">
-          <i class="bi bi-download"></i>
-          Запустить импорт
-        </button>
-        <button class="btn btn-info" @click="openSearchModal">
-          <i class="bi bi-search"></i>
-          Поиск в Флибусте
-        </button>
-        <button class="btn btn-warning" @click="openBulkImportModal">
-          <i class="bi bi-collection"></i>
-          Массовый импорт
-        </button>
-      </div>
     </div>
 
     <div class="admin-filters">
@@ -259,8 +241,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, computed } from 'vue'
-import { getBooks, createBook, updateBook, deleteBook, runImportScript, getFlibustCategories, importCategoryBooks } from '@/api/books'
+import { ref, reactive, onMounted, computed, inject } from 'vue'
+import { getBooks, createBook, updateBook, deleteBook, runImportScript, getFlibustCategories, importCategoryBooks, importExternalBook, deleteAllBooks } from '@/api/books'
 import type { Book, BookCreate } from '@/types/book'
 
 const books = ref<Book[]>([])
@@ -296,7 +278,7 @@ const flibustCategories = ref<any[]>([])
 
 const form = reactive<BookCreate>({
   title: '',
-  author: '',
+  author: 0,
   cover: '',
   genre: '',
   ageCategory: '',
@@ -402,7 +384,7 @@ const openCreateModal = () => {
   editingBook.value = null
   Object.assign(form, {
     title: '',
-    author: '',
+    author: 0,
     cover: '',
     genre: '',
     ageCategory: '',
@@ -424,7 +406,7 @@ const openEditModal = (book: Book) => {
   editingBook.value = book
   Object.assign(form, {
     title: book.title,
-    author: book.author,
+    author: book.author.id,
     cover: book.cover,
     genre: book.genre,
     ageCategory: book.ageCategory,
@@ -562,15 +544,45 @@ const handleExternalSearch = async () => {
 const handleImportBook = async (bookData: any) => {
   try {
     loading.value = true;
-    // Здесь должен быть вызов API для импорта книги
-    // await importExternalBook(bookData);
     
-    alert(`Книга "${bookData.title}" успешно импортирована`);
-    await loadBooks();
-    closeSearchModal();
-  } catch (err) {
+    const result = await importExternalBook(bookData, 'flibusta', 'fb2');
+    
+    if (result.success) {
+      alert(`Книга "${bookData.title}" успешно импортирована с аннотацией!`);
+      await loadBooks();
+      closeSearchModal();
+    } else {
+      alert(`Ошибка импорта: ${result.error || 'Неизвестная ошибка'}`);
+    }
+  } catch (err: any) {
     console.error('Ошибка импорта:', err);
-    alert('Ошибка при импорте книги');
+    const errorMessage = err.response?.data?.error || err.message || 'Ошибка при импорте книги';
+    alert(`Ошибка импорта: ${errorMessage}`);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const handleDeleteAllBooks = async () => {
+  if (!confirm('Вы уверены, что хотите удалить ВСЕ книги из базы данных? Это действие нельзя отменить!')) {
+    return;
+  }
+  
+  try {
+    loading.value = true;
+    
+    const result = await deleteAllBooks();
+    
+    if (result.success) {
+      alert(`Успешно удалено ${result.deleted_count} книг`);
+      await loadBooks();
+    } else {
+      alert(`Ошибка удаления: ${result.error || 'Неизвестная ошибка'}`);
+    }
+  } catch (err: any) {
+    console.error('Ошибка удаления:', err);
+    const errorMessage = err.response?.data?.error || err.message || 'Ошибка при удалении книг';
+    alert(`Ошибка удаления: ${errorMessage}`);
   } finally {
     loading.value = false;
   }
@@ -616,6 +628,27 @@ const loadFlibustCategories = async () => {
 onMounted(() => {
   loadBooks()
   loadFlibustCategories()
+  
+  // Регистрируем методы через inject
+   const registerChildMethods = inject('registerChildMethods') as ((methods: any) => void) | undefined
+   if (registerChildMethods) {
+     registerChildMethods({
+       openCreateModal,
+       handleRunImport,
+       openSearchModal,
+       openBulkImportModal,
+       handleDeleteAllBooks
+     })
+   }
+})
+
+// Экспортируем методы для доступа из родительского компонента
+defineExpose({
+  openCreateModal,
+  handleRunImport,
+  openSearchModal,
+  openBulkImportModal,
+  handleDeleteAllBooks
 })
 </script>
 
@@ -628,9 +661,6 @@ onMounted(() => {
 }
 
 .admin-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #333;
@@ -736,7 +766,8 @@ th {
 }
 
 .btn-primary {
-  background-color: #0d6efd;
+  background-color: var(--primary-color);
+  color: var(--primary-dark);
 }
 
 .btn-primary:hover {

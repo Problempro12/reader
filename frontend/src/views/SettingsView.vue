@@ -44,7 +44,7 @@
                   </div>
                 </div>
               </div>
-              <button class="btn btn-primary" @click="uploadAvatar">
+              <button class="btn btn-gradient" @click="uploadAvatar">
                 {{ loading ? 'Загрузка...' : 'Сохранить изменения профиля' }}
               </button>
             </div>
@@ -63,7 +63,7 @@
               </div>
               <div class="d-flex justify-content-between align-items-center mt-4">
                 <div>
-                  <button class="btn btn-primary me-2">Сохранить изменения аккаунта</button>
+                  <button class="btn btn-gradient me-2">Сохранить изменения аккаунта</button>
                   <button class="btn btn-danger me-2" @click="deleteAccount">Удалить аккаунт</button>
                   <button class="btn btn-secondary" @click="logout">Выйти из аккаунта</button>
                 </div>
@@ -307,15 +307,15 @@ h1 {
 }
 
 .btn-primary {
-  background: linear-gradient(45deg, #a8e6cf, #8cd3b0);
+  background: linear-gradient(135deg, var(--primary-color), #7fb069);
   border: none;
-  color: #1a1a1a;
+  color: var(--primary-dark);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(45deg, #8cd3b0, #a8e6cf);
+  background: linear-gradient(135deg, #7fb069, var(--primary-color));
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.4);
+  box-shadow: 0 6px 20px rgba(127, 176, 105, 0.4);
 }
 
 .btn-danger {
@@ -435,4 +435,4 @@ h1 {
 .text-danger {
   color: #e57373;
 }
-</style> 
+</style>

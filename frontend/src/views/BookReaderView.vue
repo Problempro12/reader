@@ -25,7 +25,13 @@
     
     <!-- Компонент читалки -->
     <div class="container-fluid">
-      <BookReader :book-id="bookId" :font-size="fontSize" :theme="currentTheme" />
+      <BookReader 
+        :book-id="bookId" 
+        :font-size="fontSize" 
+        :font-family="fontFamily"
+        :page-length="pageLength"
+        :theme="currentTheme" 
+      />
     </div>
 
     <!-- Модальное окно настроек -->
@@ -50,6 +56,40 @@
                 @click="fontSize = size as 'small' | 'medium' | 'large'"
               >
                 {{ size === 'small' ? 'Маленький' : size === 'medium' ? 'Средний' : 'Большой' }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Тип шрифта -->
+          <div class="setting-group">
+            <label class="setting-label">Тип шрифта</label>
+            <div class="font-family-options">
+              <button 
+                v-for="family in fontFamilies" 
+                :key="family.id"
+                class="btn font-family-btn"
+                :class="{ 'active': fontFamily === family.id }"
+                @click="fontFamily = family.id as 'serif' | 'sans-serif'"
+              >
+                <i :class="family.icon" class="me-2"></i>
+                {{ family.name }}
+              </button>
+            </div>
+          </div>
+          
+          <!-- Длина страницы -->
+          <div class="setting-group">
+            <label class="setting-label">Длина страницы</label>
+            <div class="page-length-options">
+              <button 
+                v-for="length in pageLengths" 
+                :key="length.id"
+                class="btn page-length-btn"
+                :class="{ 'active': pageLength === length.id }"
+                @click="pageLength = length.id as 'short' | 'medium' | 'long'"
+              >
+                <i :class="length.icon" class="me-2"></i>
+                {{ length.name }}
               </button>
             </div>
           </div>
@@ -96,13 +136,17 @@ const bookId = route.params.id as string;
 
 const bookInfo = ref<{ title: string; author: string } | null>(null);
 const fontSize = ref<'small' | 'medium' | 'large'>('medium');
+const fontFamily = ref<'serif' | 'sans-serif'>('serif');
+const pageLength = ref<'short' | 'medium' | 'long'>('medium');
 const currentTheme = ref<'light' | 'dark' | 'sepia' | 'night' | 'night-sepia' | 'blue'>('light');
 const showSettings = ref(false);
 
 // Ключи для localStorage
 const STORAGE_KEYS = {
   theme: 'book-reader-theme',
-  fontSize: 'book-reader-font-size'
+  fontSize: 'book-reader-font-size',
+  fontFamily: 'book-reader-font-family',
+  pageLength: 'book-reader-page-length'
 };
 
 // Функции для работы с localStorage
@@ -118,17 +162,42 @@ const loadFromStorage = () => {
   if (savedFontSize && ['small', 'medium', 'large'].includes(savedFontSize)) {
     fontSize.value = savedFontSize as any;
   }
+  
+  // Загружаем тип шрифта
+  const savedFontFamily = localStorage.getItem(STORAGE_KEYS.fontFamily);
+  if (savedFontFamily && ['serif', 'sans-serif'].includes(savedFontFamily)) {
+    fontFamily.value = savedFontFamily as any;
+  }
+  
+  // Загружаем длину страницы
+  const savedPageLength = localStorage.getItem(STORAGE_KEYS.pageLength);
+  if (savedPageLength && ['short', 'medium', 'long'].includes(savedPageLength)) {
+    pageLength.value = savedPageLength as any;
+  }
 };
 
 const saveToStorage = () => {
   localStorage.setItem(STORAGE_KEYS.theme, currentTheme.value);
   localStorage.setItem(STORAGE_KEYS.fontSize, fontSize.value);
+  localStorage.setItem(STORAGE_KEYS.fontFamily, fontFamily.value);
+  localStorage.setItem(STORAGE_KEYS.pageLength, pageLength.value);
 };
+
+const fontFamilies = [
+  { id: 'serif', name: 'С засечками', icon: 'bi bi-fonts' },
+  { id: 'sans-serif', name: 'Без засечек', icon: 'bi bi-type' }
+];
+
+const pageLengths = [
+  { id: 'short', name: 'Короткая (200 слов)', icon: 'bi bi-file-text' },
+  { id: 'medium', name: 'Средняя (300 слов)', icon: 'bi bi-file-earmark-text' },
+  { id: 'long', name: 'Длинная (500 слов)', icon: 'bi bi-file-earmark-richtext' }
+];
 
 const themes = [
   { id: 'light', name: 'Светлая', icon: 'bi bi-sun' },
   { id: 'sepia', name: 'Сепия', icon: 'bi bi-book' },
-  { id: 'blue', name: 'Синяя', icon: 'bi bi-droplet' },
+  { id: 'blue', name: 'Зеленая', icon: 'bi bi-droplet' },
   { id: 'dark', name: 'Темная', icon: 'bi bi-moon' },
   { id: 'night', name: 'Ночная', icon: 'bi bi-moon-stars' },
   { id: 'night-sepia', name: 'Ночная сепия', icon: 'bi bi-moon-fill' }
@@ -152,6 +221,14 @@ watch(currentTheme, () => {
 });
 
 watch(fontSize, () => {
+  saveToStorage();
+});
+
+watch(fontFamily, () => {
+  saveToStorage();
+});
+
+watch(pageLength, () => {
   saveToStorage();
 });
 
@@ -246,13 +323,13 @@ onMounted(() => {
   background: linear-gradient(135deg, #3d2f1f 0%, #4a3426 100%);
 }
 
-/* Синяя тема */
+/* Зеленая тема */
 .theme-blue {
-  background-color: #e8f4fd;
+  background-color: #f0f8f4;
 }
 
 .theme-blue .reader-nav {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7fb069 100%);
 }
 
 .reader-controls {
@@ -416,11 +493,13 @@ onMounted(() => {
   background: white;
   border-radius: 16px;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  max-width: 400px;
-  width: 90%;
-  max-height: 80vh;
+  max-width: 600px;
+  width: 95%;
+  max-height: 85vh;
   overflow: hidden;
   animation: modalSlideIn 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes modalSlideIn {
@@ -524,10 +603,81 @@ onMounted(() => {
 
 .modal-body {
   padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  max-height: calc(85vh - 80px);
+}
+
+/* Стили для прокрутки */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: rgba(168, 230, 207, 0.6);
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 230, 207, 0.8);
+}
+
+/* Стили прокрутки для темных тем */
+.theme-dark .modal-body::-webkit-scrollbar-track,
+.theme-night .modal-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .modal-body::-webkit-scrollbar-thumb,
+.theme-night .modal-body::-webkit-scrollbar-thumb {
+  background: rgba(168, 230, 207, 0.4);
+}
+
+.theme-dark .modal-body::-webkit-scrollbar-thumb:hover,
+.theme-night .modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(168, 230, 207, 0.6);
+}
+
+/* Стили прокрутки для сепия тем */
+.theme-sepia .modal-body::-webkit-scrollbar-thumb,
+.theme-night-sepia .modal-body::-webkit-scrollbar-thumb {
+  background: rgba(212, 165, 116, 0.6);
+}
+
+.theme-sepia .modal-body::-webkit-scrollbar-thumb:hover,
+.theme-night-sepia .modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 165, 116, 0.8);
+}
+
+/* Стили прокрутки для синей темы */
+.theme-blue .modal-body::-webkit-scrollbar-thumb {
+  background: rgba(74, 144, 226, 0.6);
+}
+
+.theme-blue .modal-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(74, 144, 226, 0.8);
 }
 
 .setting-group {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background: rgba(248, 249, 250, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.setting-group:hover {
+  background: rgba(248, 249, 250, 0.8);
+  border-color: rgba(168, 230, 207, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .setting-group:last-child {
@@ -538,8 +688,22 @@ onMounted(() => {
   display: block;
   font-weight: 600;
   color: #2c3e50;
-  margin-bottom: 12px;
-  font-size: 0.95rem;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  position: relative;
+  padding-left: 8px;
+}
+
+.setting-label::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 12px;
+  background: linear-gradient(135deg, #a8e6cf 0%, #8cd3b0 100%);
+  border-radius: 1px;
 }
 
 .font-size-options {
@@ -549,26 +713,120 @@ onMounted(() => {
 
 .font-size-btn {
   flex: 1;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: 2px solid #e9ecef;
   background: #f8f9fa;
   color: #6c757d;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .font-size-btn:hover {
   border-color: #a8e6cf;
   color: #a8e6cf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.2);
 }
 
 .font-size-btn.active {
   background: #a8e6cf;
   border-color: #a8e6cf;
   color: #2c3e50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+}
+
+.font-family-options {
+  display: flex;
+  gap: 12px;
+}
+
+.font-family-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e9ecef;
+  background: #f8f9fa;
+  color: #6c757d;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.font-family-btn:hover {
+  border-color: #a8e6cf;
+  color: #a8e6cf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.2);
+}
+
+.font-family-btn.active {
+  background: #a8e6cf;
+  border-color: #a8e6cf;
+  color: #2c3e50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+}
+
+.page-length-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.page-length-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #e9ecef;
+  background: #f8f9fa;
+  color: #6c757d;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.page-length-btn:hover {
+  border-color: #a8e6cf;
+  color: #a8e6cf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.2);
+}
+
+.page-length-btn.active {
+  background: #a8e6cf;
+  border-color: #a8e6cf;
+  color: #2c3e50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+}
+
+.page-length-btn i {
+  font-size: 1.1rem;
+  opacity: 0.8;
+}
+
+.page-length-btn.active i {
+  opacity: 1;
 }
 
 .theme-options {
@@ -727,13 +985,13 @@ onMounted(() => {
   background: #d4a574;
 }
 
-/* Превью для синей темы */
+/* Превью для зеленой темы */
 .theme-preview-blue .preview-header {
-  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7fb069 100%);
 }
 
 .theme-preview-blue .preview-content {
-  background: #e8f4fd;
+  background: #f0f8f4;
 }
 
 .theme-preview-blue .preview-text {
@@ -759,8 +1017,12 @@ onMounted(() => {
 
 .theme-dark .font-size-btn,
 .theme-dark .theme-btn,
+.theme-dark .font-family-btn,
+.theme-dark .page-length-btn,
 .theme-night .font-size-btn,
-.theme-night .theme-btn {
+.theme-night .theme-btn,
+.theme-night .font-family-btn,
+.theme-night .page-length-btn {
   background: #34495e;
   border-color: #4a5f7a;
   color: #bdc3c7;
@@ -768,10 +1030,23 @@ onMounted(() => {
 
 .theme-dark .font-size-btn:hover,
 .theme-dark .theme-btn:hover,
+.theme-dark .font-family-btn:hover,
+.theme-dark .page-length-btn:hover,
 .theme-night .font-size-btn:hover,
-.theme-night .theme-btn:hover {
+.theme-night .theme-btn:hover,
+.theme-night .font-family-btn:hover,
+.theme-night .page-length-btn:hover {
   border-color: #a8e6cf;
   color: #a8e6cf;
+}
+
+.theme-dark .font-family-btn.active,
+.theme-dark .page-length-btn.active,
+.theme-night .font-family-btn.active,
+.theme-night .page-length-btn.active {
+  background: #a8e6cf;
+  border-color: #a8e6cf;
+  color: #2c3e50;
 }
 
 /* Ночная сепия тема для модального окна */
@@ -789,16 +1064,27 @@ onMounted(() => {
 }
 
 .theme-night-sepia .font-size-btn,
-.theme-night-sepia .theme-btn {
+.theme-night-sepia .theme-btn,
+.theme-night-sepia .font-family-btn,
+.theme-night-sepia .page-length-btn {
   background: #3d2f1f;
   border-color: #4a3426;
   color: #c19a6b;
 }
 
 .theme-night-sepia .font-size-btn:hover,
-.theme-night-sepia .theme-btn:hover {
+.theme-night-sepia .theme-btn:hover,
+.theme-night-sepia .font-family-btn:hover,
+.theme-night-sepia .page-length-btn:hover {
   border-color: #d4a574;
   color: #d4a574;
+}
+
+.theme-night-sepia .font-family-btn.active,
+.theme-night-sepia .page-length-btn.active {
+  background: #d4a574;
+  border-color: #d4a574;
+  color: #2a1f15;
 }
 
 /* Сепия тема для модального окна */
@@ -816,16 +1102,126 @@ onMounted(() => {
 }
 
 .theme-sepia .font-size-btn,
-.theme-sepia .theme-btn {
+.theme-sepia .theme-btn,
+.theme-sepia .font-family-btn,
+.theme-sepia .page-length-btn {
   background: #ede8dc;
   border-color: #d4c4a8;
   color: #8b7355;
 }
 
 .theme-sepia .font-size-btn:hover,
-.theme-sepia .theme-btn:hover {
+.theme-sepia .theme-btn:hover,
+.theme-sepia .font-family-btn:hover,
+.theme-sepia .page-length-btn:hover {
   border-color: #d4a574;
   color: #d4a574;
+}
+
+.theme-sepia .font-family-btn.active,
+.theme-sepia .page-length-btn.active {
+  background: #d4a574;
+  border-color: #d4a574;
+  color: #f4f1e8;
+}
+
+/* Синяя тема для модального окна */
+.theme-blue .settings-modal {
+  background: #e8f4fd;
+  color: #2c3e50;
+}
+
+.theme-blue .modal-header {
+  border-bottom-color: #b3d9f7;
+}
+
+.theme-blue .setting-label {
+  color: #2c3e50;
+}
+
+.theme-blue .font-size-btn,
+.theme-blue .theme-btn,
+.theme-blue .font-family-btn,
+.theme-blue .page-length-btn {
+  background: #d1ecf1;
+  border-color: #bee5eb;
+  color: #0c5460;
+}
+
+.theme-blue .font-size-btn:hover,
+.theme-blue .theme-btn:hover,
+.theme-blue .font-family-btn:hover,
+.theme-blue .page-length-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.theme-blue .font-family-btn.active,
+.theme-blue .page-length-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+}
+
+/* Стили групп настроек для разных тем */
+.theme-dark .setting-group,
+.theme-night .setting-group {
+  background: rgba(52, 73, 94, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .setting-group:hover,
+.theme-night .setting-group:hover {
+  background: rgba(52, 73, 94, 0.5);
+  border-color: rgba(168, 230, 207, 0.3);
+}
+
+.theme-sepia .setting-group {
+  background: rgba(237, 232, 220, 0.5);
+  border-color: rgba(139, 115, 85, 0.1);
+}
+
+.theme-sepia .setting-group:hover {
+  background: rgba(237, 232, 220, 0.8);
+  border-color: rgba(212, 165, 116, 0.3);
+}
+
+.theme-night-sepia .setting-group {
+  background: rgba(61, 47, 31, 0.3);
+  border-color: rgba(212, 165, 116, 0.1);
+}
+
+.theme-night-sepia .setting-group:hover {
+  background: rgba(61, 47, 31, 0.5);
+  border-color: rgba(212, 165, 116, 0.3);
+}
+
+.theme-blue .setting-group {
+  background: rgba(209, 236, 241, 0.5);
+  border-color: rgba(74, 144, 226, 0.1);
+}
+
+.theme-blue .setting-group:hover {
+  background: rgba(209, 236, 241, 0.8);
+  border-color: rgba(74, 144, 226, 0.3);
+}
+
+/* Стили меток для разных тем */
+.theme-dark .setting-label::before,
+.theme-night .setting-label::before {
+  background: linear-gradient(135deg, #a8e6cf 0%, #8cd3b0 100%);
+}
+
+.theme-sepia .setting-label::before {
+  background: linear-gradient(135deg, #d4a574 0%, #c19a6b 100%);
+}
+
+.theme-night-sepia .setting-label::before {
+  background: linear-gradient(135deg, #d4a574 0%, #c19a6b 100%);
+}
+
+.theme-blue .setting-label::before {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #7fb069 100%);
 }
 
 @media (max-width: 768px) {
@@ -846,12 +1242,24 @@ onMounted(() => {
   }
   
   .settings-modal {
-    width: 95%;
-    margin: 20px;
+    width: 98%;
+    margin: 10px;
+    max-height: 90vh;
   }
   
   .modal-body {
     padding: 20px;
+    max-height: calc(90vh - 80px);
+  }
+  
+  .setting-group {
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+  
+  .setting-label {
+    font-size: 0.85rem;
+    margin-bottom: 6px;
   }
   
   .theme-btn {
@@ -861,6 +1269,26 @@ onMounted(() => {
   .theme-preview {
     width: 35px;
     height: 25px;
+  }
+  
+  .font-family-options {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .font-size-options {
+    gap: 6px;
+  }
+  
+  .page-length-options {
+    gap: 6px;
+  }
+  
+  .font-size-btn,
+  .font-family-btn,
+  .page-length-btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
   }
 }
 </style>

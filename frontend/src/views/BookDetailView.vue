@@ -132,10 +132,58 @@
                   <i class="bi bi-book-open me-2"></i>
                   Читать книгу
                 </RouterLink>
-                <button class="btn btn-outline-primary btn-lg" @click="addToLibrary">
-                  <i class="bi bi-bookmark-plus me-2"></i>
-                  В библиотеку
-                </button>
+                
+                <!-- Система списков -->
+                <div class="list-actions">
+                  <div v-if="!userBookStatus" class="dropdown">
+                    <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi bi-bookmark-plus me-2"></i>
+                      В список
+                    </button>
+                    <ul class="dropdown-menu">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('planned')">
+                        <i class="bi bi-calendar-plus me-2"></i>В планах
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('reading')">
+                        <i class="bi bi-book me-2"></i>Читаю
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('completed')">
+                        <i class="bi bi-check-circle me-2"></i>Прочитано
+                      </a></li>
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('dropped')">
+                        <i class="bi bi-x-circle me-2"></i>Брошено
+                      </a></li>
+                    </ul>
+                  </div>
+                  
+                  <div v-else class="list-status-actions">
+                    <div class="dropdown">
+                      <button class="btn btn-success btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi" :class="getStatusIcon(userBookStatus)"></i>
+                        {{ getStatusText(userBookStatus) }}
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('planned')" :class="{ active: userBookStatus === 'planned' }">
+                          <i class="bi bi-calendar-plus me-2"></i>В планах
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('reading')" :class="{ active: userBookStatus === 'reading' }">
+                          <i class="bi bi-book me-2"></i>Читаю
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('completed')" :class="{ active: userBookStatus === 'completed' }">
+                          <i class="bi bi-check-circle me-2"></i>Прочитано
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('dropped')" :class="{ active: userBookStatus === 'dropped' }">
+                          <i class="bi bi-x-circle me-2"></i>Брошено
+                        </a></li>
+                      </ul>
+                    </div>
+                    <button class="btn btn-outline-danger btn-lg" @click="removeFromList">
+                      <i class="bi bi-trash me-2"></i>
+                      Удалить из списка
+                    </button>
+                  </div>
+                </div>
+                
                 <button class="btn btn-outline-secondary btn-lg" @click="rateBook">
                   <i class="bi bi-star me-2"></i>
                   Оценить
@@ -244,7 +292,7 @@
 <script setup lang="ts">
 import { ref, onMounted, nextTick } from 'vue';
 import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { getBook, rateBook as rateBookApi, getBookRating, getBookVoteInfo, voteForBook, removeVoteForBook } from '@/api/books';
+import { getBook, rateBook as rateBookApi, getBookRating, getBookVoteInfo, voteForBook, removeVoteForBook, getUserBooks, addUserBook, updateUserBookStatus, removeUserBook } from '@/api/books';
 import type { Book } from '@/types/book';
 
 // Bootstrap Modal
@@ -267,6 +315,9 @@ const hoverRating = ref(0);
 const userRating = ref<number | null>(null);
 const voteInfo = ref<{vote_count: number, user_voted: boolean} | null>(null);
 const isVoting = ref(false);
+const userBookStatus = ref<string | null>(null);
+const userBookId = ref<number | null>(null);
+const isUpdatingStatus = ref(false);
 let modalInstance: any = null;
 
 // Загрузка книги
@@ -280,16 +331,24 @@ const loadBook = async () => {
       throw new Error('Некорректный ID книги');
     }
     
-    // Загружаем данные книги, рейтинг и информацию о голосах параллельно
-    const [bookData, ratingData, voteData] = await Promise.all([
+    // Загружаем данные книги, рейтинг, информацию о голосах и статус в библиотеке параллельно
+    const [bookData, ratingData, voteData, userBooksData] = await Promise.all([
       getBook(bookId),
       getBookRating(bookId).catch(() => ({ user_rating: null, average_rating: 0, rating_count: 0 })),
-      getBookVoteInfo(bookId).catch(() => ({ vote_count: 0, user_voted: false }))
+      getBookVoteInfo(bookId).catch(() => ({ vote_count: 0, user_voted: false })),
+      getUserBooks().catch(() => [])
     ]);
     
     book.value = bookData;
     userRating.value = ratingData.user_rating;
     voteInfo.value = voteData;
+    
+    // Проверяем, есть ли книга в библиотеке пользователя
+    const userBook = userBooksData.find((ub: any) => ub.book.id === bookId);
+    if (userBook) {
+      userBookStatus.value = userBook.status;
+      userBookId.value = userBook.id;
+    }
     
     // Обновляем рейтинг книги из API рейтинга
     if (book.value) {
@@ -312,10 +371,103 @@ const handleImageError = (event: Event) => {
   target.src = '/placeholder-book.svg';
 };
 
-// Действия
-const addToLibrary = () => {
-  // TODO: Реализовать добавление в библиотеку
-  console.log('Добавление в библиотеку:', book.value?.id);
+// Действия со списками
+const addToList = async (status: string) => {
+  if (!book.value || isUpdatingStatus.value) return;
+  
+  try {
+    isUpdatingStatus.value = true;
+    const response = await addUserBook(book.value.id, status);
+    userBookStatus.value = status;
+    userBookId.value = response.id;
+    
+    // Показываем уведомление об успехе
+    const statusText = getStatusText(status);
+    console.log(`Книга добавлена в список: ${statusText}`);
+  } catch (error: any) {
+    console.error('Ошибка при добавлении в список:', error);
+    
+    // Показываем пользователю понятное сообщение об ошибке
+    if (error.response?.status === 401) {
+      alert('Для добавления книг в список необходимо войти в систему');
+    } else if (error.response?.status === 400) {
+      alert('Книга уже добавлена в ваш список');
+    } else {
+      alert('Произошла ошибка при добавлении книги в список. Попробуйте еще раз.');
+    }
+  } finally {
+    isUpdatingStatus.value = false;
+  }
+};
+
+const updateStatus = async (newStatus: string) => {
+  if (!userBookId.value || isUpdatingStatus.value || userBookStatus.value === newStatus) return;
+  
+  try {
+    isUpdatingStatus.value = true;
+    await updateUserBookStatus(userBookId.value, newStatus);
+    userBookStatus.value = newStatus;
+    
+    // Показываем уведомление об успехе
+    const statusText = getStatusText(newStatus);
+    console.log(`Статус книги изменен на: ${statusText}`);
+  } catch (error: any) {
+    console.error('Ошибка при обновлении статуса:', error);
+    
+    // Показываем пользователю понятное сообщение об ошибке
+    if (error.response?.status === 401) {
+      alert('Для изменения статуса книги необходимо войти в систему');
+    } else {
+      alert('Произошла ошибка при изменении статуса книги. Попробуйте еще раз.');
+    }
+  } finally {
+    isUpdatingStatus.value = false;
+  }
+};
+
+const removeFromList = async () => {
+  if (!userBookId.value || isUpdatingStatus.value) return;
+  
+  try {
+    isUpdatingStatus.value = true;
+    await removeUserBook(userBookId.value);
+    userBookStatus.value = null;
+    userBookId.value = null;
+    
+    console.log('Книга удалена из списка');
+  } catch (error: any) {
+    console.error('Ошибка при удалении из списка:', error);
+    
+    // Показываем пользователю понятное сообщение об ошибке
+    if (error.response?.status === 401) {
+      alert('Для удаления книги из списка необходимо войти в систему');
+    } else {
+      alert('Произошла ошибка при удалении книги из списка. Попробуйте еще раз.');
+    }
+  } finally {
+    isUpdatingStatus.value = false;
+  }
+};
+
+// Вспомогательные функции для отображения
+const getStatusText = (status: string): string => {
+  const statusTexts: Record<string, string> = {
+    'planned': 'В планах',
+    'reading': 'Читаю',
+    'completed': 'Прочитано',
+    'dropped': 'Брошено'
+  };
+  return statusTexts[status] || status;
+};
+
+const getStatusIcon = (status: string): string => {
+  const statusIcons: Record<string, string> = {
+    'planned': 'bi-calendar-plus me-2',
+    'reading': 'bi-book me-2',
+    'completed': 'bi-check-circle me-2',
+    'dropped': 'bi-x-circle me-2'
+  };
+  return statusIcons[status] || 'bi-bookmark me-2';
 };
 
 const rateBook = async () => {
@@ -403,8 +555,17 @@ const closeRatingModal = () => {
 };
 
 // Инициализация
-onMounted(() => {
-  loadBook();
+onMounted(async () => {
+  await loadBook();
+  
+  // Инициализируем Bootstrap dropdown после загрузки компонента
+  await nextTick();
+  if (window.bootstrap) {
+    const dropdownElements = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+    dropdownElements.forEach(element => {
+      new window.bootstrap.Dropdown(element);
+    });
+  }
 });
 </script>
 
@@ -684,6 +845,29 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 1rem;
   margin-top: 2rem;
+}
+
+.list-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.list-status-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.dropdown-menu .dropdown-item.active {
+  background-color: rgba(168, 230, 207, 0.2);
+  color: #a8e6cf;
+  font-weight: 600;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: rgba(168, 230, 207, 0.1);
+  color: #a8e6cf;
 }
 
 .book-actions .btn {

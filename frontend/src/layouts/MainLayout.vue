@@ -1,8 +1,8 @@
 <template>
-  <div class="main-layout dark:bg-gray-900 dark:text-gray-200 min-h-screen flex flex-col">
+  <div class="main-layout bg-dark text-light min-vh-100 d-flex flex-column">
     <AppHeader />
 
-    <main class="flex-grow px-4 py-8">
+    <main class="flex-grow-1 px-4 py-4">
       <router-view />
     </main>
 
@@ -19,4 +19,4 @@ import AppFooter from '../components/AppFooter.vue';
 <style scoped>
 /* Базовые стили для основного макета - Tailwind классы достаточны */
 /* Удаляем старые стили контейнера */
-</style> 
+</style>

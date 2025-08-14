@@ -10,6 +10,7 @@ class BookStatsSerializer(serializers.Serializer):
     reading_count = serializers.IntegerField(default=0)
     dropped_count = serializers.IntegerField(default=0)
     total_count = serializers.IntegerField(default=0)
+    progress_marks_count = serializers.IntegerField(default=0)
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the User model"""

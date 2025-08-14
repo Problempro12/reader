@@ -3,7 +3,7 @@
 import os
 from django.conf import settings
 
-# Настройки Tor (SOCKS5 прокси для onion-адресов через Tor Browser)
+# Настройки Tor (SOCKS5 прокси для onion-адресов через Tor сервис)
 TOR_PROXY_CONFIG = {
     'http': 'socks5h://127.0.0.1:9150',
     'https': 'socks5h://127.0.0.1:9150'

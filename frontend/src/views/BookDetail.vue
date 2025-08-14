@@ -55,7 +55,7 @@ p {
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: var(--primary-color);
   color: white;
   border: none;
   border-radius: 4px;
@@ -65,4 +65,4 @@ button {
 button:hover {
   background-color: #0056b3;
 }
-</style> 
+</style>

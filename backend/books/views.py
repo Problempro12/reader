@@ -188,6 +188,33 @@ class BookViewSet(viewsets.ModelViewSet):
             'author': book.author.name,
             'content': content
         })
+    
+    @action(detail=True, methods=['get'], permission_classes=[permissions.AllowAny])
+    def content_paginated(self, request, pk=None):
+        """Get book content with pagination"""
+        from .utils import paginate_book_content
+        
+        book = self.get_object()
+        page = int(request.query_params.get('page', 1))
+        words_per_page = int(request.query_params.get('words_per_page', 300))
+        
+        # Get full content first
+        content_response = self.content(request, pk)
+        full_content = content_response.data['content']
+        
+        # Paginate content
+        paginated_data = paginate_book_content(full_content, page, words_per_page)
+        
+        return Response({
+            'id': book.id,
+            'title': book.title,
+            'author': book.author.name,
+            'current_page': paginated_data['current_page'],
+            'total_pages': paginated_data['total_pages'],
+            'content': paginated_data['content'],
+            'has_next': paginated_data['has_next'],
+            'has_previous': paginated_data['has_previous']
+        })
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def top_voted(self, request):
@@ -449,7 +476,7 @@ class BookViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'], permission_classes=[permissions.AllowAny])
     def import_category_books(self, request):
-        """Import books from a specific category"""
+        """Массовый импорт книг из категории Flibusta"""
         from django.db import transaction
         from .models import Author
         
@@ -478,7 +505,9 @@ class BookViewSet(viewsets.ModelViewSet):
                 }, status=status.HTTP_400_BAD_REQUEST)
             
             # Import books using the external sources client
+            from .external_sources import ExternalBookSources
             client = FlibustaTorClient(use_tor=True)
+            sources = ExternalBookSources(use_tor_for_flibusta=True)
             books_data = client.browse_books_by_category(category_url, sort_by_popularity=True, limit=count)
             
             imported_count = 0
@@ -504,19 +533,28 @@ class BookViewSet(viewsets.ModelViewSet):
                         )
                         
                         # Download full book content
-                        full_book_data = import_book_from_external_source(book_data, 'flibusta', 'fb2', use_tor=True)
+                        content = import_book_from_external_source(book_data, 'flibusta', 'fb2', use_tor=True)
                         
-                        # Create book in database with full content
-                        book = Book.objects.create(
-                            title=book_data.get('title', 'Без названия'),
-                            author=author,
-                            description=book_data.get('description', ''),
-                            content=full_book_data.get('content', '') if full_book_data else '',
-                            cover_url=full_book_data.get('cover_url', '') if full_book_data else book_data.get('cover_url', ''),
-                            genre=book_data.get('genre', 'Общее')
-                        )
-                        
-                        imported_count += 1
+                        if content:
+                            # Получаем аннотацию книги
+                            description = book_data.get('description', '')
+                            book_id = book_data.get('source_id') or book_data.get('id')
+                            if book_id and not description:
+                                description = sources.get_book_description(book_id)
+                            
+                            # Create book in database with full content
+                            book = Book.objects.create(
+                                title=book_data.get('title', 'Без названия'),
+                                author=author,
+                                description=description or '',
+                                content=content,
+                                cover_url=book_data.get('cover_url', ''),
+                                genre=book_data.get('genre', 'Общее'),
+                                source_id=book_id or '',
+                                source_type='flibusta'
+                            )
+                            
+                            imported_count += 1
                         
                     except Exception as e:
                         errors.append(f"Error importing '{book_data.get('title', 'Unknown')}': {str(e)}")
@@ -533,6 +571,25 @@ class BookViewSet(viewsets.ModelViewSet):
                 'success': False,
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['delete'], permission_classes=[permissions.IsAuthenticated])
+    def delete_all_books(self, request):
+        """Удаление всех книг из базы данных"""
+        try:
+            # Подсчитываем количество книг перед удалением
+            total_books = Book.objects.count()
+            
+            # Удаляем все книги
+            Book.objects.all().delete()
+            
+            return Response({
+                'success': True,
+                'message': f'Successfully deleted {total_books} books',
+                'deleted_count': total_books
+            })
+            
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
     def voting_candidates(self, request):
@@ -568,7 +625,7 @@ def search_external_books_view(request):
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def import_external_book_view(request):
-    """Импорт книги из внешнего источника"""
+    """Импорт книги из внешнего источника с сохранением в БД"""
     try:
         book_data = request.data.get('book_data')
         source = request.data.get('source', 'flibusta')
@@ -577,18 +634,59 @@ def import_external_book_view(request):
         if not book_data:
             return Response({'error': 'Book data is required'}, status=status.HTTP_400_BAD_REQUEST)
         
-        book = import_book_from_external_source(book_data, source, download_format, use_tor=True)
+        # Получаем содержимое книги
+        content = import_book_from_external_source(book_data, source, download_format, use_tor=True)
         
-        if book:
-            from .serializers import BookSerializer
-            serializer = BookSerializer(book)
+        if not content:
+            return Response({'error': 'Failed to download book content'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # Получаем аннотацию книги
+        from .external_sources import ExternalBookSources
+        sources = ExternalBookSources(use_tor_for_flibusta=True)
+        description = None
+        book_id = book_data.get('source_id') or book_data.get('id')
+        if book_id:
+            description = sources.get_book_description(book_id)
+        
+        # Создаем или получаем автора
+        author_name = book_data.get('author', 'Неизвестный автор')
+        author, created = Author.objects.get_or_create(
+            name=author_name,
+            defaults={'bio': ''}
+        )
+        
+        # Проверяем, не существует ли уже такая книга
+        existing_book = Book.objects.filter(
+            title=book_data.get('title', ''),
+            author=author
+        ).first()
+        
+        if existing_book:
             return Response({
-                'success': True,
-                'book': serializer.data,
-                'message': 'Book imported successfully'
-            })
-        else:
-            return Response({'error': 'Failed to import book'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                'success': False,
+                'error': 'Book already exists in database',
+                'book_id': existing_book.id
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Создаем новую книгу
+        book = Book.objects.create(
+            title=book_data.get('title', ''),
+            author=author,
+            content=content,
+            description=description or book_data.get('description', ''),
+            genre=book_data.get('genre', ''),
+            cover_url=book_data.get('cover_url', ''),
+            source_id=book_data.get('id', ''),
+            source_type=source
+        )
+        
+        from .serializers import BookSerializer
+        serializer = BookSerializer(book)
+        return Response({
+            'success': True,
+            'book': serializer.data,
+            'message': 'Book imported successfully'
+        })
             
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -610,8 +708,8 @@ class UserBookViewSet(viewsets.ModelViewSet):
         return UserBook.objects.filter(user=self.request.user).select_related('book', 'book__author')
     
     @action(detail=False, methods=['post'])
-    def add_to_library(self, request):
-        """Add a book to user's library"""
+    def add_to_list(self, request):
+        """Add a book to user's list"""
         book_id = request.data.get('book_id')
         status = request.data.get('status', UserBook.Status.PLANNED)
         
@@ -634,6 +732,11 @@ class UserBookViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(user_book)
         return Response(serializer.data)
     
+    @action(detail=False, methods=['post'])
+    def add_to_library(self, request):
+        """Add a book to user's library (legacy endpoint)"""
+        return self.add_to_list(request)
+    
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
         """Update status of a book in user's library"""
@@ -647,6 +750,64 @@ class UserBookViewSet(viewsets.ModelViewSet):
         user_book.save()
         
         serializer = self.get_serializer(user_book)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['delete'])
+    def remove_from_list(self, request):
+        """Remove a book from user's list"""
+        book_id = request.data.get('book_id')
+        
+        if not book_id:
+            return Response({'error': 'Book ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user_book = UserBook.objects.get(user=request.user, book_id=book_id)
+            user_book.delete()
+            return Response({'message': 'Book removed from list successfully'})
+        except UserBook.DoesNotExist:
+            return Response({'error': 'Book not found in user list'}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=False, methods=['get'])
+    def user_lists(self, request):
+        """Get all user's lists with books grouped by status"""
+        user_books = self.get_queryset()
+        
+        lists = {
+            'planned': [],
+            'reading': [],
+            'completed': [],
+            'dropped': []
+        }
+        
+        for user_book in user_books:
+            book_data = {
+                'id': user_book.book.id,
+                'title': user_book.book.title,
+                'author': {
+                    'id': user_book.book.author.id,
+                    'name': user_book.book.author.name
+                },
+                'cover_url': user_book.book.cover_url,
+                'added_at': user_book.added_at,
+                'rating': user_book.rating
+            }
+            lists[user_book.status].append(book_data)
+        
+        return Response(lists)
+    
+    @action(detail=False, methods=['get'])
+    def list_by_status(self, request):
+        """Get books by specific status"""
+        status_param = request.query_params.get('status')
+        
+        if not status_param:
+            return Response({'error': 'Status parameter is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if status_param not in [choice[0] for choice in UserBook.Status.choices]:
+            return Response({'error': 'Invalid status'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user_books = self.get_queryset().filter(status=status_param)
+        serializer = self.get_serializer(user_books, many=True)
         return Response(serializer.data)
 
 class ReadingProgressViewSet(viewsets.ModelViewSet):
@@ -670,6 +831,108 @@ class ReadingProgressViewSet(viewsets.ModelViewSet):
             user_book.save()
         
         serializer.save()
+    
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def save_page_progress(self, request):
+        """Save reading progress for a specific page"""
+        from .utils import calculate_reading_position
+        
+        book_id = request.data.get('book_id')
+        current_page = request.data.get('current_page', 1)
+        total_pages = request.data.get('total_pages', 1)
+        words_per_page = request.data.get('words_per_page', 300)
+        
+        if not book_id:
+            return Response({'error': 'book_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            book = Book.objects.get(id=book_id)
+            user_book, created = UserBook.objects.get_or_create(
+                user=request.user,
+                book=book,
+                defaults={'status': UserBook.Status.READING}
+            )
+            
+            # Calculate position in text based on page
+            position = calculate_reading_position(book.content, current_page, words_per_page)
+            
+            # Always create new reading progress entry
+            progress = ReadingProgress.objects.create(
+                user_book=user_book,
+                position=position,
+                current_page=current_page,
+                total_pages=total_pages
+            )
+            
+            # Update user_book status if needed
+            if user_book.status != UserBook.Status.READING:
+                user_book.status = UserBook.Status.READING
+                user_book.save()
+            
+            return Response({
+                'success': True,
+                'current_page': progress.current_page,
+                'total_pages': progress.total_pages,
+                'progress_percentage': progress.progress_percentage
+            })
+            
+        except Book.DoesNotExist:
+            return Response({'error': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def get_page_progress(self, request):
+        """Get reading progress for a book"""
+        from .utils import get_page_from_position
+        
+        book_id = request.query_params.get('book_id')
+        words_per_page = int(request.query_params.get('words_per_page', 300))
+        
+        if not book_id:
+            return Response({'error': 'book_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            book = Book.objects.get(id=book_id)
+            user_book = UserBook.objects.filter(user=request.user, book=book).first()
+            
+            if not user_book:
+                # No progress yet, return first page
+                return Response({
+                    'current_page': 1,
+                    'total_pages': 1,
+                    'progress_percentage': 0
+                })
+            
+            progress = ReadingProgress.objects.filter(user_book=user_book).order_by('-created_at').first()
+            
+            if not progress:
+                # No progress yet, return first page
+                return Response({
+                    'current_page': 1,
+                    'total_pages': 1,
+                    'progress_percentage': 0
+                })
+            
+            # If we have old progress without page info, calculate from position
+            if progress.current_page == 1 and progress.total_pages == 1 and progress.position > 0:
+                progress.current_page = get_page_from_position(book.content, progress.position, words_per_page)
+                # Calculate total pages
+                from .utils import paginate_book_content
+                pagination_info = paginate_book_content(book.content, 1, words_per_page)
+                progress.total_pages = pagination_info['total_pages']
+                progress.save()
+            
+            return Response({
+                'current_page': progress.current_page,
+                'total_pages': progress.total_pages,
+                'progress_percentage': progress.progress_percentage
+            })
+            
+        except Book.DoesNotExist:
+            return Response({'error': 'Book not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BookListView(generics.ListAPIView):
     """View для списка книг (используется админкой)"""

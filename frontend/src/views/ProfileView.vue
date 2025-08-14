@@ -31,7 +31,7 @@
                 <i class="bi bi-book-fill"></i>
               </div>
               <div class="stat-content">
-                <span class="stat-value">{{ userData?.stats?.total_count ?? 0 }}</span>
+                <span class="stat-value">{{ userData?.stats?.read_count ?? 0 }}</span>
                 <span class="stat-label">Всего прочитано</span>
               </div>
             </div>
@@ -41,14 +41,14 @@
                 <i class="bi bi-bookmark-star-fill"></i>
               </div>
               <div class="stat-content">
-                <span class="stat-value">{{ userData?.stats?.read_count ?? 0 }}</span>
+                <span class="stat-value">{{ userData?.stats?.progress_marks_count ?? 0 }}</span>
                 <span class="stat-label">Всего отметок прогресса</span>
               </div>
             </div>
           </div>
 
           <div class="history-button-wrapper">
-            <button class="btn btn-history">
+            <button class="btn btn-history" @click="showProgressHistory = true">
               <i class="bi bi-clock-history"></i>
               История отметок прогресса
             </button>
@@ -56,6 +56,10 @@
         </div>
 
         <div class="profile-actions">
+          <RouterLink to="/profile/lists" class="btn btn-outline-light">
+            <i class="bi bi-list-ul"></i>
+            Списки
+          </RouterLink>
           <RouterLink to="/profile/settings" class="btn btn-outline-light">
             <i class="bi bi-gear"></i>
             Настройки
@@ -63,6 +67,12 @@
         </div>
       </div>
     </div>
+    
+    <!-- Модальное окно истории прогресса -->
+    <ProgressHistoryModal 
+      v-if="showProgressHistory" 
+      @close="showProgressHistory = false" 
+    />
   </div>
 </template>
 
@@ -73,11 +83,15 @@ import { useRouter } from 'vue-router';
 import type { User } from '@/types';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
+import ProgressHistoryModal from '@/components/ProgressHistoryModal.vue';
 
 const router = useRouter();
 const userStore = useUserStore();
 const { userData, userInitials, isLoggedIn } = storeToRefs(userStore);
 const { fetchUserData } = userStore;
+
+// Состояние модального окна истории прогресса
+const showProgressHistory = ref(false);
 
 // Вычисляемое свойство для определения URL отображаемого аватара
 const displayedAvatarUrl = computed(() => {
@@ -326,6 +340,8 @@ watch(userData, (newValue, oldValue) => {
   position: absolute;
   bottom: 1rem;
   left: 1rem;
+  display: flex;
+  gap: 1rem;
 }
 
 .profile-actions .btn {
@@ -334,6 +350,9 @@ watch(userData, (newValue, oldValue) => {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .profile-actions .btn:hover {
@@ -351,4 +370,4 @@ watch(userData, (newValue, oldValue) => {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

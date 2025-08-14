@@ -96,7 +96,10 @@ class UserBookSerializer(serializers.ModelSerializer):
 
 class ReadingProgressSerializer(serializers.ModelSerializer):
     """Serializer for the ReadingProgress model"""
+    progress_percentage = serializers.ReadOnlyField()
+    user_book = UserBookSerializer(read_only=True)
+    
     class Meta:
         model = ReadingProgress
-        fields = ['id', 'user_book', 'position', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ['id', 'user_book', 'position', 'current_page', 'total_pages', 'progress_percentage', 'created_at']
+        read_only_fields = ['id', 'progress_percentage', 'created_at']

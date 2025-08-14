@@ -35,6 +35,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     
     def get_object(self):
+        from books.models import ReadingProgress
         user = self.request.user
         
         # Calculate book statistics
@@ -43,6 +44,7 @@ class UserProfileView(generics.RetrieveUpdateDestroyAPIView):
             'planning_count': UserBook.objects.filter(user=user, status=UserBook.Status.PLANNED).count(),
             'reading_count': UserBook.objects.filter(user=user, status=UserBook.Status.READING).count(),
             'dropped_count': UserBook.objects.filter(user=user, status=UserBook.Status.DROPPED).count(),
+            'progress_marks_count': ReadingProgress.objects.filter(user_book__user=user).count(),
         }
         stats['total_count'] = stats['read_count'] + stats['planning_count'] + stats['reading_count'] + stats['dropped_count']
         

@@ -56,17 +56,13 @@ class CheckAchievementsView(generics.GenericAPIView):
     
     def check_achievement_requirements(self, user, achievement):
         """Check if user meets the requirements for an achievement"""
-        # This is a simplified implementation
-        # In a real app, you would check the achievement.requirement JSON
-        # and implement logic for different types of achievements
-        
-        # Example implementation for reading achievements
         from books.models import UserBook, ReadingProgress
         
         requirement = achievement.requirement
         category = achievement.category
         
-        if category == Achievement.Category.READING:
+        # Проверка достижений по чтению
+        if category in [Achievement.Category.READING, Achievement.Category.BOOKS, Achievement.Category.SOCIAL]:
             if 'books_read' in requirement:
                 books_read = UserBook.objects.filter(
                     user=user, 
@@ -79,7 +75,21 @@ class CheckAchievementsView(generics.GenericAPIView):
                     user_book__user=user
                 ).count()
                 return progress_marks >= requirement['progress_marks']
+                
+            if 'books_rated' in requirement:
+                books_rated = UserBook.objects.filter(
+                    user=user,
+                    rating__isnull=False
+                ).count()
+                return books_rated >= requirement['books_rated']
+                
+            if 'books_in_library' in requirement:
+                books_in_library = UserBook.objects.filter(user=user).count()
+                return books_in_library >= requirement['books_in_library']
         
-        # Add more achievement types as needed
+        # Пока что другие типы достижений не реализованы
+        if category == Achievement.Category.OTHER:
+            # Заглушка для специальных достижений
+            return False
         
         return False

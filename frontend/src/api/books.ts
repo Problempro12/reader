@@ -103,9 +103,26 @@ export const getBookOfWeek = async (): Promise<Book> => {
   return data;
 };
 
-// Получение содержимого книги для чтения
+// Получение содержимого книги
 export const getBookContent = async (id: number): Promise<{id: number, title: string, author: string, content: string}> => {
   const { data } = await axiosInstance.get(`books/books/${id}/content/`);
+  return data;
+};
+
+// Получение содержимого книги с пагинацией
+export const getBookContentPaginated = async (id: number, page: number = 1, wordsPerPage: number = 300): Promise<{
+  id: number;
+  title: string;
+  author: string;
+  content: string;
+  current_page: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+}> => {
+  const { data } = await axiosInstance.get(`books/books/${id}/content_paginated/`, {
+    params: { page, words_per_page: wordsPerPage }
+  });
   return data;
 };
 
@@ -133,6 +150,11 @@ export const updateUserBookStatus = async (userBookId: number, status: string): 
   return data;
 };
 
+// Удаление книги из списка пользователя
+export const removeUserBook = async (userBookId: number): Promise<void> => {
+  await axiosInstance.delete(`books/user-books/${userBookId}/`);
+};
+
 // === READING PROGRESS API ===
 
 // Получение прогресса чтения
@@ -141,12 +163,33 @@ export const getReadingProgress = async (): Promise<any[]> => {
   return data;
 };
 
-// Добавление отметки о прогрессе чтения
+// Добавление прогресса чтения
 export const addReadingProgress = async (userBookId: number, position: number): Promise<any> => {
-  const { data } = await axiosInstance.post('books/reading-progress/', {
+  const response = await axiosInstance.post('books/reading-progress/', {
     user_book: userBookId,
     position
   });
+  return response.data;
+};
+
+// Сохранение прогресса чтения по страницам
+export const savePageProgress = async (bookId: number, currentPage: number, totalPages: number, wordsPerPage: number = 300): Promise<any> => {
+  const response = await axiosInstance.post('books/reading-progress/save_page_progress/', {
+    book_id: bookId,
+    current_page: currentPage,
+    total_pages: totalPages,
+    words_per_page: wordsPerPage
+  });
+  return response.data;
+};
+
+// Получение прогресса чтения по страницам
+export const getPageProgress = async (bookId: number, wordsPerPage: number = 300): Promise<{
+  current_page: number;
+  total_pages: number;
+  progress_percentage: number;
+}> => {
+  const { data } = await axiosInstance.get(`books/reading-progress/get_page_progress/?book_id=${bookId}&words_per_page=${wordsPerPage}`);
   return data;
 };
 
@@ -173,5 +216,21 @@ export const importCategoryBooks = async (categoryUrl: string, count: number): P
     category_url: categoryUrl,
     count: count
   });
+  return response.data;
+};
+
+// Импорт отдельной книги из внешнего источника
+export const importExternalBook = async (bookData: any, source: string = 'flibusta', downloadFormat: string = 'fb2'): Promise<any> => {
+  const response = await axiosInstance.post('books/import_external_book/', {
+    book_data: bookData,
+    source: source,
+    download_format: downloadFormat
+  });
+  return response.data;
+};
+
+// Удаление всех книг
+export const deleteAllBooks = async (): Promise<any> => {
+  const response = await axiosInstance.delete('books/books/delete_all_books/');
   return response.data;
 };

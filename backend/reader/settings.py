@@ -160,3 +160,94 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Автоматический запуск Tor Browser при старте Django
+import subprocess
+import time
+import socket
+import os
+
+def check_tor_running():
+    """Проверяет, запущен ли Tor на порту 9150"""
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex(('127.0.0.1', 9150))
+        sock.close()
+        return result == 0
+    except:
+        return False
+
+def start_tor_service():
+    """Запускает Tor как сервис если он не запущен"""
+    if not check_tor_running():
+        try:
+            print("Запускаю Tor сервис...")
+            
+            # Проверяем, установлен ли Tor через brew
+            result = subprocess.run(['which', 'tor'], capture_output=True, text=True)
+            if result.returncode != 0:
+                print("Tor не установлен. Установите его командой: brew install tor")
+                return
+            
+            # Создаем конфигурацию Tor для порта 9150
+            tor_config = """
+SocksPort 9150
+ControlPort 9151
+DataDirectory /tmp/tor_data
+"""
+            
+            # Записываем конфигурацию во временный файл
+            import tempfile
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+                f.write(tor_config)
+                tor_config_path = f.name
+            
+            # Запускаем Tor с нашей конфигурацией
+            subprocess.Popen(['tor', '-f', tor_config_path], 
+                           stdout=subprocess.DEVNULL, 
+                           stderr=subprocess.DEVNULL)
+            
+            # Ждем запуска Tor
+            for i in range(15):  # Максимум 15 секунд
+                time.sleep(1)
+                if check_tor_running():
+                    print("Tor сервис успешно запущен на порту 9150")
+                    return
+            
+            print("Попытка запуска Tor Browser как резервный вариант...")
+            subprocess.Popen(['open', '-a', 'Tor Browser'], 
+                           stdout=subprocess.DEVNULL, 
+                           stderr=subprocess.DEVNULL)
+            
+            # Ждем запуска Tor Browser
+            for i in range(15):  # Максимум 15 секунд
+                time.sleep(1)
+                if check_tor_running():
+                    print("Tor Browser успешно запущен на порту 9150")
+                    return
+            
+            print("Предупреждение: Не удалось запустить Tor на порту 9150")
+        except Exception as e:
+            print(f"Ошибка при запуске Tor: {e}")
+    else:
+        print("Tor уже запущен на порту 9150")
+
+def delayed_tor_start():
+    """Отложенный запуск Tor после инициализации Django"""
+    import threading
+    import time
+    
+    def start_after_delay():
+        # Ждем 3 секунды после запуска Django сервера
+        time.sleep(3)
+        print("Django сервер запущен. Инициализирую Tor...")
+        start_tor_service()
+    
+    # Запускаем в отдельном потоке
+    thread = threading.Thread(target=start_after_delay)
+    thread.daemon = True
+    thread.start()
+
+# Запускаем Tor с задержкой только при запуске сервера разработки
+if 'runserver' in os.sys.argv:
+    delayed_tor_start()

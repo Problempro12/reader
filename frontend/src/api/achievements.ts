@@ -53,3 +53,22 @@ export const checkAchievements = async (): Promise<any> => {
     throw error
   }
 };
+
+export const fetchUserStats = async (): Promise<any> => {
+  try {
+    const response = await axiosInstance.get('/users/me/')
+    const userData = response.data
+    
+    // Вычисляем статистику на основе данных пользователя
+    const stats = {
+      reading_hours: Math.floor((userData.stats?.progress_marks_count || 0) / 4), // 4 отметки = 1 час
+      books_rated: userData.stats?.read_count || 0,
+      votes_cast: 0 // Пока заглушка, можно добавить API для голосов
+    }
+    
+    return stats
+  } catch (error) {
+    console.error('Ошибка при получении статистики пользователя:', error)
+    throw error
+  }
+};

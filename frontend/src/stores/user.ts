@@ -21,6 +21,7 @@ interface UserData {
     reading_count: number;
     dropped_count: number;
     total_count: number;
+    progress_marks_count: number;
   } | null;
   is_staff: boolean;
   is_superuser: boolean;
@@ -187,4 +188,4 @@ export const useUserStore = defineStore('user', () => {
     logout,
     deleteAccount,
   };
-}); 
+});
