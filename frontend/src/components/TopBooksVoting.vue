@@ -14,7 +14,7 @@
             :to="`/books/${book.id}`" 
             class="book-title-link"
           >
-            {{ book.title }}
+            {{ book.title }} - <span class="book-author-inline">{{ book.author?.name || 'Неизвестный автор' }}</span>
           </RouterLink>
           <div class="book-votes">
             <i class="bi bi-hand-thumbs-up"></i>
@@ -175,13 +175,18 @@ onMounted(() => {
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
-  line-height: 1.2;
+  line-height: 1.3;
   transition: color 0.3s ease;
 }
 
 .book-title-link:hover {
   color: #a8e6cf;
   text-decoration: underline;
+}
+
+.book-author-inline {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 400;
 }
 
 .book-votes {

@@ -137,8 +137,8 @@ export const getUserBooks = async (status?: string): Promise<any[]> => {
 
 // Добавление книги в библиотеку пользователя
 export const addUserBook = async (bookId: number, status: string = 'planned'): Promise<any> => {
-  const { data } = await axiosInstance.post('books/user-books/', {
-    book: bookId,
+  const { data } = await axiosInstance.post('books/user-books/add_to_list/', {
+    book_id: bookId,
     status
   });
   return data;
@@ -194,7 +194,19 @@ export const getPageProgress = async (bookId: number, wordsPerPage: number = 300
 };
 
 // Получение статистики чтения
-export const getReadingStats = async (): Promise<{total_marks: number, total_hours: number}> => {
+export const getReadingStats = async (): Promise<{
+  books_read: number,
+  pages_read: number,
+  reading_streak: number,
+  total_hours: number,
+  total_marks: number
+}> => {
+  const { data } = await axiosInstance.get('books/books/user_reading_stats/');
+  return data;
+};
+
+// Получение базовой статистики (старый метод для совместимости)
+export const getBasicReadingStats = async (): Promise<{total_marks: number, total_hours: number}> => {
   const { data } = await axiosInstance.get('books/reading-progress/');
   const totalMarks = data.length;
   const totalHours = Math.floor(totalMarks / 4); // 4 отметки = 1 час

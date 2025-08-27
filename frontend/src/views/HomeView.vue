@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, defineComponent } from 'vue'
 import { RouterLink } from 'vue-router'
+import { getUserBooks, getPageProgress, getReadingStats } from '@/api/books'
+import { useUserStore } from '@/stores/user'
 
 import masterImg from '@/assets/books/мастер-и-маргарита.webp';
 import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
@@ -16,46 +18,31 @@ defineComponent({
   },
 })
 
-// Временные данные для демонстрации
-const featuredBooks = ref([
-  {
-    id: 1,
-    title: 'Война и мир',
-    author: 'Лев Толстой',
-    cover: 'https://via.placeholder.com/400x600/2c3e50/ffffff?text=Война+и+мир',
-    progress: 45,
-    rating: 4.8,
-    genre: 'Классика',
-    description: 'Величайший роман о любви, войне и поисках смысла жизни'
-  },
-  {
-    id: 2,
-    title: 'Преступление и наказание',
-    author: 'Фёдор Достоевский',
-    cover: 'https://via.placeholder.com/400x600/34495e/ffffff?text=Преступление+и+наказание',
-    progress: 78,
-    rating: 4.9,
-    genre: 'Психологический роман',
-    description: 'Глубокое исследование человеческой души и морали'
-  },
-  {
-    id: 3,
-    title: 'Мастер и Маргарита',
-    author: 'Михаил Булгаков',
-    cover: 'https://via.placeholder.com/400x600/2c3e50/ffffff?text=Мастер+и+Маргарита',
-    progress: 23,
-    rating: 4.7,
-    genre: 'Фэнтези',
-    description: 'Мистический роман о любви, творчестве и вечных ценностях'
-  }
-])
+// Интерфейс для книги с прогрессом
+interface BookWithProgress {
+  id: number;
+  title: string;
+  author: string;
+  cover: string;
+  progress: number;
+  rating: number;
+  genre: string;
+  description: string;
+}
+
+// Данные для книг, которые пользователь читает
+const featuredBooks = ref<BookWithProgress[]>([])
+const isLoadingBooks = ref(false)
+const booksError = ref<string | null>(null)
 
 const readingStats = ref({
-  booksRead: 12,
-  pagesRead: 3456,
-  readingStreak: 7,
-  totalTime: 45
+  booksRead: 0,
+  pagesRead: 0,
+  readingStreak: 0,
+  totalTime: 0
 })
+const isLoadingStats = ref(false)
+const statsError = ref<string | null>(null)
 
 const isVisible = ref(false)
 
@@ -70,9 +57,97 @@ const handleImageError = (event: Event) => {
   img.onerror = null; // Убираем обработчик ошибок для заглушки
 };
 
-onMounted(() => {
+// Функция загрузки книг пользователя
+const loadUserReadingBooks = async () => {
+  try {
+    isLoadingBooks.value = true
+    booksError.value = null
+    
+    // Получаем книги пользователя со статусом "reading"
+    const userBooks = await getUserBooks('reading')
+    
+    // Преобразуем данные и получаем прогресс для каждой книги
+    const booksWithProgress = await Promise.all(
+      userBooks.slice(0, 3).map(async (userBook: any) => {
+        try {
+          const progress = await getPageProgress(userBook.book.id)
+          return {
+            id: userBook.book.id,
+            title: userBook.book.title,
+            author: userBook.book.author?.name || 'Неизвестный автор',
+            cover: userBook.book.cover_url || '/placeholder-book.svg',
+            progress: Math.round(progress.progress_percentage || 0),
+            rating: userBook.book.rating || 0,
+            genre: userBook.book.genre || 'Без жанра',
+            description: userBook.book.description || 'Описание отсутствует'
+          }
+        } catch (error) {
+          console.error(`Ошибка получения прогресса для книги ${userBook.book.id}:`, error)
+          return {
+            id: userBook.book.id,
+            title: userBook.book.title,
+            author: userBook.book.author?.name || 'Неизвестный автор',
+            cover: userBook.book.cover_url || '/placeholder-book.svg',
+            progress: 0,
+            rating: userBook.book.rating || 0,
+            genre: userBook.book.genre || 'Без жанра',
+            description: userBook.book.description || 'Описание отсутствует'
+          }
+        }
+      })
+    )
+    
+    featuredBooks.value = booksWithProgress
+  } catch (error) {
+    console.error('Ошибка загрузки книг пользователя:', error)
+    booksError.value = 'Не удалось загрузить книги'
+    featuredBooks.value = []
+  } finally {
+    isLoadingBooks.value = false
+  }
+}
+
+// Функция загрузки статистики пользователя
+const loadUserStats = async () => {
+  try {
+    isLoadingStats.value = true
+    statsError.value = null
+    
+    // Получаем улучшенную статистику чтения
+    const stats = await getReadingStats()
+    
+    // Обновляем статистику с реальными данными
+    readingStats.value = {
+      booksRead: stats.books_read,
+      pagesRead: stats.pages_read,
+      readingStreak: stats.reading_streak,
+      totalTime: stats.total_hours
+    }
+  } catch (error) {
+    console.error('Ошибка загрузки статистики:', error)
+    statsError.value = 'Не удалось загрузить статистику'
+    
+    // Fallback: оставляем нулевые значения
+    readingStats.value = {
+      booksRead: 0,
+      pagesRead: 0,
+      readingStreak: 0,
+      totalTime: 0
+    }
+  } finally {
+    isLoadingStats.value = false
+  }
+}
+
+onMounted(async () => {
   isVisible.value = true
+  await Promise.all([
+    loadUserReadingBooks(),
+    loadUserStats()
+  ])
 })
+
+const userStore = useUserStore()
 </script>
 
 <template>
@@ -85,11 +160,11 @@ onMounted(() => {
             <h1 class="display-3 fw-bold mb-4 text-gradient">Добро пожаловать в мир чтения</h1>
             <p class="lead mb-4">Откройте для себя новые горизонты, погрузитесь в увлекательные истории и станьте частью нашего читательского сообщества.</p>
             <div class="d-flex gap-3">
-              <RouterLink to="/app/books" class="btn btn-primary btn-lg px-4 py-2">
+              <RouterLink to="/books" class="btn start-reading-button px-4 py-2" style="font-family: 'Arial Black', sans-serif;">
                 Начать читать
                 <i class="bi bi-arrow-right ms-2"></i>
               </RouterLink>
-              <RouterLink to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
+              <RouterLink v-if="!userStore.isLoggedIn" to="/auth/register" class="btn btn-outline-light btn-lg px-4 py-2">
                 Присоединиться
               </RouterLink>
             </div>
@@ -150,13 +225,44 @@ onMounted(() => {
       <div class="books-section py-5">
         <div class="container">
           <h2 class="section-title mb-5">Продолжить чтение</h2>
-          <div class="row g-4">
+          
+          <!-- Загрузка -->
+          <div v-if="isLoadingBooks" class="text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Загрузка...</span>
+            </div>
+            <p class="mt-3 text-muted">Загрузка ваших книг...</p>
+          </div>
+          
+          <!-- Ошибка -->
+          <div v-else-if="booksError" class="alert alert-warning text-center">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            {{ booksError }}
+            <button @click="loadUserReadingBooks" class="btn btn-outline-primary btn-sm ms-3">
+              <i class="bi bi-arrow-clockwise me-1"></i>
+              Повторить
+            </button>
+          </div>
+          
+          <!-- Нет книг в процессе чтения -->
+          <div v-else-if="featuredBooks.length === 0" class="text-center py-5">
+            <i class="bi bi-book text-muted" style="font-size: 3rem;"></i>
+            <h4 class="mt-3 text-muted">У вас пока нет книг в процессе чтения</h4>
+            <p class="text-muted">Добавьте книги в свою библиотеку и начните читать</p>
+            <RouterLink to="/books" class="btn btn-primary">
+              <i class="bi bi-search me-2"></i>
+              Найти книги
+            </RouterLink>
+          </div>
+          
+          <!-- Книги -->
+          <div v-else class="row g-4">
             <div v-for="book in featuredBooks" :key="book.id" class="col-md-4">
               <div class="book-card" :class="{ 'fade-in': isVisible }">
                 <div class="book-cover">
                   <img :src="book.cover" :alt="book.title" @error="handleImageError">
                   <div class="book-overlay">
-                    <RouterLink :to="`/books/${book.id}`" class="btn btn-light">
+                    <RouterLink :to="`/books/${book.id}/read`" class="btn btn-light">
                       Читать
                     </RouterLink>
                   </div>
@@ -165,8 +271,8 @@ onMounted(() => {
                   <div class="book-genre">{{ book.genre }}</div>
                   <h3 class="book-title">{{ book.title }}</h3>
                   <p class="book-author">{{ book.author }}</p>
-                  <p class="book-description">{{ book.description }}</p>
-                  <div class="book-progress">
+                  <p class="book-description">{{ book.description.length > 80 ? book.description.substring(0, 80) + '...' : book.description }}</p>
+                  <div class="book-progress mb-3">
                     <div class="progress">
                       <div class="progress-bar" role="progressbar" 
                            :style="{ width: book.progress + '%' }" 
@@ -177,9 +283,15 @@ onMounted(() => {
                     </div>
                     <span class="progress-text">{{ book.progress }}%</span>
                   </div>
-                  <div class="book-rating">
-                    <i class="bi bi-star-fill"></i>
-                    <span>{{ book.rating }}</span>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="book-rating" v-if="book.rating > 0">
+                      <i class="bi bi-star-fill"></i>
+                      <span>{{ book.rating }}</span>
+                    </div>
+                    <RouterLink :to="`/books/${book.id}/read`" class="btn btn-gradient btn-sm">
+                       <i class="bi bi-play-circle-fill me-1"></i>
+                       Продолжить
+                     </RouterLink>
                   </div>
                 </div>
               </div>
@@ -216,7 +328,7 @@ onMounted(() => {
 
 .hero-bottom-section {
   position: absolute;
-  bottom: 40px;
+  bottom: 20px;
   left: 0;
   right: 0;
   z-index: 10;
@@ -472,6 +584,52 @@ onMounted(() => {
   .stat-value {
     font-size: 1.5rem;
   }
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #a8e6cf, #7fcdcd);
+  border: none;
+  color: #1a1a1a;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 25px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(168, 230, 207, 0.3);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(45deg, #7fcdcd, #a8e6cf);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.4);
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.btn-gradient:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(168, 230, 207, 0.3);
+}
+.start-reading-button {
+  background: linear-gradient(45deg, var(--primary-color), #7ed9b2);
+  color: var(--primary-dark);
+  border: none;
+  box-shadow: 0 4px 15px rgba(168, 230, 207, 0.4);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  padding: 15px 30px;
+  font-size: 1.65rem;
+  border-radius: 10px;
+  transition: all 0.3s ease; /* Добавляем плавный переход */
+}
+
+.start-reading-button:hover {
+  background: linear-gradient(45deg, #7ed9b2, var(--primary-color)); /* Измененный градиент при наведении */
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.6);
 }
 </style>
  

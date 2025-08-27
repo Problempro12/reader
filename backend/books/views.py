@@ -244,6 +244,86 @@ class BookViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def user_reading_stats(self, request):
+        """Get comprehensive reading statistics for the user"""
+        from django.db.models import Sum, Max
+        from datetime import datetime, timedelta
+        from django.utils import timezone
+        
+        user = request.user
+        
+        # Get all user books
+        user_books = UserBook.objects.filter(user=user)
+        completed_books = user_books.filter(status=UserBook.Status.COMPLETED)
+        
+        # Calculate total pages read
+        total_pages_read = 0
+        
+        # For completed books, count all pages
+        for book in completed_books:
+            if book.book.content:
+                # Estimate total pages based on content length
+                words_count = len(book.book.content.split())
+                estimated_pages = max(1, words_count // 300)  # 300 words per page
+                total_pages_read += estimated_pages
+        
+        # For books in progress, get current page from progress
+        reading_books = user_books.filter(status=UserBook.Status.READING)
+        for user_book in reading_books:
+            try:
+                # Get latest progress for this book
+                latest_progress = ReadingProgress.objects.filter(
+                    user_book=user_book
+                ).order_by('-created_at').first()
+                
+                if latest_progress and latest_progress.current_page:
+                    total_pages_read += latest_progress.current_page
+            except:
+                pass
+        
+        # Calculate reading streak (consecutive days with reading activity)
+        reading_streak = 0
+        if ReadingProgress.objects.filter(user_book__user=user).exists():
+            # Get all unique dates when user made progress
+            progress_dates = ReadingProgress.objects.filter(
+                user_book__user=user
+            ).dates('created_at', 'day').order_by('-created_at')
+            
+            if progress_dates:
+                current_date = timezone.now().date()
+                streak_count = 0
+                
+                # Check if user read today or yesterday (to account for timezone)
+                latest_reading_date = progress_dates[0]
+                if (current_date - latest_reading_date).days <= 1:
+                    streak_count = 1
+                    check_date = latest_reading_date - timedelta(days=1)
+                    
+                    # Count consecutive days backwards
+                    for date in progress_dates[1:]:
+                        if date == check_date:
+                            streak_count += 1
+                            check_date -= timedelta(days=1)
+                        else:
+                            break
+                
+                reading_streak = streak_count
+        
+        # Get total reading marks and calculate hours
+        total_marks = ReadingProgress.objects.filter(user_book__user=user).count()
+        total_hours = max(0, total_marks // 4)  # 4 marks = 1 hour
+        
+        return Response({
+            'books_read': completed_books.count(),
+            'pages_read': total_pages_read,
+            'reading_streak': reading_streak,
+            'total_hours': total_hours,
+            'total_marks': total_marks
+        })
+    
+
+    
     @action(detail=True, methods=['post'], permission_classes=[permissions.IsAuthenticated])
     def rate(self, request, pk=None):
         """Rate a book"""

@@ -24,12 +24,7 @@
               Книги
             </RouterLink>
           </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/profile">
-              <i class="bi bi-person me-1"></i>
-              Профиль
-            </RouterLink>
-          </li>
+
           <li class="nav-item">
             <RouterLink class="nav-link" to="/achievements">
               <i class="bi bi-trophy me-1"></i>
@@ -61,7 +56,7 @@
             </RouterLink>
           </div>
           
-          <RouterLink to="/profile" class="user-profile" v-else>
+          <RouterLink :to="isLoggedIn ? '/profile' : '/auth/login'" class="user-profile" v-else>
             <div class="user-avatar">
               <img v-if="displayedAvatarUrl" :src="displayedAvatarUrl" alt="Аватар">
               <div v-else class="initials-circle">

@@ -199,7 +199,7 @@
                            <div class="progress-bar" :style="{ width: recommendation.progress + '%' }"></div>
                          </div>
                      </div>
-                      <button class="btn btn-primary">{{ recommendation.buttonText }}</button>
+                      <button class="btn book-action-button">{{ recommendation.buttonText }}</button>
                  </div>
              </div>
          </div>
@@ -718,6 +718,25 @@ const mapCategoryToType = (category: string): 'reading' | 'voting' => {
     font-size: 0.9rem;
     color: rgba(255, 255, 255, 0.6);
     margin-top: 1rem;
+}
+
+.book-action-button {
+  background-color: #a8e6cf;
+  color: #1a1a1a;
+  padding: 0.5rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border: none;
+}
+.book-action-button:hover {
+  background-color: #8cd3b0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 230, 207, 0.4);
+  color: #1a1a1a;
+}
+.book-action-button:active {
+  transform: translateY(0);
 }
 
 /* Recommendations Section */

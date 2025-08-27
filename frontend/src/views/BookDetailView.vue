@@ -135,52 +135,52 @@
                 
                 <!-- Система списков -->
                 <div class="list-actions">
-                  <div v-if="!userBookStatus" class="dropdown">
-                    <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <div v-if="!userBookStatus" class="dropdown" :class="{ show: showDropdown }">
+                    <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" @click="showDropdown = !showDropdown">
                       <i class="bi bi-bookmark-plus me-2"></i>
                       В список
                     </button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('planned')">
+                    <ul class="dropdown-menu" :class="{ show: showDropdown }">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('planned'); showDropdown = false">
                         <i class="bi bi-calendar-plus me-2"></i>В планах
                       </a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('reading')">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('reading'); showDropdown = false">
                         <i class="bi bi-book me-2"></i>Читаю
                       </a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('completed')">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('completed'); showDropdown = false">
                         <i class="bi bi-check-circle me-2"></i>Прочитано
                       </a></li>
-                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('dropped')">
+                      <li><a class="dropdown-item" href="#" @click.prevent="addToList('dropped'); showDropdown = false">
                         <i class="bi bi-x-circle me-2"></i>Брошено
                       </a></li>
                     </ul>
                   </div>
                   
                   <div v-else class="list-status-actions">
-                    <div class="dropdown">
-                      <button class="btn btn-success btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="dropdown" :class="{ show: showStatusDropdown }">
+                      <button class="btn btn-success btn-lg dropdown-toggle" type="button" @click="showStatusDropdown = !showStatusDropdown">
                         <i class="bi" :class="getStatusIcon(userBookStatus)"></i>
                         {{ getStatusText(userBookStatus) }}
                       </button>
-                      <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('planned')" :class="{ active: userBookStatus === 'planned' }">
+                      <ul class="dropdown-menu" :class="{ show: showStatusDropdown }">
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('planned'); showStatusDropdown = false" :class="{ active: userBookStatus === 'planned' }">
                           <i class="bi bi-calendar-plus me-2"></i>В планах
                         </a></li>
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('reading')" :class="{ active: userBookStatus === 'reading' }">
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('reading'); showStatusDropdown = false" :class="{ active: userBookStatus === 'reading' }">
                           <i class="bi bi-book me-2"></i>Читаю
                         </a></li>
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('completed')" :class="{ active: userBookStatus === 'completed' }">
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('completed'); showStatusDropdown = false" :class="{ active: userBookStatus === 'completed' }">
                           <i class="bi bi-check-circle me-2"></i>Прочитано
                         </a></li>
-                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('dropped')" :class="{ active: userBookStatus === 'dropped' }">
+                        <li><a class="dropdown-item" href="#" @click.prevent="updateStatus('dropped'); showStatusDropdown = false" :class="{ active: userBookStatus === 'dropped' }">
                           <i class="bi bi-x-circle me-2"></i>Брошено
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item danger" href="#" @click.prevent="removeFromList(); showStatusDropdown = false">
+                          <i class="bi bi-trash me-2"></i>Удалить из списка
                         </a></li>
                       </ul>
                     </div>
-                    <button class="btn btn-outline-danger btn-lg" @click="removeFromList">
-                      <i class="bi bi-trash me-2"></i>
-                      Удалить из списка
-                    </button>
                   </div>
                 </div>
                 
@@ -318,6 +318,8 @@ const isVoting = ref(false);
 const userBookStatus = ref<string | null>(null);
 const userBookId = ref<number | null>(null);
 const isUpdatingStatus = ref(false);
+const showDropdown = ref(false);
+const showStatusDropdown = ref(false);
 let modalInstance: any = null;
 
 // Загрузка книги
@@ -1231,6 +1233,140 @@ onMounted(async () => {
   transform: translateY(-2px);
 }
 
+/* Стили для dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  display: none;
+  min-width: 200px;
+  padding: 0.5rem 0;
+  margin: 0.125rem 0 0;
+  background-color: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  transform: translateY(-10px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdown-menu.show {
+  display: block;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  clear: both;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(168, 230, 207, 0.2), rgba(127, 205, 205, 0.2));
+  transform: translateX(4px);
+}
+
+.dropdown-item.active {
+  color: #1a1a1a !important;
+  background: linear-gradient(135deg, #a8e6cf, #7fcdcd);
+  font-weight: 600;
+}
+
+.dropdown-item.active:hover {
+  color: #1a1a1a !important;
+  background: linear-gradient(135deg, #7fcdcd, #a8e6cf);
+}
+
+.dropdown-item i {
+  width: 20px;
+  text-align: center;
+  margin-right: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.dropdown-item:hover i {
+  transform: scale(1.1);
+}
+
+.dropdown-item.danger {
+  color: #ff6b6b;
+}
+
+.dropdown-item.danger:hover {
+  color: #fff;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 107, 107, 0.3));
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Анимация появления dropdown */
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-menu.show {
+  animation: dropdownFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Улучшенные стили для кнопок dropdown */
+.dropdown-toggle {
+  position: relative;
+  overflow: hidden;
+  padding-right: 2.5rem !important;
+}
+
+.dropdown-toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  transition: transform 0.3s ease;
+  margin-left: 0.5rem;
+}
+
+.dropdown.show .dropdown-toggle::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .book-title {
@@ -1263,6 +1399,12 @@ onMounted(async () => {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.25rem;
+  }
+  
+  .dropdown-menu {
+    min-width: 180px;
+    right: 0;
+    left: auto;
   }
 }
 </style>

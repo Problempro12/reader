@@ -97,7 +97,7 @@
                   <button class="btn btn-outline-primary" @click="rateBook(book)">
                     Оценить
                   </button>
-                  <RouterLink :to="`/books/${book.id}`" class="btn btn-primary">К книге</RouterLink>
+                  <RouterLink :to="`/books/${book.id}`" class="btn book-action-button">К книге</RouterLink>
                 </div>
               </div>
             </div>
@@ -140,7 +140,7 @@
                 <div class="book-meta">
                   <span class="book-genre">{{ book.genre }}</span>
                 </div>
-                <button class="btn btn-primary w-100">К книге</button>
+                <button class="btn book-action-button w-100">К книге</button>
               </div>
             </div>
           </div>
@@ -782,6 +782,34 @@ watch(currentPage, () => {
 
 .rating-stars i.bi-star-fill {
   color: #ffd700;
+}
+
+.rating-modal .btn-primary:hover {
+  background-color: var(--primary-dark-color);
+  border-color: var(--primary-dark-color);
+}
+
+.book-action-button {
+  background-color: #a8e6cf;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 15px;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.book-action-button:hover {
+  background-color: #8cd3b0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+}
+
+.book-action-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* Пагинация */
