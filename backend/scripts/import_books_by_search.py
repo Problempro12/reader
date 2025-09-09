@@ -23,7 +23,7 @@ def import_books_by_search(search_queries: List[str], limit_per_query: int = 2) 
     print(f"📚 Начинаем импорт книг через поиск...\n")
     
     try:
-        client = FlibustaTorClient(use_tor=False)
+        client = FlibustaTorClient(use_tor=True)
         all_books = []
         
         # Поиск по каждому запросу

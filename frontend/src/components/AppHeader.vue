@@ -1,6 +1,6 @@
 <template>
-  <nav class="navbar navbar-expand-lg" :class="{ 'navbar-scrolled': isScrolled }">
-    <div class="container">
+  <nav class="navbar navbar-expand-lg container-fluid" :class="{ 'navbar-scrolled': isScrolled }">
+    <div class="container-fluid">
       <RouterLink class="navbar-brand" to="/">
         <i class="bi bi-book-half me-2"></i>
         KpitReading
@@ -16,8 +16,8 @@
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" :class="{ show: isMenuOpen }">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+      <div class="collapse navbar-collapse justify-content-between" :class="{ show: isMenuOpen }">
+          <ul class="navbar-nav mb-2 mb-lg-0 me-auto">
           <li class="nav-item">
             <RouterLink class="nav-link" to="/books">
               <i class="bi bi-collection me-1"></i>
@@ -33,8 +33,8 @@
           </li>
         </ul>
         
-        <div class="d-flex align-items-center gap-3">
-          <div class="search-box">
+        <div class="d-flex align-items-center gap-3 ms-auto" :class="{ 'ms-4': route.path !== '/' }">
+          <div class="search-box me-2">
             <i class="bi bi-search" @click="handleSearch"></i>
             <input 
               type="text" 
@@ -57,19 +57,28 @@
           </div>
           
           <RouterLink :to="isLoggedIn ? '/profile' : '/auth/login'" class="user-profile" v-else>
-            <div class="user-avatar">
+            <div class="user-avatar" :class="{ 'premium-avatar': userData?.is_premium }">
               <img v-if="displayedAvatarUrl" :src="displayedAvatarUrl" alt="Аватар">
               <div v-else class="initials-circle">
                 {{ userInitials }}
               </div>
+              <div v-if="userData?.is_premium" class="premium-crown">
+                <i class="bi bi-gem"></i>
+              </div>
             </div>
-            <span class="user-nickname" v-if="userData">{{ userData.username }}</span>
+            <div class="user-info">
+              <span class="user-nickname" v-if="userData">{{ userData.username }}</span>
+              <span v-if="userData?.is_premium" class="premium-badge">
+                <i class="bi bi-star-fill me-1"></i>
+                Premium
+              </span>
+            </div>
           </RouterLink>
 
         </div>
       </div>
     </div>
-  </nav>
+</nav>
 </template>
 
 <script setup lang="ts">
@@ -356,6 +365,14 @@ const handleAvatarUpload = async (event: Event) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.premium-avatar {
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+  border: 2px solid #ffd700;
 }
 
 .user-avatar img {
@@ -379,11 +396,62 @@ const handleAvatarUpload = async (event: Event) => {
   font-size: 1rem;
 }
 
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .user-nickname {
-  /* Дополнительные стили, если нужны */
+  font-weight: 500;
+}
+
+.premium-crown {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+  animation: premium-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes premium-glow {
+  0% {
+    box-shadow: 0 2px 8px rgba(255, 215, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0 2px 12px rgba(255, 215, 0, 0.8);
+  }
+}
+
+.premium-badge {
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  color: #1a1a1a;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.5rem;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  margin-top: 0.2rem;
+  box-shadow: 0 2px 6px rgba(255, 215, 0, 0.3);
 }
 
 @media (max-width: 991px) {
+  .navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px; /* Уменьшаем горизонтальные отступы */
+  }
   .navbar {
     background: rgba(26, 26, 26, 0.95);
     backdrop-filter: blur(10px);
@@ -410,6 +478,35 @@ const handleAvatarUpload = async (event: Event) => {
   .btn {
     width: 100%;
     margin: 0.25rem 0;
+  }
+}
+
+@media (min-width: 992px) {
+  .navbar-expand-lg .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto;
+  }
+
+  .navbar-expand-lg .navbar-nav {
+    flex-direction: row;
+  }
+
+  .navbar-toggler {
+    display: none;
+  }
+
+  .navbar-nav {
+    margin-right: 20px; /* Отступ между навигацией и правой частью */
+  }
+
+  .d-flex {
+    flex-grow: 0;
+  }
+
+
+  .navbar.container-fluid {
+    padding-left: 3rem;
+    padding-right: 10rem;
   }
 }
 </style>

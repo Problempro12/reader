@@ -12,4 +12,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('search_external/', search_external_books_view, name='search-external-books'),
     path('import_external/', import_external_book_view, name='import-external-book'),
+    path('import_category_books/', BookViewSet.as_view({'post': 'import_category_books'}), name='import-category-books'),
 ]

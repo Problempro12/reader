@@ -8,14 +8,20 @@
         </div>
 
         <div class="profile-header">
-          <div class="profile-avatar">
+          <div class="profile-avatar" :class="{ 'premium-avatar': userData?.is_premium }">
             <img v-if="displayedAvatarUrl" :src="displayedAvatarUrl" alt="Аватар">
             <div v-else class="initials-circle">
               {{ userInitials }}
             </div>
           </div>
           <div class="profile-info">
-            <h2 class="profile-username">{{ userData?.username || 'Загрузка...' }}</h2>
+            <div class="username-section">
+              <h2 class="profile-username">{{ userData?.username || 'Загрузка...' }}</h2>
+              <div v-if="userData?.is_premium" class="premium-status">
+                <i class="bi bi-gem me-2"></i>
+                <span>Premium</span>
+              </div>
+            </div>
             <p v-if="userData?.about" class="profile-about">{{ userData.about }}</p>
             <p v-else class="profile-about placeholder" style="cursor: auto; background-color: transparent;">Расскажите о себе...</p>
           </div>
@@ -114,6 +120,7 @@ const logout = () => {
   router.push('/auth/login');
 };
 
+
 // Добавляем явный вызов fetchUserData при монтировании
 onMounted(() => {
   console.log('ProfileView: Mounted');
@@ -184,6 +191,22 @@ watch(userData, (newValue, oldValue) => {
   overflow: hidden;
   border: 3px solid #a8e6cf;
   box-shadow: 0 0 20px rgba(168, 230, 207, 0.3);
+  transition: all 0.3s ease;
+}
+
+.premium-avatar {
+  border: 3px solid #ffd700;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  animation: premium-avatar-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes premium-avatar-glow {
+  0% {
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4);
+  }
 }
 
 .profile-avatar img {
@@ -209,6 +232,13 @@ watch(userData, (newValue, oldValue) => {
   flex-grow: 1;
 }
 
+.username-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 .profile-username {
   font-size: 2rem;
   font-weight: bold;
@@ -217,6 +247,29 @@ watch(userData, (newValue, oldValue) => {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   text-decoration: none;
 }
+
+.premium-status {
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  color: #1a1a1a;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  animation: premium-pulse 2s ease-in-out infinite alternate;
+}
+
+@keyframes premium-pulse {
+  0% {
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.5);
+  }
+}
+
 
 .profile-about {
   color: rgba(255, 255, 255, 0.7);

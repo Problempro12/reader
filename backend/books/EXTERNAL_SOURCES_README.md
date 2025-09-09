@@ -44,7 +44,7 @@ curl "http://localhost:8000/api/books/search_external/?q=Толстой&use_tor=
         "download_links": [
           {
             "format": "fb2",
-            "url": "http://flibustahezeous3.onion/b/12345/download",
+            "url": "http://flibustaongezhld6dibs2dps6vm4nvqg2kp7vgowbu76tzopgnhazqd.onion/b/12345/download",
             "type": "application/fb2+xml"
           }
         ],
@@ -85,7 +85,7 @@ curl -X POST "http://localhost:8000/api/books/import_external/" \
       "download_links": [
         {
           "format": "fb2",
-          "url": "http://flibustahezeous3.onion/b/12345/download"
+          "url": "http://flibustaongezhld6dibs2dps6vm4nvqg2kp7vgowbu76tzopgnhazqd.onion/b/12345/download"
         }
       ]
     }

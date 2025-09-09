@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/users/', include('users.urls')),
     path('api/books/', include('books.urls')),
     path('api/achievements/', include('achievements.urls')),
+    path('api/payments/', include('payments.urls')),
 ]
 
 # Serve media files in development

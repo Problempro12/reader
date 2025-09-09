@@ -94,10 +94,10 @@
                   <span class="book-age">{{ book.ageCategory }}</span>
                 </div>
                 <div class="book-actions">
+                  <RouterLink :to="`/books/${book.id}`" class="btn book-action-button">К книге</RouterLink>
                   <button class="btn btn-outline-primary" @click="rateBook(book)">
                     Оценить
                   </button>
-                  <RouterLink :to="`/books/${book.id}`" class="btn book-action-button">К книге</RouterLink>
                 </div>
               </div>
             </div>

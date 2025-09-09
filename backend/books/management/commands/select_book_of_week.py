@@ -62,11 +62,11 @@ class Command(BaseCommand):
             
             # Устанавливаем книгу как книгу недели
             top_book.is_book_of_week = True
-            
-            # Сбрасываем голоса у выбранной книги
-            BookVote.objects.filter(book=top_book).delete()
-            top_book.vote_count = 0
             top_book.save()
+            
+            # Сбрасываем голоса у всех книг
+            BookVote.objects.all().delete()
+            Book.objects.all().update(vote_count=0)
         
         self.stdout.write(
             self.style.SUCCESS(

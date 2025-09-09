@@ -75,6 +75,51 @@ class FlibustaTorClient:
         books = []
         
         try:
+            response = self.session.get(category_url, timeout=self.timeout)
+            response.raise_for_status()
+            self.logger.debug(f"Получен ответ от {category_url}, статус: {response.status_code}, размер: {len(response.content)} байт")
+
+            # Проверяем кодировку, если не указана в заголовках
+            encoding = response.encoding
+            if not encoding or encoding == 'ISO-8859-1':
+                encoding = chardet.detect(response.content)['encoding']
+                self.logger.debug(f"Определена кодировка: {encoding}")
+
+            # Декодируем контент с определенной кодировкой
+            content = response.content.decode(encoding or 'utf-8', errors='ignore')
+            soup = BeautifulSoup(content, 'html.parser')
+            self.logger.debug(f"HTML успешно распарсен BeautifulSoup.")
+
+            books = []
+            # Логируем, что мы ищем книги
+            self.logger.debug("Ищем книги в HTML...")
+
+            # Находим все элементы 'div' с классом 'book'
+            book_elements = soup.find_all('div', class_='book')
+            self.logger.debug(f"Найдено {len(book_elements)} элементов 'div' с классом 'book'.")
+
+            for i, book_elem in enumerate(book_elements):
+                if len(books) >= limit:
+                    self.logger.debug(f"Достигнут лимит книг ({limit}), прекращаем парсинг.")
+                    break
+
+                self.logger.debug(f"Обрабатываем элемент книги {i+1}/{len(book_elements)}...")
+                book_data = self._parse_book_entry_bs(book_elem)
+                if book_data:
+                    books.append(book_data)
+                    self.logger.debug(f"Книга добавлена: {book_data.get('title', 'Без названия')} - {book_data.get('author', 'Неизвестный автор')}")
+                else:
+                    self.logger.debug(f"Не удалось обработать элемент книги {i+1}.")
+
+            self.logger.info(f"Завершено. Найдено {len(books)} книг в категории {category_url}.")
+            return books
+
+        except requests.exceptions.RequestException as e:
+            self.logger.error(f"Ошибка запроса при получении книг из категории {category_url}: {e}")
+            return []
+        except Exception as e:
+            self.logger.error(f"Неизвестная ошибка при получении книг из категории {category_url}: {e}")
+            return []
             # Поиск через OPDS только через Tor
             books = self._search_via_opds(query, limit)
                 
@@ -109,6 +154,7 @@ class FlibustaTorClient:
                     links = entry.findall('atom:link', ns)
                     category_url = None
                     for link in links:
+
                         href = link.get('href')
                         if href:
                             category_url = f"{self.base_url}{href}"
@@ -158,6 +204,7 @@ class FlibustaTorClient:
                         if href.startswith('/'):
                             genre_url = f"{self.base_url}{href}"
                         else:
+
                             genre_url = href
                         
                         # Извлекаем ID жанра из URL
@@ -194,6 +241,8 @@ class FlibustaTorClient:
             return content
     
     def browse_books_by_category(self, category_url: str, sort_by_popularity: bool = True, limit: int = 50) -> List[Dict[str, Any]]:
+        self.logger.info(f"Начало обработки категории: {category_url} (лимит: {limit})")
+        self.logger.debug(f"Сортировка по популярности: {sort_by_popularity}")
         """Получить книги из категории с сортировкой по популярности"""
         try:
             # Преобразуем URL в OPDS формат если нужно
@@ -202,8 +251,8 @@ class FlibustaTorClient:
                 # Заменяем /g/ на /opds/g/ для получения OPDS-формата
                 opds_url = category_url.replace('/g/', '/opds/g/')
             
-            print(f"Запрос к категории: {category_url}")
-            print(f"OPDS URL: {opds_url}")
+            self.logger.info(f"Запрос к категории: {category_url}")
+            self.logger.info(f"OPDS URL: {opds_url}")
             
             # Добавляем заголовки для получения OPDS-формата
             headers = {
@@ -213,37 +262,37 @@ class FlibustaTorClient:
             response = self.session.get(opds_url, headers=headers, timeout=self.timeout)
             response.raise_for_status()
             
-            print(f"Получен ответ, размер: {len(response.content)} байт")
-            print(f"Content-Type: {response.headers.get('content-type', 'неизвестно')}")
+            self.logger.info(f"Получен ответ, размер: {len(response.content)} байт")
+            self.logger.info(f"Content-Type: {response.headers.get('content-type', 'неизвестно')}")
             
             # Используем BeautifulSoup для более устойчивого парсинга
             soup = BeautifulSoup(response.content, 'html.parser')
             
             # Ищем все entry элементы
             entries = soup.find_all('entry')
-            print(f"Найдено {len(entries)} записей entry")
+            self.logger.info(f"Найдено {len(entries)} записей entry")
             
             # Показываем первые несколько тегов для отладки
             all_tags = [tag.name for tag in soup.find_all() if tag.name]
             unique_tags = list(set(all_tags))
-            print(f"Найденные теги: {unique_tags[:10]}...")
+            self.logger.info(f"Найденные теги: {unique_tags[:10]}...")
             
             # Проверяем, содержит ли ответ книги или подкатегории
             if entries:
                 first_entry = entries[0]
-                print(f"Анализируем первую запись...")
+                self.logger.info(f"Анализируем первую запись...")
                 # Если есть автор, значит это книги
                 author_elem = first_entry.find('author')
-                print(f"Найден элемент author: {author_elem is not None}")
+                self.logger.info(f"Найден элемент author: {author_elem is not None}")
                 if author_elem:
                     name_elem = author_elem.find('name')
-                    print(f"Найден элемент name в author: {name_elem is not None}")
+                    self.logger.info(f"Найден элемент name в author: {name_elem is not None}")
                     if name_elem:
-                        print(f"Это книги, переходим к парсингу каталога")
+                        self.logger.info(f"Это книги, переходим к парсингу каталога")
                         # Это книги, парсим их
                         return self._get_books_from_catalog_bs(category_url, limit)
                 
-                print(f"Это подкатегории, ищем первую доступную")
+                self.logger.info(f"Это подкатегории, ищем первую доступную")
                 # Это подкатегории, выбираем первую доступную
                 for entry in entries:
                     links = entry.find_all('link')
@@ -256,7 +305,7 @@ class FlibustaTorClient:
                             else:
                                 full_href = urljoin(opds_url, href)
                             
-                            print(f"Переходим в подкатегорию: {full_href}")
+                            self.logger.info(f"Переходим в подкатегорию: {full_href}")
                             # Рекурсивно вызываем себя для подкатегории
                             subcategory_books = self.browse_books_by_category(full_href, sort_by_popularity, limit)
                             if subcategory_books:
@@ -270,7 +319,7 @@ class FlibustaTorClient:
                                     return books
             
             # Если ничего не найдено, возвращаем пустой список
-            return []
+            return books
             
         except Exception as e:
             self.logger.error(f"Ошибка получения книг из категории: {e}")
@@ -282,36 +331,35 @@ class FlibustaTorClient:
             response = self.session.get(catalog_url, timeout=self.timeout)
             response.raise_for_status()
             
-            print(f"Получен ответ из каталога, размер: {len(response.content)} байт")
-            print(f"Content-Type: {response.headers.get('content-type', 'неизвестно')}")
+            self.logger.info(f"Получен ответ из каталога, размер: {len(response.content)} байт")
+            self.logger.info(f"Content-Type: {response.headers.get('content-type', 'неизвестно')}")
             
             soup = BeautifulSoup(response.content, 'html.parser')
             books = []
             
             entries = soup.find_all('entry')
-            print(f"Найдено {len(entries)} записей entry в каталоге")
+            self.logger.info(f"Найдено {len(entries)} записей entry в каталоге")
             
             # Показываем первые несколько тегов для отладки
             all_tags = [tag.name for tag in soup.find_all() if tag.name]
             unique_tags = list(set(all_tags))
-            print(f"Найденные теги в каталоге: {unique_tags[:15]}...")
+            self.logger.info(f"Найденные теги в каталоге: {unique_tags[:15]}...")
             
             for i, entry in enumerate(entries[:limit]):
-                print(f"Обрабатываем запись {i+1}")
+                self.logger.info(f"Обрабатываем запись {i+1}")
                 book_data = self._parse_book_entry_bs(entry)
                 if book_data:
-                    print(f"Успешно обработана книга: {book_data.get('title', 'без названия')}")
+                    self.logger.info(f"✅ Успешно обработана книга: {book_data.get('title', 'без названия')}")
                     books.append(book_data)
                 else:
-                    print(f"Не удалось обработать запись {i+1}")
+                    self.logger.warning(f"⚠️ Не удалось обработать запись {i+1}")
             
-            print(f"Итого обработано книг: {len(books)}")
+            self.logger.info(f"📊 Итого обработано книг: {len(books)}")
             return books
             
         except Exception as e:
-            print(f"Ошибка получения книг из каталога {catalog_url}: {e}")
-            import traceback
-            traceback.print_exc()
+            self.logger.error(f"❌ Ошибка получения книг из каталога {catalog_url}: {e}")
+            self.logger.debug(f"Подробности ошибки:", exc_info=True)
             return []
     
     def _get_books_from_catalog(self, catalog_url: str, limit: int) -> List[Dict[str, Any]]:
@@ -414,14 +462,14 @@ class FlibustaTorClient:
     
     def _search_via_opds(self, query: str, limit: int) -> List[Dict[str, Any]]:
         """Поиск через OPDS каталог"""
-        print(f"🔍 Начинаем поиск через OPDS для запроса: '{query}' (лимит: {limit})")
+        self.logger.debug(f"🔍 Начинаем поиск через OPDS для запроса: '{query}' (лимит: {limit})")
         
         search_url = f"{self.opds_url}/search?searchTerm={query}"
-        print(f"📡 Отправляем запрос к: {search_url}")
+        self.logger.debug(f"📡 Отправляем запрос к: {search_url}")
         
         response = self.session.get(search_url, timeout=self.timeout)
         response.raise_for_status()
-        print(f"✅ Получен ответ, размер: {len(response.content)} байт")
+        self.logger.debug(f"✅ Получен ответ, размер: {len(response.content)} байт")
         
         # Парсим OPDS XML
         root = ET.fromstring(response.content)
@@ -434,7 +482,7 @@ class FlibustaTorClient:
         }
         
         entries = root.findall('.//atom:entry', ns)
-        print(f"📋 Найдено {len(entries)} записей в первоначальном ответе")
+        self.logger.debug(f"📋 Найдено {len(entries)} записей в первоначальном ответе")
         
         # Ищем поисковые ссылки в первоначальном ответе
         search_links = []
@@ -450,17 +498,18 @@ class FlibustaTorClient:
                         link_type = link.get('type')
                         if href and link_type == 'application/atom+xml;profile=opds-catalog':
                             search_links.append((title_text, href))
-                            print(f"🔗 Найдена поисковая ссылка: {title_text} -> {href}")
+                            self.logger.debug(f"🔗 Найдена поисковая ссылка: {title_text} -> {href}")
                             break
         
-        print(f"🔍 Найдено {len(search_links)} поисковых ссылок")
+        self.logger.debug(f"🔍 Найдено {len(search_links)} поисковых ссылок")
         
         # Если найдены поисковые ссылки, переходим по ним
         if search_links:
-            print(f"🚀 Переходим по поисковым ссылкам...")
+            self.logger.debug(f"🚀 Переходим по поисковым ссылкам...")
             for search_type, search_href in search_links:
                 if len(books) >= limit:
-                    print(f"⏹️ Достигнут лимит книг ({limit}), прекращаем поиск")
+                    self.logger.debug(f"⏹️ Достигнут лимит книг ({limit}), прекращаем поиск")
+
                     break
                     
                 try:
@@ -476,33 +525,35 @@ class FlibustaTorClient:
                     elif 'searchTerm=' not in full_url:
                         full_url += f"&searchTerm={query}"
                     
-                    print(f"🔗 Переходим по ссылке '{search_type}': {full_url}")
+                    self.logger.debug(f"🔗 Переходим по ссылке '{search_type}': {full_url}")
                     
                     # Получаем результаты поиска
                     search_response = self.session.get(full_url, timeout=self.timeout)
                     search_response.raise_for_status()
-                    print(f"✅ Получен ответ от поисковой ссылки, размер: {len(search_response.content)} байт")
+                    self.logger.debug(f"✅ Получен ответ от поисковой ссылки, размер: {len(search_response.content)} байт")
                     
                     # Парсим результаты
                     search_root = ET.fromstring(search_response.content)
                     search_entries = search_root.findall('.//atom:entry', ns)
-                    print(f"📚 Найдено {len(search_entries)} книг в результатах поиска")
+                    self.logger.debug(f"📚 Найдено {len(search_entries)} книг в результатах поиска")
                     
                     for i, entry in enumerate(search_entries):
                         if len(books) >= limit:
-                            print(f"⏹️ Достигнут лимит книг ({limit}), прекращаем парсинг")
+                            self.logger.debug(f"⏹️ Достигнут лимит книг ({limit}), прекращаем парсинг")
+
                             break
                             
-                        print(f"📖 Обрабатываем книгу {i+1}/{len(search_entries)}...")
+                        self.logger.debug(f"📖 Обрабатываем книгу {i+1}/{len(search_entries)}...")
                         book_data = self._parse_book_entry(entry, ns)
                         if book_data:
                             books.append(book_data)
-                            print(f"✅ Книга добавлена: {book_data.get('title', 'Без названия')} - {book_data.get('author', 'Неизвестный автор')}")
+                            self.logger.debug(f"✅ Книга добавлена: {book_data.get('title', 'Без названия')} - {book_data.get('author', 'Неизвестный автор')}")
                         else:
-                            print(f"❌ Не удалось обработать книгу {i+1}")
-                            
+                            pass
+
                 except Exception as e:
-                    print(f"❌ Ошибка при переходе по ссылке '{search_type}': {e}")
+                    self.logger.error(f"❌ Ошибка при переходе по ссылке '{search_type}': {e}")
+
                     continue
         else:
             # Если это уже результаты поиска, парсим их напрямую
@@ -511,7 +562,7 @@ class FlibustaTorClient:
                 if book_data:
                     books.append(book_data)
         
-        return []
+        return books
     
     def _parse_book_entry_bs(self, entry) -> Optional[Dict[str, Any]]:
         """Парсинг одной записи книги из OPDS используя BeautifulSoup"""
@@ -520,28 +571,30 @@ class FlibustaTorClient:
             author_elem = entry.find('author')
             summary_elem = entry.find('summary')
             
-            print(f"Парсинг записи:")
-            print(f"  title: {title_elem.get_text().strip() if title_elem else 'НЕТ'}")
-            print(f"  author: {author_elem is not None}")
-            print(f"  summary: {summary_elem is not None}")
+            self.logger.debug(f"Парсинг записи:")
+            self.logger.debug(f"📖 Начало парсинга записи книги")
+            self.logger.debug(f"  📌 Заголовок: {title_elem.get_text().strip() if title_elem else 'НЕТ'}")
+            self.logger.debug(f"  ✍️ Автор: {author_elem is not None}")
+            self.logger.debug(f"  📝 Описание: {summary_elem is not None}")
             
             # Пропускаем служебные записи
             if title_elem:
                 title_text = title_elem.get_text().strip()
-                print(f"  title_text: {title_text}")
+                self.logger.debug(f"  📖 Текст заголовка: {title_text}")
                 if any(skip_word in title_text for skip_word in ['Поиск', 'Search', 'Каталог', 'Catalog']):
-                    print(f"  Пропускаем служебную запись")
+                    self.logger.debug(f"  ⏭️ Пропускаем служебную запись")
+
                     return None
             
             # Проверяем, есть ли ссылки для скачивания (acquisition) - это отличает книги от категорий
             has_download_links = False
             links = entry.find_all('link')
-            print(f"  Найдено ссылок: {len(links)}")
+            self.logger.debug(f"  🔗 Найдено {len(links)} ссылок в записи")
             for link in links:
                 rel = link.get('rel')
                 href = link.get('href')
                 type_attr = link.get('type')
-                print(f"    link: rel=[{repr(rel)}], href={href}, type={type_attr}")
+
                 # Обрабатываем rel - может быть строкой, списком или AttributeValueList
                 if rel:
                     if isinstance(rel, list):
@@ -559,10 +612,11 @@ class FlibustaTorClient:
                     if has_download_links:
                         break
             
-            print(f"  has_download_links: {has_download_links}")
+            self.logger.debug(f"  📥 Ссылки для скачивания: {'есть' if has_download_links else 'нет'}")
             # Если нет ссылок для скачивания, это скорее всего категория, а не книга
             if not has_download_links:
-                print(f"  Нет ссылок для скачивания, пропускаем")
+                self.logger.debug(f"  ⏭️ Нет ссылок для скачивания, пропускаем запись")
+
                 return None
             
             # Извлекаем основную информацию
@@ -624,7 +678,7 @@ class FlibustaTorClient:
             }
             
         except Exception as e:
-            print(f"Ошибка парсинга записи OPDS: {e}")
+            self.logger.error(f"Ошибка парсинга записи OPDS: {e}")
             return None
     
     def _parse_book_entry(self, entry, ns: Dict[str, str]) -> Optional[Dict[str, Any]]:
@@ -638,12 +692,13 @@ class FlibustaTorClient:
             title_text = title.text.strip() if title is not None and title.text else "Без названия"
             author_text = author.text.strip() if author is not None and author.text else "Неизвестный автор"
             
-            print(f"  🔍 Парсим запись: '{title_text}' - {author_text}")
+            self.logger.debug(f"  🔍 Парсим запись: '{title_text}' - {author_text}")
             
             # Пропускаем служебные записи
             if title is not None:
+                self.logger.debug(f"  ⏭️ Пропускаем служебную запись: {title_text}")
                 if any(skip_word in title_text for skip_word in ['Поиск', 'Search', 'Каталог', 'Catalog']):
-                    print(f"  ⏭️ Пропускаем служебную запись: {title_text}")
+
                     return None
             
             # Проверяем, есть ли ссылки для скачивания (acquisition) - это отличает книги от категорий

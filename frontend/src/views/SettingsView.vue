@@ -73,8 +73,105 @@
             <!-- Премиум Tab -->
             <div class="tab-pane fade" id="v-pills-premium" role="tabpanel" aria-labelledby="v-pills-premium-tab">
               <h2>Премиум подписка</h2>
-              <p>Получите доступ к эксклюзивным функциям!</p>
-              <button class="btn btn-warning">Купить Премиум</button>
+              
+              <!-- Статус премиум -->
+              <div v-if="userData?.is_premium" class="premium-status mb-4">
+                <div class="alert alert-success">
+                  <i class="bi bi-star-fill me-2"></i>
+                  <strong>У вас активна премиум-подписка!</strong>
+                  <div v-if="userData?.premium_expiration_date" class="mt-2">
+                    Действует до: {{ formatDate(userData.premium_expiration_date) }}
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Загрузка планов -->
+              <div v-if="loadingPlans" class="text-center">
+                <div class="spinner-border text-warning" role="status">
+                  <span class="visually-hidden">Загрузка...</span>
+                </div>
+                <p class="mt-2">Загружаем тарифные планы...</p>
+              </div>
+              
+              <!-- Список тарифных планов -->
+              <div v-else-if="premiumPlans.length > 0" class="premium-plans">
+                <p class="mb-4">Выберите подходящий тарифный план:</p>
+                
+                <div class="row">
+                  <div v-for="plan in premiumPlans" :key="plan.id" class="col-md-4 mb-4">
+                    <div class="premium-plan-card" :class="{ 'popular': plan.name.includes('3 месяца') }">
+                      <div class="plan-header">
+                        <h3>{{ plan.name }}</h3>
+                        <div class="plan-price">
+                          <span class="price">{{ plan.price }}₽</span>
+                          <span class="period">за {{ plan.duration_days }} дней</span>
+                        </div>
+                      </div>
+                      
+                      <div class="plan-features">
+                        <ul>
+                          <li v-for="feature in plan.features" :key="feature">
+                            <i class="bi bi-check-circle-fill me-2"></i>
+                            {{ feature }}
+                          </li>
+                        </ul>
+                      </div>
+                      
+                      <div class="plan-actions">
+                        <button 
+                          class="btn btn-warning w-100" 
+                          @click="createPaymentHandler(plan.id)"
+                          :disabled="loadingPayment"
+                        >
+                          <span v-if="loadingPayment">
+                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                            Обработка...
+                          </span>
+                          <span v-else>
+                            <i class="bi bi-credit-card me-2"></i>
+                            Купить
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Ошибка загрузки -->
+              <div v-else class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                Не удалось загрузить тарифные планы. Попробуйте обновить страницу.
+              </div>
+              
+              <!-- История платежей -->
+              <div v-if="userPayments.length > 0" class="payment-history mt-5">
+                <h3>История платежей</h3>
+                <div class="table-responsive">
+                  <table class="table table-dark">
+                    <thead>
+                      <tr>
+                        <th>Дата</th>
+                        <th>План</th>
+                        <th>Сумма</th>
+                        <th>Статус</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="payment in userPayments" :key="payment.id">
+                        <td>{{ formatDate(payment.created_at) }}</td>
+                        <td>{{ payment.plan.name }}</td>
+                        <td>{{ payment.amount }}₽</td>
+                        <td>
+                          <span class="badge" :class="getStatusBadgeClass(payment.status)">
+                            {{ getStatusText(payment.status) }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -88,6 +185,7 @@ import { ref, computed, onMounted, watch } from 'vue';
 import { useUserStore } from '@/stores/user';
 import { storeToRefs } from 'pinia';
 import { useRouter } from 'vue-router';
+import { getPremiumPlans, createPayment, getUserPayments, type PremiumPlan, type Payment } from '@/api/payments';
 
 const userStore = useUserStore();
 const { userData, isLoggedIn } = storeToRefs(userStore);
@@ -97,6 +195,12 @@ const selectedFile = ref<File | null>(null);
 const avatarPreview = ref<string | null>(null);
 const loading = ref(false);
 const error = ref<string | null>(null);
+
+// Премиум функциональность
+const premiumPlans = ref<PremiumPlan[]>([]);
+const userPayments = ref<Payment[]>([]);
+const loadingPlans = ref(false);
+const loadingPayment = ref(false);
 
 const router = useRouter();
 const activeTab = ref('account');
@@ -213,11 +317,81 @@ const deleteAccount = async () => {
   }
 };
 
+// Функции для работы с премиум
+const loadPremiumPlans = async () => {
+  loadingPlans.value = true;
+  try {
+    premiumPlans.value = await getPremiumPlans();
+  } catch (error) {
+    console.error('Ошибка загрузки тарифных планов:', error);
+  } finally {
+    loadingPlans.value = false;
+  }
+};
+
+const loadUserPayments = async () => {
+  try {
+    userPayments.value = await getUserPayments();
+  } catch (error) {
+    console.error('Ошибка загрузки истории платежей:', error);
+  }
+};
+
+const createPaymentHandler = async (planId: number) => {
+  loadingPayment.value = true;
+  try {
+    const paymentData = await createPayment(planId);
+    
+    // Открываем страницу оплаты в новом окне
+    if (paymentData.payment_url) {
+      window.open(paymentData.payment_url, '_blank');
+      
+      // Показываем уведомление
+      alert('Страница оплаты открыта в новом окне. После успешной оплаты обновите страницу.');
+    }
+  } catch (error) {
+    console.error('Ошибка создания платежа:', error);
+    alert('Ошибка при создании платежа. Попробуйте еще раз.');
+  } finally {
+    loadingPayment.value = false;
+  }
+};
+
+const formatDate = (dateString: string) => {
+  return new Date(dateString).toLocaleDateString('ru-RU', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
+
+const getStatusText = (status: string) => {
+  const statusMap: { [key: string]: string } = {
+    'pending': 'Ожидает оплаты',
+    'waiting_for_capture': 'Ожидает подтверждения',
+    'succeeded': 'Успешно',
+    'canceled': 'Отменен'
+  };
+  return statusMap[status] || status;
+};
+
+const getStatusBadgeClass = (status: string) => {
+  const classMap: { [key: string]: string } = {
+    'pending': 'bg-warning',
+    'waiting_for_capture': 'bg-info',
+    'succeeded': 'bg-success',
+    'canceled': 'bg-danger'
+  };
+  return classMap[status] || 'bg-secondary';
+};
+
 onMounted(() => {
   console.log('SettingsView: Mounted');
   if (isLoggedIn.value) {
     console.log('SettingsView: User is logged in, fetching data...');
     fetchUserData();
+    loadPremiumPlans();
+    loadUserPayments();
   }
   console.log('SettingsView: Initial userData in store:', userData.value);
 });
@@ -434,5 +608,142 @@ h1 {
 
 .text-danger {
   color: #e57373;
+}
+
+/* Стили для премиум-карточек */
+.premium-plan-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 15px;
+  padding: 1.5rem;
+  height: 100%;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.premium-plan-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+  border-color: rgba(255, 215, 0, 0.4);
+}
+
+.premium-plan-card.popular {
+  border-color: #ffd700;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.premium-plan-card.popular::before {
+  content: 'Популярный';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(45deg, #ffd700, #ffa500);
+  color: #1a1a1a;
+  padding: 0.25rem 1rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.plan-header h3 {
+  color: #ffd700;
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.plan-price {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.plan-price .price {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ffd700;
+  display: block;
+}
+
+.plan-price .period {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+}
+
+.plan-features {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.plan-features ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  flex-grow: 1;
+}
+
+.plan-features li {
+  color: #fff;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.plan-features li i {
+  color: #4caf50;
+  font-size: 1rem;
+}
+
+.plan-actions {
+  margin-top: auto;
+}
+
+.plan-actions .btn {
+  font-weight: bold;
+  padding: 0.75rem 1rem;
+}
+
+/* Стили для истории платежей */
+.payment-history h3 {
+  color: #ffd700;
+  margin-bottom: 1rem;
+}
+
+.table-dark {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table-dark th {
+  background-color: rgba(255, 215, 0, 0.1);
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.2);
+}
+
+.table-dark td {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.badge {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+}
+
+/* Адаптивность для премиум-карточек */
+@media (max-width: 768px) {
+  .premium-plan-card {
+    margin-bottom: 1rem;
+  }
+  
+  .plan-price .price {
+    font-size: 1.5rem;
+  }
 }
 </style>

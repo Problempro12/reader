@@ -7,6 +7,20 @@ import { useUserStore } from '@/stores/user'
 import masterImg from '@/assets/books/мастер-и-маргарита.webp';
 import crimeImg from '@/assets/books/преступление-и-наказание.jpg';
 import warImg from '@/assets/books/война-и-мир-2.jpg';
+
+const floatingBooks = [
+  { src: masterImg, alt: 'Книга', class: 'book-1' },
+  { src: crimeImg, alt: 'Книга', class: 'book-2' },
+  { src: warImg, alt: 'Книга', class: 'book-3' },
+  { src: 'https://cdn.ast.ru/v2/ASE000000000720964/COVER/cover1__w220.jpg', alt: 'Книга', class: 'book-4' },
+  { src: 'https://imo10.labirint.ru/books/1010835/cover.jpg/363-0', alt: 'Книга', class: 'book-5' },
+  { src: 'https://imo10.labirint.ru/books/1008048/cover.jpg/363-0', alt: 'Книга', class: 'book-6' },
+  { src: 'https://cdn.ast.ru/v2/ASE000000000702015/COVER/cover1__w220.jpg', alt: 'Книга', class: 'book-7' },
+  { src: 'https://imo10.labirint.ru/books/1003201/cover.jpg/363-0', alt: 'Книга', class: 'book-8' },
+  { src: 'https://content.img-gorod.ru/pim/products/images/9b/c5/018fa161-0a98-75ce-9798-9ef8cde59bc5.jpg?width=300&height=300', alt: 'Книга', class: 'book-9' },
+  { src: 'https://spbcult.ru/upload/iblock/f3e/287cclmhcmxz249sxui2ocmfpxrxmw7l.jpeg', alt: 'Книга', class: 'book-10' },
+  { src: 'https://s1-listing.ozstatic.by/400400/230/330/101/101330230_0.jpg', alt: 'Книга', class: 'book-11' },
+];
 import TopBooksVoting from '@/components/TopBooksVoting.vue';
 import BookOfWeek from '@/components/BookOfWeek.vue';
 
@@ -171,9 +185,7 @@ const userStore = useUserStore()
           </div>
           <div class="col-lg-5 d-none d-lg-block position-relative">
             <div class="floating-books">
-              <img :src="masterImg" alt="Книга" class="book-1">
-              <img :src="crimeImg" alt="Книга" class="book-2">
-              <img :src="warImg" alt="Книга" class="book-3">
+              <img v-for="(book, index) in floatingBooks" :key="index" :src="book.src" :alt="book.alt" :class="book.class">
             </div>
           </div>
         </div>
@@ -386,8 +398,64 @@ const userStore = useUserStore()
 .book-3 {
   top: 100px;
   left: 200px;
+  transform: rotate(0deg);
+  z-index: 1;
+}
+
+.book-4 {
+  top: 120px;
+  left: 300px;
+  transform: rotate(7deg);
+  z-index: 0;
+}
+
+.book-5 {
+  top:135px;
+  left: 400px;
+  transform: rotate(-6deg);
+  z-index: 3;
+}
+
+.book-6 {
+  top: 135px;
+  left: 500px;
+  transform: rotate(2deg);
+  z-index: 2;
+}
+
+.book-7 {
+  top: 125px;
+  left: 600px;
   transform: rotate(-3deg);
   z-index: 1;
+}
+
+.book-8 {
+  top: 105px;
+  left: 700px;
+  transform: rotate(3deg);
+  z-index: 0
+}
+
+.book-9 {
+  top: 85px;
+  left: 800px;
+  transform: rotate(-2deg);
+  z-index: 3;
+}
+
+.book-10 {
+  top: 55px;
+  left: 900px;
+  transform: rotate(4deg);
+  z-index: 2;
+}
+
+.book-11 {
+  top: 30px;
+  left: 1000px;
+  transform: rotate(7deg);
+  z-index: 0;
 }
 
 .floating-books img:hover {

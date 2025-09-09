@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env файла
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,12 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-vp*)@n2*u#r00mv-7r!e+omts&k=l2w0ox7tpjtq7@5@^*fc*d'
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-vp*)@n2*u#r00mv-7r!e+omts&k=l2w0ox7tpjtq7@5@^*fc*d')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', '80596129502e.ngrok-free.app']
 
 
 # Application definition
@@ -46,6 +51,7 @@ INSTALLED_APPS = [
     'users',
     'books',
     'achievements',
+    'payments',
 ]
 
 MIDDLEWARE = [
@@ -161,11 +167,53 @@ CORS_ALLOW_ALL_ORIGINS = True  # Only for development
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Frontend URL
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
+# ЮKassa settings
+YOOKASSA_SHOP_ID = os.getenv('YOOKASSA_SHOP_ID', 'test_shop_id')
+YOOKASSA_SECRET_KEY = os.getenv('YOOKASSA_SECRET_KEY', 'test_secret_key')
+YOOKASSA_WEBHOOK_URL = os.getenv('YOOKASSA_WEBHOOK_URL', 'https://80596129502e.ngrok-free.app/api/payments/webhook/')
+
 # Автоматический запуск Tor Browser при старте Django
 import subprocess
 import time
 import socket
 import os
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'books.external_sources': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
 
 def check_tor_running():
     """Проверяет, запущен ли Tor на порту 9150"""
